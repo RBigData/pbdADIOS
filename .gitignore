@@ -8,6 +8,5 @@
 *.swp
 *.orig
 
-src/Makeconf
 src/Makevars
-src/utils/a.out
+

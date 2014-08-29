@@ -1685,6 +1685,12 @@ fi
 
 
 
+
+ADIOS_PATH="${adios_include_path}"
+if test ! -f "${ADIOS_PATH}/include/adios.h" ; then
+  as_fn_error $? "Value of --with-adios-home does not contain include/adios.h" "$LINENO" 5
+fi
+
 ADIOS_CPPFLAGS=-I${ADIOS_PATH}/include
 ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -lr`
 

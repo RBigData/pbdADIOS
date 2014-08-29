@@ -3,7 +3,7 @@
 pbdADIOS is a package to connect R with ADIOS parallel middleware 
 for IO. Staging and in situ capability.
 
-pbdADIOS requires
+pbdADIOS requires:
   * R version 3.1.0 or higher with pbdMPI
   * [ADIOS 1.7.0 library](https://www.olcf.ornl.gov/center-projects/adios/)
 

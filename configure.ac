@@ -35,6 +35,12 @@ AC_ARG_WITH([adios-home],
             [adios_include_path=$withval])
 
 
+
+ADIOS_PATH="${adios_include_path}"
+if test ! -f "${ADIOS_PATH}/include/adios.h" ; then
+  AC_MSG_ERROR([Value of --with-adios-home does not contain include/adios.h])
+fi
+
 ADIOS_CPPFLAGS=-I${ADIOS_PATH}/include
 ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -lr`
 

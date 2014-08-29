@@ -9,7 +9,7 @@ dir <- ("/ccs/home/ost/adios/test")
 dyn.load(paste(dir, "src/pbdADIOS_stream.so", sep="/"))
 
 ## Include R interface file for ADIOS
-source(paste(dir, "R1/adios_read_str.r", sep="/"))
+source(paste(dir, "R/adios_read_str.r", sep="/"))
 
 init()
 

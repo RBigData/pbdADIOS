@@ -1,4 +1,3 @@
-
 #ifndef __R_ADIOS__
 #define __R_ADIOS__
 

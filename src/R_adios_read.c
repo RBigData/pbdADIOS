@@ -1,4 +1,4 @@
-// Pragnesh Patel //
+// Wei-Chen Chen and Pragnesh Patel //
 /* ADIOS file functions. */
 
 #include<stdio.h>

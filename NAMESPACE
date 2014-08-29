@@ -1,0 +1,5 @@
+useDynLib(pbdADIOS)
+import(pbdMPI)
+
+exportPattern("^[[:alpha:]]+")
+

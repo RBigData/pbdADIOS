@@ -1,11 +1,13 @@
 // Pragnesh Patel //
 /* ADIOS file functions. */
 
-#include<stdio.h>
-#include<errno.h>
-#include<string.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
 #include "R_adios.h"
 #include "adios_read.h"
+
+#define INT(x) INTEGER(x)[0]
 
 //(For struct _ADIOS_FILE , struct _ADIOS_VARINFO, struct ADIOS_SELECTION)
 
@@ -46,12 +48,10 @@ int lock_mode_hash(const char *search_str){
     }
   }
   return -EINVAL;
-
 } /*End of lock_mode */
 
 
 SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm, SEXP R_params){
-
   //since R has no enum construct. Get String from R and using lookup table send integer value to ADIOS
   //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h)
 
@@ -64,12 +64,10 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm, SEXP R_para
   //adios_read_init_method(read_method_value, &comm, CHARPT(R_params, 0)); Do not need to pass address of "comm" anymore
   adios_read_init_method(read_method_value, comm, CHARPT(R_params, 0));  
   return(R_NilValue);
-
 } /* End of R_adios_read_init_method(). */
 
 
 SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm, SEXP R_adios_lockmode, SEXP R_timeout_sec){
-
   char *filename;
 
   int read_method_value=1111; //init dummy value                           
@@ -121,7 +119,6 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
 }
 
 SEXP R_custom_inq_var_ndim(R_adios_var_info){
-
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -131,11 +128,9 @@ SEXP R_custom_inq_var_ndim(R_adios_var_info){
   UNPROTECT(1);
 
   return(R_custom_inq_var_ndim_val);
-
 }
 
 SEXP R_custom_inq_var_dims(R_adios_var_info){
-
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -151,7 +146,6 @@ SEXP R_custom_inq_var_dims(R_adios_var_info){
           
   UNPROTECT(1);
   return(R_custom_inq_var_dims_val);
-
 }
 
 SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, SEXP R_adios_var_info){
@@ -167,7 +161,6 @@ SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, SEXP R_adios_var_info){
 }
 
 SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start, SEXP R_adios_count){
-
   // Ask norbert for malloc size = ndim is ok or not 
   int *ndim;
   int *start;
@@ -206,13 +199,9 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start, SEXP 
   PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue, R_NilValue));
   UNPROTECT(1);
   return(R_adios_selection);
-
 }
 
-
 SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start, SEXP R_adios_count, SEXP R_adios_file_ptr, SEXP R_adios_selection, SEXP R_adios_varname, SEXP R_adios_from_steps, SEXP R_adios_nsteps){
-
-
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -285,10 +274,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start, SEXP R_adi
   return(R_adios_data);
 }
 
-
-
 SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection, SEXP R_adios_var_info){
-
   void *adios_data;
   adios_data = R_ExternalPtrAddr(R_adios_data);
 
@@ -351,36 +337,33 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection, SEXP R_adio
   return(R_custom_data_access_val); 
 }
 
-
-
 SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, SEXP R_adios_blocking){
-
+  SEXP ret;
+  PROTECT(ret = allocVector(INTSXP, 1));
+  
   ADIOS_FILE *fp;
   fp = R_ExternalPtrAddr(R_adios_file_ptr);
-
-  int *blocking = INTEGER(R_adios_blocking);
-
-  adios_perform_reads(fp, *blocking);
-  return(R_NilValue); // later change return type to INT 
+  
+  INT(ret) = adios_perform_reads(fp, INT(R_adios_blocking));
+  return ret;
 }
 
-
 SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last, SEXP R_adios_timeout_sec){
-
+  SEXP ret;
+  PROTECT(ret = allocVector(INTSXP, 1));
+  
   ADIOS_FILE *fp;
   fp = R_ExternalPtrAddr(R_adios_file_ptr);
-
+  
   int *last;
   last = INTEGER(R_adios_last);
-
+  
   double *timeout_sec;
   timeout_sec = REAL(R_adios_timeout_sec);
   
-  adios_advance_step(fp,*last,*timeout_sec);
-  return(R_NilValue); // later change return type to INT
-
-} 
-
+  INT(ret) = adios_advance_step(fp, INT(R_adios_last), REAL(R_adios_timeout_sec)[0]);
+  return ret;
+}
 
 SEXP R_adios_read_close(SEXP R_adios_file_ptr){
   ADIOS_FILE * fp;
@@ -397,20 +380,13 @@ SEXP R_adios_read_finalize_method(SEXP R_adios_read_method){
   return(R_NilValue);
 }
 
-
-
 SEXP R_adios_errno(){
-
   SEXP R_adios_errno_val = PROTECT(allocVector(INTSXP, 1));
   INTEGER(R_adios_errno_val)[0] = adios_errno;
   //printf("In C ndim=%d \n", adios_errno);
   UNPROTECT(1);
   return(R_adios_errno_val);
-
 }
-
-
-
 
 
 /* SEXP R_adios_read(SEXP R_adios_handle, SEXP R_var_name, SEXP R_var){

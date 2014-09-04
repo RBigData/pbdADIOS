@@ -8,13 +8,6 @@
 #include <Rdefines.h>
 #include <Rinternals.h>
 
-//#include "adios/src/public/adios.h"
-
-//#include "/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1/include/adios.h"
-//#include "/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1/include/adios_error.h"
-//#include "/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1/include/adios_read.h"
-//#include "/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1/include/adios_selection.h"
-//#include "/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1/include/adios_types.h"
 
 /* Obtain character pointers. */
 #define CHARPT(x,i)     ((char*)CHAR(STRING_ELT(x,i)))

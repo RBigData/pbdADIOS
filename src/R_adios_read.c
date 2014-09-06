@@ -15,7 +15,10 @@
 
 //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h) 
 int read_method_hash(const char *search_str){
-  typedef struct read_method_table { const char *method_name; int val; } adios_rmt;
+  typedef struct read_method_table {
+    const char *method_name;
+    int val;
+  } adios_rmt;
   adios_rmt table[] = {
     { "ADIOS_READ_METHOD_BP", 0},
     { "ADIOS_READ_METHOD_BP_AGGREGATE", 1},
@@ -35,7 +38,10 @@ int read_method_hash(const char *search_str){
 
 //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h)                          
 int lock_mode_hash(const char *search_str){
-  typedef struct lock_mode_table { const char *method_name; int val; } adios_lm;
+  typedef struct lock_mode_table {
+    const char *method_name;
+    int val;
+  } adios_lm;
   adios_lm table[] = {
     { "ADIOS_LOCKMODE_NONE", 0},
     { "ADIOS_LOCKMODE_CURRENT", 1},
@@ -51,7 +57,8 @@ int lock_mode_hash(const char *search_str){
 } /*End of lock_mode */
 
 
-SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm, SEXP R_params){
+SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm,
+			      SEXP R_params){
   //since R has no enum construct. Get String from R and using lookup table send integer value to ADIOS
   //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h)
 
@@ -67,7 +74,8 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm, SEXP R_para
 } /* End of R_adios_read_init_method(). */
 
 
-SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm, SEXP R_adios_lockmode, SEXP R_timeout_sec){
+SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
+		       SEXP R_adios_lockmode, SEXP R_timeout_sec){
   char *filename;
 
   int read_method_value=1111; //init dummy value                           
@@ -94,11 +102,11 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm, S
   //adios_file = (ADIOS_FILE *) malloc(sizeof(ADIOS_FILE));
   //R_adios_file  = adios_read_open (filename, read_method_value, &comm, lock_mode_value,timeout_sec);
 
-  adios_file_ptr  = adios_read_open(filename, read_method_value, comm, lock_mode_value,*timeout_sec);
+  adios_file_ptr  = adios_read_open(filename, read_method_value, comm,
+				    lock_mode_value,*timeout_sec);
 
-  PROTECT(R_adios_file_ptr = R_MakeExternalPtr(adios_file_ptr,R_NilValue, R_NilValue));
-
-
+  PROTECT(R_adios_file_ptr = R_MakeExternalPtr(adios_file_ptr, R_NilValue,
+					       R_NilValue));
   UNPROTECT(1);
 
   return(R_adios_file_ptr);
@@ -113,7 +121,8 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
 
   adios_var_info = adios_inq_var(fp,CHARPT(R_adios_varname, 0));
 
-  PROTECT(R_adios_var_info = R_MakeExternalPtr(adios_var_info,R_NilValue, R_NilValue));
+  PROTECT(R_adios_var_info = R_MakeExternalPtr(adios_var_info, R_NilValue,
+					       R_NilValue));
   UNPROTECT(1);
   return(R_adios_var_info);	 
 }
@@ -134,7 +143,8 @@ SEXP R_custom_inq_var_dims(R_adios_var_info){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
-  SEXP R_custom_inq_var_dims_val = PROTECT(allocVector(INTSXP, adios_var_info -> ndim));
+  SEXP R_custom_inq_var_dims_val = PROTECT(allocVector(INTSXP,
+						       adios_var_info -> ndim));
   for(int i=0;i<adios_var_info -> ndim;i++){
 
     INTEGER (R_custom_inq_var_dims_val)[i] = adios_var_info -> dims[i];
@@ -160,7 +170,8 @@ SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, SEXP R_adios_var_info){
   return(R_NilValue);
 }
 
-SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start, SEXP R_adios_count){
+SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
+				    SEXP R_adios_count){
   // Ask norbert for malloc size = ndim is ok or not 
   int *ndim;
   int *start;
@@ -196,12 +207,16 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start, SEXP 
 
 
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
-  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue, R_NilValue));
+  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue,
+						R_NilValue));
   UNPROTECT(1);
   return(R_adios_selection);
 }
 
-SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start, SEXP R_adios_count, SEXP R_adios_file_ptr, SEXP R_adios_selection, SEXP R_adios_varname, SEXP R_adios_from_steps, SEXP R_adios_nsteps){
+SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
+			   SEXP R_adios_count, SEXP R_adios_file_ptr,
+			   SEXP R_adios_selection, SEXP R_adios_varname,
+			   SEXP R_adios_from_steps, SEXP R_adios_nsteps){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -225,8 +240,8 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start, SEXP R_adi
   //uint64_t *count_adios =  malloc( (*ndim) * sizeof(uint64_t));
   //Copy from start to start_adios and count to count_adios              
 
-  uint64_t *start_adios =  malloc( (adios_var_info -> ndim) * sizeof(uint64_t));  
-  uint64_t *count_adios =  malloc( (adios_var_info -> ndim) * sizeof(uint64_t));  
+  uint64_t *start_adios =  malloc( (adios_var_info -> ndim)*sizeof(uint64_t));  
+  uint64_t *count_adios =  malloc( (adios_var_info -> ndim)*sizeof(uint64_t));  
 
   //for (int pos = 0; pos < *ndim; pos++) {
   for (int pos = 0; pos < adios_var_info -> ndim; pos++) {
@@ -266,15 +281,15 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start, SEXP R_adi
   void *adios_data;
   //adios_data = (void *) malloc(sizeof(adios_data));
   adios_data = malloc(count[0] * count[1] * datasize);
-  adios_schedule_read(fp, adios_selection, varname, *from_steps, *nsteps,adios_data); 
-  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data,
-					   R_NilValue, R_NilValue));
-
+  adios_schedule_read(fp, adios_selection, varname, *from_steps,
+		      *nsteps,adios_data); 
+  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data, R_NilValue, R_NilValue));
   UNPROTECT(1);
   return(R_adios_data);
 }
 
-SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection, SEXP R_adios_var_info){
+SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
+			  SEXP R_adios_var_info){
   void *adios_data;
   adios_data = R_ExternalPtrAddr(R_adios_data);
 
@@ -286,7 +301,8 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection, SEXP R_adio
 
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
-  int data_type_size = adios_type_size(adios_var_info -> type, adios_var_info->value);
+  int data_type_size = adios_type_size(adios_var_info -> type,
+				       adios_var_info -> value);
   int num_element = 1;
 
   const char *data_type_string = adios_type_to_string(adios_var_info -> type);
@@ -348,7 +364,8 @@ SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, SEXP R_adios_blocking){
   return ret;
 }
 
-SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last, SEXP R_adios_timeout_sec){
+SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last,
+			  SEXP R_adios_timeout_sec){
   SEXP ret;
   PROTECT(ret = allocVector(INTSXP, 1));
   
@@ -361,7 +378,8 @@ SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last, SEXP R_adios
   double *timeout_sec;
   timeout_sec = REAL(R_adios_timeout_sec);
   
-  INT(ret) = adios_advance_step(fp, INT(R_adios_last), REAL(R_adios_timeout_sec)[0]);
+  INT(ret) = adios_advance_step(fp, INT(R_adios_last),
+				REAL(R_adios_timeout_sec)[0]);
   return ret;
 }
 
@@ -387,7 +405,6 @@ SEXP R_adios_errno(){
   UNPROTECT(1);
   return(R_adios_errno_val);
 }
-
 
 /* SEXP R_adios_read(SEXP R_adios_handle, SEXP R_var_name, SEXP R_var){
 	int64_t *adios_handle;

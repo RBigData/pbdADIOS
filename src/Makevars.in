@@ -5,7 +5,7 @@ PKG_CFLAGS = -w
 PKG_LIBS = @MPI_LDFLAGS@ @ADIOS_LDFLAGS@
 
 
-OBJECTS = finalizers.o R_adios_read.o
+OBJECTS = R_adios_read.o
 
 
 ### Start making here.

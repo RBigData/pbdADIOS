@@ -8,6 +8,21 @@
 #include "adios_read.h"
 
 #define INT(x) INTEGER(x)[0]
+#define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue));R_RegisterCFinalizerEx(Rptr, fin, TRUE)
+
+// With inspiration from Martin Morgan
+static void str_finalize(SEXP ptr)
+{
+  if (NULL == R_ExternalPtrAddr(ptr))
+    return;
+
+  /* Rprintf("str\n");*/
+
+  char *str = (char *) R_ExternalPtrAddr(ptr);
+  free(str);
+  R_ClearExternalPtr(ptr);
+}
+
 
 //(For struct _ADIOS_FILE , struct _ADIOS_VARINFO, struct ADIOS_SELECTION)
 
@@ -105,8 +120,9 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
   adios_file_ptr  = adios_read_open(filename, read_method_value, comm,
 				    lock_mode_value,*timeout_sec);
 
-  PROTECT(R_adios_file_ptr = R_MakeExternalPtr(adios_file_ptr, R_NilValue,
-					       R_NilValue));
+  //  PROTECT(R_adios_file_ptr = R_MakeExternalPtr(adios_file_ptr, R_NilValue,
+  //					       R_NilValue));
+  newRptr(adios_file_ptr, R_adios_file_ptr, str_finalize);
   UNPROTECT(1);
 
   return(R_adios_file_ptr);
@@ -121,8 +137,9 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
 
   adios_var_info = adios_inq_var(fp,CHARPT(R_adios_varname, 0));
 
-  PROTECT(R_adios_var_info = R_MakeExternalPtr(adios_var_info, R_NilValue,
-					       R_NilValue));
+  //  PROTECT(R_adios_var_info = R_MakeExternalPtr(adios_var_info, R_NilValue,
+  //					       R_NilValue));
+  newRptr(adios_var_info, R_adios_var_info, str_finalize);
   UNPROTECT(1);
   return(R_adios_var_info);	 
 }
@@ -207,8 +224,9 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
 
 
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
-  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue,
-						R_NilValue));
+  //  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue,
+  //						R_NilValue));
+  newRptr(adios_selection, R_adios_selection, str_finalize);
   UNPROTECT(1);
   return(R_adios_selection);
 }
@@ -283,7 +301,8 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   adios_data = malloc(count[0] * count[1] * datasize);
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
 		      *nsteps,adios_data); 
-  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data, R_NilValue, R_NilValue));
+  //  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data, R_NilValue, R_NilValue));
+  newRptr(adios_data, R_adios_data, str_finalize);
   UNPROTECT(1);
   return(R_adios_data);
 }
@@ -405,28 +424,4 @@ SEXP R_adios_errno(){
   UNPROTECT(1);
   return(R_adios_errno_val);
 }
-
-/* SEXP R_adios_read(SEXP R_adios_handle, SEXP R_var_name, SEXP R_var){
-	int64_t *adios_handle;
-	char *var_name;
-        int ret;
-	var_name = CHARPT(R_var_name, 0);
-	adios_handle = R_ExternalPtrAddr(R_adios_handle);
-
-	if(IS_INTEGER(R_var)){
-	  int *int_var;
-	  int_var = INTEGER(R_var);
-	  ret = adios_write(adios_handle, var_name, int_var);
-        }else if(IS_NUMERIC(R_var)){
-	  double *double_var;
-          double_var = REAL(R_var);
-          ret = adios_write(adios_handle, var_name, double_var);
-	} 
-	else{
-	  ret = -1; // 
-        }
-	return(AsInt(ret));
-} End of R_adios_write(). */ 
-
-
 

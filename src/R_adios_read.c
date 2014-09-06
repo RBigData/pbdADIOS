@@ -1,6 +1,3 @@
-// Pragnesh Patel //
-/* ADIOS file functions. */
-
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -9,19 +6,6 @@
 
 #define INT(x) INTEGER(x)[0]
 #define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue));R_RegisterCFinalizerEx(Rptr, fin, TRUE)
-
-// With inspiration from Martin Morgan
-static void str_finalize(SEXP ptr)
-{
-  if (NULL == R_ExternalPtrAddr(ptr))
-    return;
-
-  /* Rprintf("str\n");*/
-
-  char *str = (char *) R_ExternalPtrAddr(ptr);
-  free(str);
-  R_ClearExternalPtr(ptr);
-}
 
 
 //(For struct _ADIOS_FILE , struct _ADIOS_VARINFO, struct ADIOS_SELECTION)
@@ -122,7 +106,7 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
 
   //  PROTECT(R_adios_file_ptr = R_MakeExternalPtr(adios_file_ptr, R_NilValue,
   //					       R_NilValue));
-  newRptr(adios_file_ptr, R_adios_file_ptr, str_finalize);
+  newRptr(adios_file_ptr, R_adios_file_ptr, adios_file_finalize);
   UNPROTECT(1);
 
   return(R_adios_file_ptr);
@@ -139,7 +123,7 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
 
   //  PROTECT(R_adios_var_info = R_MakeExternalPtr(adios_var_info, R_NilValue,
   //					       R_NilValue));
-  newRptr(adios_var_info, R_adios_var_info, str_finalize);
+  newRptr(adios_var_info, R_adios_var_info, adios_varinfo_finalize);
   UNPROTECT(1);
   return(R_adios_var_info);	 
 }
@@ -226,7 +210,7 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
   //  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue,
   //						R_NilValue));
-  newRptr(adios_selection, R_adios_selection, str_finalize);
+  newRptr(adios_selection, R_adios_selection, adios_selection_finalize);
   UNPROTECT(1);
   return(R_adios_selection);
 }
@@ -302,7 +286,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
 		      *nsteps,adios_data); 
   //  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data, R_NilValue, R_NilValue));
-  newRptr(adios_data, R_adios_data, str_finalize);
+  newRptr(adios_data, R_adios_data, adios_data_finalize);
   UNPROTECT(1);
   return(R_adios_data);
 }

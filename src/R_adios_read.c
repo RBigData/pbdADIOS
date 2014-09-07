@@ -155,9 +155,15 @@ SEXP R_custom_inq_var_dims(R_adios_var_info){
 
   SEXP R_custom_inq_var_dims_val = PROTECT(allocVector(INTSXP,
 						       adios_var_info -> ndim));
-  for(int i = 0; i < adios_var_info -> ndim; i++){
+  for(int i=0;i<adios_var_info -> ndim;i++){
+
     INTEGER (R_custom_inq_var_dims_val)[i] = adios_var_info -> dims[i];
+    //INTEGER (R_custom_inq_var_dims_val)[0] = adios_var_info -> dims[0];
+    //INTEGER (R_custom_inq_var_dims_val)[1] = adios_var_info -> dims[1];
   }
+
+  //printf("In C ndim=%d \n", ndim_val);                          
+          
   UNPROTECT(1);
   return(R_custom_inq_var_dims_val);
 }
@@ -209,6 +215,7 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   //printf("Value of Count 0 => %d\n", count_adios[0]);
   //printf("Value of Count 1 => %d\n", count_adios[1]);
 
+
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
   //  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue,
   //						R_NilValue));
@@ -225,7 +232,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
   // Ask norbert for malloc size = ndim is ok or not                      
-  int *ndim = adios_var_info -> ndim;
+  uint64_t ndim = adios_var_info -> ndim;
   int *start;
   int *count;
 
@@ -244,8 +251,8 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   //uint64_t *count_adios =  malloc( (*ndim) * sizeof(uint64_t));
   //Copy from start to start_adios and count to count_adios              
 
-  uint64_t *start_adios =  malloc( (ndim)*sizeof(uint64_t));  
-  uint64_t *count_adios =  malloc( (ndim)*sizeof(uint64_t));  
+  uint64_t *start_adios =  malloc( (adios_var_info -> ndim)*sizeof(uint64_t));  
+  uint64_t *count_adios =  malloc( (adios_var_info -> ndim)*sizeof(uint64_t));  
 
   //for (int pos = 0; pos < *ndim; pos++) {
   for (int pos = 0; pos < adios_var_info -> ndim; pos++) {
@@ -267,8 +274,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   //}
   // add more datatypes here such as float, long int etc..
 
-  int datasize = adios_type_size(adios_var_info -> type,
-				 adios_var_info -> value);
+  int datasize = adios_type_size(adios_var_info -> type, adios_var_info->value);
 
   SEXP R_adios_data;
   ADIOS_FILE * fp;
@@ -283,12 +289,13 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   int *nsteps = INTEGER(R_adios_nsteps);
 
   void *adios_data;
-  int ndata = 1;     /* this all needs converting to long long for big data */
+  uint64_t ndata = 1;
   for (int dim = 0; dim < ndim; dim++)
     ndata *= count[dim];
+  //adios_data = (void *) malloc(sizeof(adios_data));
   adios_data = malloc(ndata * datasize);
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
-		      *nsteps, adios_data); 
+		      *nsteps,adios_data); 
   //  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data, R_NilValue, R_NilValue));
   newRptr(adios_data, R_adios_data, finalizer);
   UNPROTECT(1);

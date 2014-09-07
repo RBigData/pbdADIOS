@@ -374,7 +374,6 @@ SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, SEXP R_adios_blocking){
   ADIOS_FILE *fp;
   fp = R_ExternalPtrAddr(R_adios_file_ptr);
   
-  printf("Just before adios_perform_reads\n");
   INT(ret) = adios_perform_reads(fp, INT(R_adios_blocking));
   return ret;
 }

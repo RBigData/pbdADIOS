@@ -112,9 +112,6 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
 
   adios_file_ptr  = adios_read_open(filename, read_method_value, comm,
 				    lock_mode_value,*timeout_sec);
-
-  //  PROTECT(R_adios_file_ptr = R_MakeExternalPtr(adios_file_ptr, R_NilValue,
-  //					       R_NilValue));
   newRptr(adios_file_ptr, R_adios_file_ptr, finalizer);
   UNPROTECT(1);
 
@@ -129,9 +126,6 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
   SEXP R_adios_var_info;
 
   adios_var_info = adios_inq_var(fp,CHARPT(R_adios_varname, 0));
-
-  //  PROTECT(R_adios_var_info = R_MakeExternalPtr(adios_var_info, R_NilValue,
-  //					       R_NilValue));
   newRptr(adios_var_info, R_adios_var_info, finalizer);
   UNPROTECT(1);
   return(R_adios_var_info);	 
@@ -145,7 +139,6 @@ SEXP R_custom_inq_var_ndim(R_adios_var_info){
   INTEGER (R_custom_inq_var_ndim_val)[0] = adios_var_info -> ndim; 
   //printf("In C ndim=%d \n", ndim_val);
   UNPROTECT(1);
-
   return(R_custom_inq_var_ndim_val);
 }
 
@@ -194,6 +187,7 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   //start = (uint64_t *) INTEGER(R_adios_start);
   //count = (uint64_t *) INTEGER(R_adios_count);
 
+  /* G: are we losing 64 bit capability here? */
   start = INTEGER(R_adios_start);
   count = INTEGER(R_adios_count);
 
@@ -217,8 +211,6 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
 
 
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
-  //  PROTECT(R_adios_selection = R_MakeExternalPtr(adios_selection, R_NilValue,
-  //						R_NilValue));
   newRptr(adios_selection, R_adios_selection, finalizer);
   UNPROTECT(1);
   return(R_adios_selection);
@@ -296,7 +288,6 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   adios_data = malloc(ndata * datasize);
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
 		      *nsteps,adios_data); 
-  //  PROTECT(R_adios_data = R_MakeExternalPtr(adios_data, R_NilValue, R_NilValue));
   newRptr(adios_data, R_adios_data, finalizer);
   UNPROTECT(1);
   return(R_adios_data);
@@ -375,6 +366,7 @@ SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, SEXP R_adios_blocking){
   fp = R_ExternalPtrAddr(R_adios_file_ptr);
   
   INT(ret) = adios_perform_reads(fp, INT(R_adios_blocking));
+  UNPROTECT(1);
   return ret;
 }
 
@@ -386,14 +378,14 @@ SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last,
   ADIOS_FILE *fp;
   fp = R_ExternalPtrAddr(R_adios_file_ptr);
   
-  int *last;
-  last = INTEGER(R_adios_last);
+  int last;
+  last = *INTEGER(R_adios_last);
   
-  double *timeout_sec;
-  timeout_sec = REAL(R_adios_timeout_sec);
+  float timeout_sec;
+  timeout_sec = (float) *REAL(R_adios_timeout_sec);
   
-  INT(ret) = adios_advance_step(fp, INT(R_adios_last),
-				REAL(R_adios_timeout_sec)[0]);
+  INT(ret) = adios_advance_step(fp, last, timeout_sec);
+  UNPROTECT(1);
   return ret;
 }
 
@@ -405,9 +397,9 @@ SEXP R_adios_read_close(SEXP R_adios_file_ptr){
 }
 
 SEXP R_adios_read_finalize_method(SEXP R_adios_read_method){
-  int read_method_value=1111; //init dummy value                          
+  enum ADIOS_READ_METHOD read_method_value=1111; //init dummy value                          
   const char *method_name = CHARPT(R_adios_read_method, 0); //Passing Char pointer to "read_method_hash" function.                                    
-  read_method_value = read_method_hash(method_name); //Calling read_method\ hash function  
+  read_method_value = (enum ADIOS_READ_METHOD) read_method_hash(method_name); //Calling read_method\ hash function  
   adios_read_finalize_method(read_method_value);
   return(R_NilValue);
 }

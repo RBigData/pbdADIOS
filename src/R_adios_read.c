@@ -5,17 +5,40 @@
 #include "adios_read.h"
 
 #define INT(x) INTEGER(x)[0]
-#define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue));R_RegisterCFinalizerEx(Rptr, fin, TRUE)
-
+#define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue)); R_RegisterCFinalizerEx(Rptr, fin, TRUE)
+ /* newRptr(already_allocated_C_pointer, R_pointer_to_be_made_for_it, finalizer) */
 
 static void finalizer(SEXP Rptr)
 {
   void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-  if (NULL == ptr) return;
-  
-  free(ptr);
-  R_ClearExternalPtr(Rptr);
+  if (NULL == ptr) {
+    //    Rprintf("finalizer: Nothing to finalize\n");
+    return;
+  } else {
+    //    Rprintf("finalizer: About to free: %p ...\n", ptr);
+    Free(ptr);
+    //    Rprintf("finalizer: Freed %p.\n", ptr);
+    R_ClearExternalPtr(Rptr);
+    //    Rprintf("finalizer: %p Cleared Rptr.\n", ptr);
+  }
 }
+
+static void finalizer0(SEXP Rptr)
+{
+  /* This finalizer only clears the R pointer assuming that
+     something else cleared the memory pointed to. */
+  void *ptr = (void *) R_ExternalPtrAddr(Rptr);
+  if (NULL == ptr) {
+    //    Rprintf("finalizer0: Nothing to finalize\n");
+    return;
+  } else {
+    //    Rprintf("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
+    R_ClearExternalPtr(Rptr);
+    //    Rprintf("finalizer0: %p Cleared Rptr.\n", ptr);
+  }
+}
+
+/* The fail happens inside the Free(ptr) above. It only happens for R_adios_read_open allocations. */
 
 //(For struct _ADIOS_FILE , struct _ADIOS_VARINFO, struct ADIOS_SELECTION)
 
@@ -82,6 +105,10 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm,
 } /* End of R_adios_read_init_method(). */
 
 
+
+
+
+
 SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
 		       SEXP R_adios_lockmode, SEXP R_timeout_sec){
   char *filename;
@@ -110,13 +137,20 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
   //adios_file = (ADIOS_FILE *) malloc(sizeof(ADIOS_FILE));
   //R_adios_file  = adios_read_open (filename, read_method_value, &comm, lock_mode_value,timeout_sec);
 
+  /* Note this is the reference that gets double-freed. Don't see how it
+     is different from others. Is there some other corruption? */
   adios_file_ptr  = adios_read_open(filename, read_method_value, comm,
-				    lock_mode_value,*timeout_sec);
-  newRptr(adios_file_ptr, R_adios_file_ptr, finalizer);
+				    lock_mode_value, *timeout_sec);
+  newRptr(adios_file_ptr, R_adios_file_ptr, finalizer0);
+  //  Rprintf("R_adios_read_open address: %p\n",
+  //     (void *)R_ExternalPtrAddr(R_adios_file_ptr));
   UNPROTECT(1);
-
   return(R_adios_file_ptr);
 }
+
+
+
+
 
 SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
   ADIOS_FILE * fp;
@@ -127,6 +161,8 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
 
   adios_var_info = adios_inq_var(fp,CHARPT(R_adios_varname, 0));
   newRptr(adios_var_info, R_adios_var_info, finalizer);
+  //  Rprintf("R_adios_inq_var address: %p\n",
+  //     (void *)R_ExternalPtrAddr(R_adios_var_info));
   UNPROTECT(1);
   return(R_adios_var_info);	 
 }
@@ -212,6 +248,8 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
 
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
   newRptr(adios_selection, R_adios_selection, finalizer);
+  //  Rprintf("R_adios_selection_bounding_box address: %p\n",
+  //  	  (void *)R_ExternalPtrAddr(R_adios_selection));
   UNPROTECT(1);
   return(R_adios_selection);
 }
@@ -289,6 +327,8 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
 		      *nsteps,adios_data); 
   newRptr(adios_data, R_adios_data, finalizer);
+  //  Rprintf("R_adios_schedule_read address: %p\n",
+  //  	  (void *)R_ExternalPtrAddr(R_adios_data));
   UNPROTECT(1);
   return(R_adios_data);
 }

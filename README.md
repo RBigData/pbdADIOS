@@ -12,17 +12,23 @@ More information about pbdADIOS can be found in the
 
 To build on sith and rhea:
 
-  module swap PE-pgi PE-gnu
-  module load adios/1.7.0
-  module load r
-  export ADIOS_DIR=/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1_wrappers
-  R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=$ADIOS_DIR"
+```
+module swap PE-pgi PE-gnu
+module load adios/1.7.0
+module load r
+export ADIOS_DIR=/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1_wrappers
+R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=$ADIOS_DIR"
+```
 
 To run on sith:
-  qsub run_sith.sh
 
-run_sith.sh contains:
+```
+qsub run_sith.sh
+```
 
+`run_sith.sh` contains:
+
+```
 #!/bin/sh
 #PBS -N adiosis
 #PBS -l nodes=1:ppn=32
@@ -39,4 +45,4 @@ cd $MEMBERWORK/stf006/heat
 
 time mpirun -np 4 --mca mpi_warn_on_fork 0 \
     Rscript /ccs/home/ost/adios/test_heat.r
-
+```

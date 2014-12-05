@@ -20,7 +20,7 @@ export ADIOS_DIR=/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1_wrappers
 R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=$ADIOS_DIR"
 ```
 
-To run on sith:
+To run on sith (note: change some hard coded paths to your locations!):
 
 ```
 qsub run_sith.sh
@@ -44,5 +44,5 @@ module load adios/1.7.0
 cd $MEMBERWORK/stf006/heat
 
 time mpirun -np 4 --mca mpi_warn_on_fork 0 \
-    Rscript /ccs/home/ost/adios/test_heat.r
+    Rscript /ccs/home/ost/adios/pbdADIOS/tests/test_heat.r
 ```

@@ -1,14 +1,14 @@
-adios.read.init.method <-function(adios.read.method, comm = .SPMD.CT$comm,
+adios.read.init.method <- function(adios.read.method, comm = pbdMPI::.SPMD.CT$comm,
                                   params){
     .Call(R_adios_read_init_method, as.character(adios.read.method),
           comm.c2f(comm), as.character(params))
 }
 
 adios.read.open <- function(adios.filename, adios.read.method,
-                            comm= .SPMD.CT$comm, adios.lockmode,
+                            comm = pbdMPI::.SPMD.CT$comm, adios.lockmode,
                             adios.timeout.sec){  
     .Call(R_adios_read_open, as.character(adios.filename),
-          as.character(adios.read.method),comm.c2f(comm),
+          as.character(adios.read.method), comm.c2f(comm),
           as.character(adios.lockmode),as.numeric(adios.timeout.sec))
 }
 

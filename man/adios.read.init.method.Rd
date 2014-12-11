@@ -3,7 +3,8 @@
 \alias{adios.read.init.method}
 \title{Read Initialization}
 \usage{
-adios.read.init.method(adios.read.method, comm = .SPMD.CT$comm, params)
+adios.read.init.method(adios.read.method, comm = pbdMPI::.SPMD.CT$comm,
+  params)
 }
 \arguments{
 \item{adios.read.method}{Description of the variable.}

@@ -1,3 +1,28 @@
+#' @title Read Initialization
+#' 
+#' @description 
+#' A description of what the function does.
+#' 
+#' @param adios.read.method 
+#' Description of the variable.
+#' @param comm
+#' A communicator number.
+#' @param params
+#' Description of the variable.
+#' 
+#' @details
+#' A more detailed description, if you like.
+#' 
+#' @return Description of the return.
+#' 
+#' @seealso \code{\link{adios.read.open}}
+#' 
+#' @examples \dontrun{
+#' library(pbdADIOS)
+#' whatever <- adios.read.init.method(stuff)
+#' }
+#' 
+#' @export
 adios.read.init.method <- function(adios.read.method, comm = pbdMPI::.SPMD.CT$comm,
                                   params){
     .Call(R_adios_read_init_method, as.character(adios.read.method),

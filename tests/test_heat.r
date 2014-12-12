@@ -61,7 +61,7 @@ ndim <- custom.inq.var.ndim(varinfo)
 dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
-source("/ccs/home/ost/adios/partition.r")
+source("pbdADIOS/tests/partition.r")
 g.dim <- dims
 split <- c(TRUE, FALSE)
 my.data.partition <- data.partition(seq(0, 0, along.with=g.dim), g.dim, split)

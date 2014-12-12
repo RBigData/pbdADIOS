@@ -1,14 +1,39 @@
-adios.read.init.method <-function(adios.read.method, comm = .SPMD.CT$comm,
+#' @title Read Initialization
+#' 
+#' @description 
+#' A description of what the function does.
+#' 
+#' @param adios.read.method 
+#' Description of the variable.
+#' @param comm
+#' A communicator number.
+#' @param params
+#' Description of the variable.
+#' 
+#' @details
+#' A more detailed description, if you like.
+#' 
+#' @return Description of the return.
+#' 
+#' @seealso \code{\link{adios.read.open}}
+#' 
+#' @examples \dontrun{
+#' library(pbdADIOS)
+#' whatever <- adios.read.init.method(stuff)
+#' }
+#' 
+#' @export
+adios.read.init.method <- function(adios.read.method, comm = pbdMPI::.SPMD.CT$comm,
                                   params){
     .Call(R_adios_read_init_method, as.character(adios.read.method),
           comm.c2f(comm), as.character(params))
 }
 
 adios.read.open <- function(adios.filename, adios.read.method,
-                            comm= .SPMD.CT$comm, adios.lockmode,
+                            comm = pbdMPI::.SPMD.CT$comm, adios.lockmode,
                             adios.timeout.sec){  
     .Call(R_adios_read_open, as.character(adios.filename),
-          as.character(adios.read.method),comm.c2f(comm),
+          as.character(adios.read.method), comm.c2f(comm),
           as.character(adios.lockmode),as.numeric(adios.timeout.sec))
 }
 

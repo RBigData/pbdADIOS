@@ -2,19 +2,21 @@ Package: pbdADIOS
 Version: 0.1-0
 Title: Programming with Big Data -- Interface to ADIOS
 Authors@R: c(person("Pragneshkumar", "Patel", role = c("aut", "cre"), email =
-        "pragnesh@utk.edu"),
-        person("George", "Ostrouchov", role = "aut"),
-        person("Wei-Chen", "Chen", role = "aut"),
-        person("Drew", "Schmidt", role = "aut"))
-Depends: R (>= 3.0.0), pbdMPI
+    "pragnesh@utk.edu"),
+    person("George", "Ostrouchov", role = "aut"),
+    person("Wei-Chen", "Chen", role = "aut"),
+    person("Drew", "Schmidt", role = "aut"))
+Depends:
+    R (>= 3.0.0),
+    pbdMPI
 LazyLoad: yes
 LazyData: yes
 Description: Package to read from ADIOS, including staging.
 SystemRequirements: OpenMPI (>= 1.5.4) on Solaris, Linux and Mac.
-        ADIOS.
+    ADIOS.
 License: Mozilla Public License 2.0
 URL: http://r-pbd.org/
 BugReports: http://group.r-pbd.org/
 MailingList: Please send questions and comments regarding pbdR to
-        RBigData@gmail.com
+    RBigData@gmail.com
 Maintainer: Pragneshkumar Patel <pragnesh@utk.edu>

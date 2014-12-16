@@ -27,7 +27,7 @@ typedef struct {
   int64_t       m_adios_file;
 } R_adios_file_group;
 
-R_adios_file_group * Radios_open(MPI_Comm, char *,char *,char *,char *); 
+R_adios_file_group * Radios_write_open(MPI_Comm, char *,char *,char *,char *); 
             //comm, groupname, transportmethod, filename, mode  : Return "R_adios_file_group" struct
 
 int Radios_write_close(MPI_Comm, int, char **, int *, char **, char **, char **, R_adios_file_group *, void **);
@@ -76,7 +76,7 @@ int main (int argc, char ** argv)
      // 5 iter
      for (int j =0; j < 5; j++){
        
-       R_adios_file_group *R_adios_info = Radios_open(comm,"restart","MPI","adios_globaltime_test.bp","a");
+       R_adios_file_group *R_adios_info = Radios_write_open(comm,"restart","MPI","adios_globaltime_test.bp","a");
 
        O = rank * 2 * NX + NX; //depends on rank 
        void *data[] =  {&NX, &G, &O, t};
@@ -95,7 +95,7 @@ int main (int argc, char ** argv)
      return 0;
 }
 
-R_adios_file_group * Radios_open(MPI_Comm comm,char *group_name,char *transport_method,char *filename,char *mode)
+R_adios_file_group * Radios_write_open(MPI_Comm comm,char *group_name,char *transport_method,char *filename,char *mode)
 {
     adios_init_noxml (comm); 
     adios_allocate_buffer (ADIOS_BUFFER_ALLOC_NOW, 10); 

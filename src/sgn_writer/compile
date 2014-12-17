@@ -17,8 +17,7 @@ clang -L/usr/local/lib/openmpi -lmpi -lutil -lpthread /Users/pragnesh/5.1.1/SGN_
 chmod 755 SGN_R_adios_write_demo 
 
 
-
-#clang -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/usr/local/lib -o pbdADIOS.so R_adios_read.o -L/usr/local/lib/openmpi -lmpi -lutil -lpthread -L/Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib -ladiosread -lm -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
+clang -dynamiclib -Wl,-headerpad_max_install_names -undefined dynamic_lookup -single_module -multiply_defined suppress -L/usr/local/lib -o pbdADIOS_write.so SGN_R_adios_write_wrapper.o SGN_R_adios_write.o -L/usr/local/lib/openmpi -lmpi -lutil -lpthread /Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadios.a -lm -lmxml -F/Library/Frameworks/R.framework/.. -framework R -Wl,-framework -Wl,CoreFoundation
 
 
 #mpicc -DHAVE_CONFIG_H -I. -I../../..   -I../../../src -I../../../src/public   -w -fpic -c adios_globaltime_no_xml.c

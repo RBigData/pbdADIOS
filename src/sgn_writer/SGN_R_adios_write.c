@@ -3,11 +3,7 @@
  * Output: adios_global_test.bp
  *
 */
-//#include <stdio.h>
-//#include <string.h>
-//#include "mpi.h"
 #include "../R_adios.h"
-//#include "adios.h"
 
 int main (int argc, char ** argv) 
 {
@@ -21,9 +17,9 @@ int main (int argc, char ** argv)
     varnames[1] = "G";
     varnames[2] = "O";
     varnames[3] = "temperature";
-    //varnames = malloc(sizeof(char *) *numvars );                                        
+    //varnames = malloc(sizeof(char *) *numvars );                                  
   
-    int type[4] = {2,2,2,6}; //Ask Norbert. ADIOS_DATATYPES is in manual                 
+    int type[4] = {2,2,2,6}; //Ask Norbert. ADIOS_DATATYPES is in manual             
                                
     char *local_dim[]={{0},{0},{0},{"NX"}};
     char *global_dim[]={{0},{0},{0},{"G"}};
@@ -32,7 +28,6 @@ int main (int argc, char ** argv)
     int NX = 20;
     double  t[NX];
     int O;
-  
 
     int rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
@@ -40,11 +35,10 @@ int main (int argc, char ** argv)
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &size);
     
-    //Do we want to write "O" and "temperature" within one step (twice)                   
+    //Do we want to write "O" and "temperature" within one step (twice)              
     for (int i = 0; i < NX; i++) {
       t[i] = rank + i*0.1 + 0.01;
     }
-
     int G =  NX * size;
 
     //###############     

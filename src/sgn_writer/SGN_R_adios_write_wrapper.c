@@ -4,7 +4,6 @@
  *
 */
 
-//#include "mpi.h"
 #include "../R_adios.h"
 
 R_adios_file_group * Radios_write_open(MPI_Comm comm,char *group_name,char *transport_method,char *filename,char *mode)
@@ -32,17 +31,20 @@ int Radios_write_close(MPI_Comm comm, int numvars, char **varnames, int  *type, 
 
   uint64_t adios_groupsize, adios_totalsize;
 
-  //adios_groupsize = 4 + 4 + 4 + 20 * 8 ; //Hard coded for now
+          //adios_groupsize = 4 + 4 + 4 + 20 * 8 ; //Hard coded for now
 
-  //Calculating Group Size
+  //Calculate Group Size
   adios_groupsize = 0;
   for(int i=0;i<numvars;i++){
     int size=0;
 
-    //Add extra types based on ADIOS_DATATYPES TODO
+    //TODO : Add extra types based on ADIOS_DATATYPES
 
-    if(type[i]==2) {size=4;}
-    else if(type[i]==6) {size=8;}
+    if(type[i]==2) {size=4;} // INTEGER
+    else if(type[i]==6) {size=8;} // DOUBLE
+    else if(type[i]==5) {size=4;} // REAL
+    else if(type[i]==10) {size=8;} // COMPLEX
+    else if(type[i]==4) {size=8;} // LONG
     else{} //look for manual
 
     if(local_dim[i]==0){adios_groupsize += size;}
@@ -73,5 +75,12 @@ int Radios_write_close(MPI_Comm comm, int numvars, char **varnames, int  *type, 
 
   return 0;
 }
+
+
+SEXP R_adios_finalize(SEXP R_comm_rank){
+  adios_finalize(INTEGER(R_comm_rank)[0]);
+  return(R_NilValue);
+} /* End of R_adios_finalize(). */
+
 
 

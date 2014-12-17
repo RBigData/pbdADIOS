@@ -2,11 +2,29 @@
 #define __R_ADIOS__
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
+#include <errno.h>
+
 #include <mpi.h>
+
 #include <R.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
+
+#include "adios.h"
+#include "adios_read.h"
+
+#ifdef DMALLOC
+#include "dmalloc.h"
+#endif
+
+// for Writer
+typedef struct {
+  int64_t       m_adios_group;
+  int64_t       m_adios_file;
+} R_adios_file_group;
+
 
 
 /* Obtain character pointers. */
@@ -54,6 +72,14 @@ SEXP R_adios_schedule_read(SEXP R_adios_varinfo, SEXP R_adios_start, SEXP R_adio
 SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, SEXP R_adios_blocking);
 
 SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last, SEXP R_adios_timeout_sec);
+
+/* ADIOS writer methods */
+R_adios_file_group * Radios_write_open(MPI_Comm, char *,char *,char *,char *);
+//comm, groupname, transportmethod, filename, mode  : Return "R_adios_file_group" struct  
+
+int Radios_write_close(MPI_Comm, int, char **, int *, char **, char **, char **, R_adios_file_group *, void **);
+
+SEXP R_adios_finalize(SEXP R_comm_rank);
 
 
 #endif

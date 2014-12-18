@@ -6,7 +6,7 @@ SEXP R_adios_init(SEXP R_filename, SEXP R_comm){
         MPI_Comm comm;
         comm = MPI_Comm_f2c(INTEGER(R_comm)[0]); 
  
-        adios_init(CHARPT(R_filename, 0), &comm);
+        adios_init(CHARPT(R_filename, 0), comm);
 
 	return(R_NilValue);
 

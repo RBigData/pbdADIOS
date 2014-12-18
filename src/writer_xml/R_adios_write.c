@@ -12,11 +12,11 @@ SEXP R_adios_write(SEXP R_adios_handle, SEXP R_var_name, SEXP R_var){
     if(IS_INTEGER(R_var)){
       int *int_var;
       int_var = INTEGER(R_var);
-      ret = adios_write(adios_handle, var_name, int_var);
+      ret = adios_write(*adios_handle, var_name, int_var);
     } else if(IS_NUMERIC(R_var)){
       double *double_var;
           double_var = REAL(R_var);
-          ret = adios_write(adios_handle, var_name, double_var);
+          ret = adios_write(*adios_handle, var_name, double_var);
     } else {
       ret = -1; // 
     }

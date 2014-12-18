@@ -3,7 +3,6 @@
 #include <string.h>
 #include "R_adios.h"
 
-// GO: this file needs to be SEXP'd. Use R_adios_read_open as example.
 
 SEXP R_adios_write_open(SEXP R_comm, SEXP R_group_name, SEXP R_transport_method,
 		       SEXP R_filename, SEXP R_mode)
@@ -12,17 +11,22 @@ SEXP R_adios_write_open(SEXP R_comm, SEXP R_group_name, SEXP R_transport_method,
   adios_init_noxml (MPI_Comm_f2c(INTEGER(R_comm)));
   adios_allocate_buffer (ADIOS_BUFFER_ALLOC_NOW, 10); 
   
-  R_adios_file_group  *R_adios_info;
-  R_adios_info = (R_adios_file_group*) malloc(sizeof(R_adios_file_group));
+  m_adios_file_group  *m_adios_info;
+  m_adios_info = (m_adios_file_group*) malloc(sizeof(m_adios_file_group));
   
-  adios_declare_group (&(R_adios_info->m_adios_group), group_name, "",
-		       adios_flag_yes);
-  adios_select_method (R_adios_info->m_adios_group, transport_method, "", ""); 
-  
-  adios_open(&(R_adios_info -> m_adios_file), group_name, filename, mode, comm); 
-  
+  adios_declare_group (&(m_adios_info->m_adios_group), CHARPT(group_name, 0),
+		       "", adios_flag_yes);
+  adios_select_method (m_adios_info->m_adios_group, CHARPT(transport_method, 0),
+		       "", ""); 
+  adios_open(&(m_adios_info->m_adios_file), CHARPT(group_name, 0),
+	     CHARPT(filename, 0), CHARPT(mode, 0), MPI_Comm_f2c(INTEGER(comm))); 
+  newRptr(m_adios_info, R_adios_info, finalizer);
+  UNPROTECT(1);
   return R_adios_info;
 }
+
+// GO: The above is done
+// GO: next function needs to be SEXP'd. Use R_adios_read_open as example.
 
 SEXP R_adios_write_close(SEXP comm, SEXP numvars, SEXP varnames, SEXP type,
 			SEXP local_dim, SEXP global_dim, SEXP local_offset,

@@ -23,7 +23,7 @@
 typedef struct {
   int64_t       m_adios_group;
   int64_t       m_adios_file;
-} R_adios_file_group;
+} m_adios_file_group;
 
 
 

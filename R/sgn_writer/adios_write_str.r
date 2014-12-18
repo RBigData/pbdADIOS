@@ -2,11 +2,14 @@
 # Pragnesh Patel
 # ADIOS streaming write function.
 
-## GO: this file needs parameters to match SGN_R_adios_write_wrapper.c
+## GO: this file needs parameters to match R_adios_write.c
 
-adios.write.open <-function(){
-  .Call("R_adios_write_open", )
-   invisible()
+adios.write.open <-function(comm = pbdMPI::.SPMD.CT$comm, group_name,
+                            transport_method, filename, mode){
+    adios.info <- .Call("R_adios_write_open", comm.c2f(comm),
+                        as.character(group_name), as.character(transport_method),
+                        as.character(filename), as,character(mode))
+   invisible(adios.info)
 }
 
 adios.write.close <- function(..., comm = pbdMPI::.SPMD.CT$comm, ){

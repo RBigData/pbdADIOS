@@ -15,7 +15,14 @@
 #'   R_custom_data_access,
 #'   R_adios_perform_reads,
 #'   R_adios_advance_step,
-#'   R_adios_errno
+#'   R_adios_errno,
+#'   R_adios_open,
+#'   R_adios_close,
+#'   R_adios_group_size,
+#'   R_adios_init,
+#'   R_adios_finalize,
+#'   R_adios_write
+#'   
 #' @import pbdMPI
 #' @docType package
 #' @title logisticPCA-package

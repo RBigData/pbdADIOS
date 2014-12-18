@@ -10,6 +10,7 @@ rm -rf ./src/Makeconf
 rm -rf ./src/*.dylib
 rm -rf ./src/*.so*
 rm -rf ./src/*.o
+rm -rf ./src/writer_xml/*.o
 rm -rf ./src/*.d
 rm -rf ./src/*.dll
 rm -rf ./src/*.a

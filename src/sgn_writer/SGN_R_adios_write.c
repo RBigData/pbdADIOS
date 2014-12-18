@@ -47,7 +47,7 @@ int main (int argc, char ** argv)
      // 5 iter
      for (int j =0; j < 5; j++){
        
-       R_adios_file_group *R_adios_info = Radios_write_open(comm,"restart","MPI","adios_globaltime_test.bp","a");
+       R_adios_file_group *R_adios_info = R_adios_write_open(comm,"restart","MPI","adios_globaltime_test.bp","a");
 
        O = rank * 2 * NX + NX; //depends on rank 
        void *data[] =  {&NX, &G, &O, t};
@@ -55,7 +55,7 @@ int main (int argc, char ** argv)
        //hack figuring out type
        //varname, type, 
 
-       Radios_write_close(comm, numvars, varnames, type, local_dim, global_dim, local_offset, R_adios_info, data);
+       R_adios_write_close(comm, numvars, varnames, type, local_dim, global_dim, local_offset, R_adios_info, data);
 
 
      } // iter for loop over

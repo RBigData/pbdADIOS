@@ -4,6 +4,9 @@
 
 ## Remember this demo is in C style in R. You may find weird data structures.
 
+##
+## GO: extract writing parts and add to reading test script
+##
 
 library(pbdMPI, quiet = TRUE)
 ## Change location, if needed

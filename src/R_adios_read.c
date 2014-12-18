@@ -38,12 +38,6 @@ static void finalizer0(SEXP Rptr)
   }
 }
 
-/* The fail happens inside the Free(ptr) above. It only happens for R_adios_read_open allocations. */
-
-//(For struct _ADIOS_FILE , struct _ADIOS_VARINFO, struct ADIOS_SELECTION)
-
-// Make sure to implement error checking mechanism
-
 //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h) 
 int read_method_hash(const char *search_str){
   typedef struct read_method_table {
@@ -107,19 +101,17 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm,
 
 
 
-
-
 SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
 		       SEXP R_adios_lockmode, SEXP R_timeout_sec){
   char *filename;
 
-  int read_method_value=1111; //init dummy value                           
+  int read_method_value = 1111; //init dummy value                           
   const char *read_method_name = CHARPT(R_adios_read_method, 0); //Passing Char pointer to "read_method_hash" function.
   read_method_value = read_method_hash(read_method_name); //Calling read_method_hash function    
 
   MPI_Comm comm;
 
-  int lock_mode_value=1111; //init dummy value     
+  int lock_mode_value = 1111; //init dummy value     
   const char *lock_method_name = CHARPT(R_adios_lockmode, 0); //Passing Char pointer to "lock_mode" function.                    
   lock_mode_value = lock_mode_hash(lock_method_name); //Calling read_method_hash function 
 

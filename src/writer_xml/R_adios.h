@@ -9,8 +9,8 @@
 #include <R.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
-#include "adios/src/public/adios.h"
-
+//#include "adios/src/public/adios.h"
+#include <adios.h>
 
 /* Obtain character pointers. */
 #define CHARPT(x,i)     ((char*)CHAR(STRING_ELT(x,i)))

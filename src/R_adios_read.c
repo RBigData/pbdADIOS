@@ -159,7 +159,7 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
   return(R_adios_var_info);	 
 }
 
-SEXP R_custom_inq_var_ndim(R_adios_var_info){
+SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -170,7 +170,7 @@ SEXP R_custom_inq_var_ndim(R_adios_var_info){
   return(R_custom_inq_var_ndim_val);
 }
 
-SEXP R_custom_inq_var_dims(R_adios_var_info){
+SEXP R_custom_inq_var_dims(SEXP R_adios_var_info){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -338,8 +338,6 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
 
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
-  int data_type_size = adios_type_size(adios_var_info -> type,
-				       adios_var_info -> value);
   int num_element = 1;
 
   const char *data_type_string = adios_type_to_string(adios_var_info -> type);
@@ -351,6 +349,7 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
   }
 
   //Check all these sizes again IMP. What to do INT VS FLAOT
+  R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
   
   //if(strcmp(datatype, "integer") == 0) {
     //cast to integer
@@ -364,7 +363,6 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
   //else if(strcmp(datatype, "double") == 0) {
     //cast to double
   else if(strcmp(data_type_string,"real") ==0){
-    R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
     float *data = (float *) adios_data;
     //float data_val = *(data + (*adios_dataindex));    
     for(int i=0;i<num_element;i++){
@@ -373,7 +371,6 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
     //REAL(R_custom_data_access_val) = data_val;
   }
   else if(strcmp(data_type_string,"double") ==0){
-    R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
     double *data = (double *) adios_data;
     //double data_val = *(data + (*adios_dataindex));
   
@@ -383,7 +380,7 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
     //REAL(R_custom_data_access_val)[0] = data_val;
   }
   else{
-    printf("Error found in R_custom_data_access\n");
+    error("Error found in R_custom_data_access\n");
   }
 
   UNPROTECT(1);

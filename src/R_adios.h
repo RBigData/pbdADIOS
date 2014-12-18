@@ -12,8 +12,8 @@
 #include <Rdefines.h>
 #include <Rinternals.h>
 
-#include "adios.h"
-#include "adios_read.h"
+#include <adios.h>
+#include <adios_read.h>
 
 #ifdef DMALLOC
 #include "dmalloc.h"

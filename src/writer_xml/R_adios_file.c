@@ -14,7 +14,7 @@ SEXP R_adios_open(SEXP R_filename, SEXP R_comm){
 
 	PROTECT(R_adios_handle = R_MakeExternalPtr(adios_handle,
 					R_NilValue, R_NilValue));
-	adios_open(adios_handle, "arrays", filename, "r", &comm);
+	adios_open(adios_handle, "arrays", filename, "r", comm);
 
 	UNPROTECT(1);
 	return(R_adios_handle);

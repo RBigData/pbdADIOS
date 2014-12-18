@@ -42,7 +42,7 @@ if test ! -f "${ADIOS_PATH}/include/adios.h" ; then
 fi
 
 ADIOS_CPPFLAGS=-I${ADIOS_PATH}/include
-ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -lr`
+ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -l`
 
 # pbdMPI
 R_SCMD="${R_HOME}/bin/Rscript -e"

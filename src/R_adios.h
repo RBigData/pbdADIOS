@@ -78,12 +78,12 @@ SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last,
 
 /* ADIOS writer methods */
 SEXP R_adios_write_open(SEXP R_comm, SEXP R_group_name, SEXP R_transport_method,
-		       SEXP R_filename, SEXP R_mode)
+		       SEXP R_filename, SEXP R_mode);
 //communicator, groupname, transportmethod, filename, mode  : Return "R_adios_file_group" struct  
 
 // GO: below needs to be SEXP'd
 SEXP R_adios_write_close(MPI_Comm, int, char **, int *, char **, char **, char **,
-			 R_adios_file_group *, void **);
+			 m_adios_file_group *, void **);
 
 SEXP R_adios_finalize(SEXP R_comm_rank);
 

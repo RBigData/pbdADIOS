@@ -21,9 +21,9 @@ int main (int argc, char ** argv)
   
     int type[4] = {2,2,2,6}; //Ask Norbert. ADIOS_DATATYPES is in manual             
                                
-    char *local_dim[]={{0},{0},{0},{"NX"}};
+    char *local_dim[]={{0},{0},{0},{"NX"}}; // count, "100,200"
     char *global_dim[]={{0},{0},{0},{"G"}};
-    char *local_offset[]={{0},{0},{0},{"O"}};
+    char *local_offset[]={{0},{0},{0},{"O"}}; // start
 
     int NX = 20;
     double  t[NX];

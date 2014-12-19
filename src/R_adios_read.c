@@ -212,9 +212,6 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   R_adios_count = coerceVector(R_adios_count, INTSXP);
 
   ndim = INTEGER(R_adios_ndim);
-  //start = (uint64_t *) INTEGER(R_adios_start);
-  //count = (uint64_t *) INTEGER(R_adios_count);
-
   /* G: are we losing 64 bit capability here? */
   start = INTEGER(R_adios_start);
   count = INTEGER(R_adios_count);
@@ -231,17 +228,9 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   ADIOS_SELECTION *adios_selection;
   SEXP R_adios_selection;
 
-  //printf("Value of Start 0 => %d\n", start_adios[0]);
-  //printf("Value of Start 1 => %d\n", start_adios[1]);
-
-  //printf("Value of Count 0 => %d\n", count_adios[0]);
-  //printf("Value of Count 1 => %d\n", count_adios[1]);
-
 
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
   newRptr(adios_selection, R_adios_selection, finalizer);
-  //  Rprintf("R_adios_selection_bounding_box address: %p\n",
-  //  	  (void *)R_ExternalPtrAddr(R_adios_selection));
   UNPROTECT(1);
   return(R_adios_selection);
 }

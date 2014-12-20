@@ -62,11 +62,11 @@ dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
 source("pbdADIOS/tests/partition.r")
-g.dim <- dims
+g.dim <- dims # global.dim on write
 split <- c(TRUE, FALSE)
 my.data.partition <- data.partition(seq(0, 0, along.with=g.dim), g.dim, split)
-my.dim <- my.count <- my.data.partition$my.dim
-my.start <- my.data.partition$my.start
+my.dim <- my.count <- my.data.partition$my.dim # local.dim on write
+my.start <- my.data.partition$my.start # local.offset on write
 my.grid <- my.data.partition$my.grid
 
 ## partition across first dimension (expects at least 2d)
@@ -133,12 +133,13 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     ## plot the original local matrix (swapping row to col - C to R)
     raster_plot(data_chunk, my.ncol, my.nrow, "T", steps)
     
+    ## fit data and plot three coefficient raster plots
     if(steps >= bufsize)
         {
             fit <- lm.fit(rhs, buffer)$coefficients
-            raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
-            raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
-            raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
+    ##         raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
+    ##         raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
+    ##         raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
         }
     
     ## All these work fine!
@@ -146,17 +147,17 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     ##    X.pc <- prcomp(X)
     ##    comm.print(X.pc)
     
-    s <- sum(data_chunk)
-    n <- length(data_chunk)
-    sa <- allreduce(s)
-    na <- allreduce(n)
-    comm.cat(comm.rank(), "mean =", sa/na, "lmean =", s/n, "ln =", n, "\n",
-             quiet=TRUE, all.rank=TRUE)
-
     ##
     ## Here, write out the results of the analysis
-    ## For testing purposes, write the data.chunk back.
-    ##
+    a0 <- fit[1, ]
+    a1 <- fit[2, ]
+    a2 <- fit[3, ]
+    ## now use adios to write (T, a0, a1, a2). All are with dimensions:
+    ##       global.dim = gdim
+    ##       local.dim = my.dim = my.count
+    ##       local.offset = my.start
+
+    ## insert adios writing code here  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     
     ## try to get more data
     adios.advance.step(file.ptr$pt, 0, adios.timeout.sec=1)

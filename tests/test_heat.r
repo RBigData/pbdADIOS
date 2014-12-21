@@ -153,7 +153,7 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     a1 <- fit[2, ]
     a2 <- fit[3, ]
     ## now use adios to write (T, a0, a1, a2). All are with dimensions:
-    ##       global.dim = gdim
+    ##       global.dim = g.dim
     ##       local.dim = my.dim = my.count
     ##       local.offset = my.start
 

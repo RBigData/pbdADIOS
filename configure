@@ -581,7 +581,6 @@ PACKAGE_STRING='pbdADIOS 0.1-0'
 PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
-ac_unique_file="src/R_adios_read.c"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 ADIOS_LDFLAGS
@@ -1673,7 +1672,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-
+# AC_CONFIG_SRCDIR([src/R_adios_read.c])
+# AC_CONFIG_SRCDIR([src/])
 
 
 # ADIOS
@@ -1692,7 +1692,8 @@ if test ! -f "${ADIOS_PATH}/include/adios.h" ; then
 fi
 
 ADIOS_CPPFLAGS=-I${ADIOS_PATH}/include
-ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -lr`
+# ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -l`
+ADIOS_LDFLAGS="/Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadios.a /Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadiosread.a -lmxml"
 
 # pbdMPI
 R_SCMD="${R_HOME}/bin/Rscript -e"

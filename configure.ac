@@ -25,7 +25,8 @@
 
 AC_PREREQ([2.69])
 AC_INIT([pbdADIOS], [0.1-0])
-AC_CONFIG_SRCDIR([src/R_adios_read.c])
+# AC_CONFIG_SRCDIR([src/R_adios_read.c])
+# AC_CONFIG_SRCDIR([src/])
 
 
 # ADIOS
@@ -42,7 +43,8 @@ if test ! -f "${ADIOS_PATH}/include/adios.h" ; then
 fi
 
 ADIOS_CPPFLAGS=-I${ADIOS_PATH}/include
-ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -lr`
+# ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -l`
+ADIOS_LDFLAGS="/Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadios.a /Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadiosread.a -lmxml"
 
 # pbdMPI
 R_SCMD="${R_HOME}/bin/Rscript -e"

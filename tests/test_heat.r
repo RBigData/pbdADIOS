@@ -6,13 +6,14 @@ library(ggplot2, quiet=TRUE)
 library(grid, quiet=TRUE)
 
 ## begin function definitions
-adios.init <- function(method="ADIOS_READ_METHOD_BP", par="verbose=3")
+
+adios.read.init <- function(method="ADIOS_READ_METHOD_BP", par="verbose=3")
 {
     invisible(adios.read.init.method("ADIOS_READ_METHOD_BP",
                                      params="verbose=3"))
 }
 
-adios.open <- function(file, timeout=1, method="ADIOS_READ_METHOD_BP",
+adios.read.open2 <- function(file, timeout=1, method="ADIOS_READ_METHOD_BP",
                        lockmode="ADIOS_LOCKMODE_NONE")
 {
     ## timeout default is 1 sec
@@ -44,12 +45,23 @@ raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 ## end function definitions
 
 init.grid()
-adios.init()
+
+adios.init.noxml() ## Writing without using XML [Writer]
+adios.read.init() ## Intialize reading method
+
+adios.allocate.buffer(200) ## allocating size for ADIOS application in MB
+
+groupname <- "restart"
+adios_group_ptr <-  adios.declare.group(groupname,"")
+
+adios.select.method(adios_group_ptr, "MPI", "", "")
+
 
 ## specify and open file for reading
-dir.data <- "/lustre/atlas/scratch/ost/stf006/heat"
+#dir.data <- "/lustre/atlas/scratch/ost/stf006/heat"
+dir.data <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/dataset"
 file <- paste(dir.data, "heat.bp", sep="/")
-file.ptr <- adios.open(file)
+file.ptr <- adios.read.open2(file)
 
 ## select variable to read
 variable <- "T"
@@ -57,25 +69,37 @@ variable <- "T"
 ## get variable dimensions
 varinfo = adios.inq.var(file.ptr$pt, variable)
 block <- adios.inq.var.blockinfo(file.ptr$pt, varinfo)
+comm.print("Before custom.inq.var.ndim")
+
+
 ndim <- custom.inq.var.ndim(varinfo)
 dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
-source("pbdADIOS/tests/partition.r")
-g.dim <- dims
+#source("pbdADIOS/tests/partition.r")
+#source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/George_version_19_dec/pbdADIOS/tests/partition.r")
+source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/pbdADIOS_22_dec/pbdADIOS/tests/partition.r")
+
+g.dim <- dims # global.dim on write
 split <- c(TRUE, FALSE)
 my.data.partition <- data.partition(seq(0, 0, along.with=g.dim), g.dim, split)
-my.dim <- my.count <- my.data.partition$my.dim
-my.start <- my.data.partition$my.start
+my.dim <- my.count <- my.data.partition$my.dim # local.dim on write
+my.start <- my.data.partition$my.start # local.offset on write
 my.grid <- my.data.partition$my.grid
 
-## partition across first dimension (expects at least 2d)
-slice_size0 <- as.integer(dims[1] %/% comm.size())
-slice_size <- slice_size0
-if(comm.rank() == (comm.size() - 1))
-    slice_size <- as.integer(slice_size + (dims[1] %% comm.size()))
-start <- c(as.integer(comm.rank() * slice_size0), rep(0, ndim - 1))
-count <- c(slice_size, as.integer(dims[2:ndim]))
+
+my.dim.p <- paste(my.dim,collapse=",")
+g.dim.p <- paste(g.dim,collapse=",")
+my.start.p <- paste(my.start,collapse=",")
+
+print(my.dim.p)
+print(g.dim.p)
+print(my.start.p)
+
+#adios.define.var(adios_group_ptr, "T", "", paste(my.dim,collapse=","), paste(g.dim,collapse=","), paste(my.start,collapse=","))
+
+adios.define.var(adios_group_ptr, "T", "", "200,300", "400,300", "0,200")
+
 
 errno <- 0 # Default value 0
 steps <- 0
@@ -133,30 +157,35 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     ## plot the original local matrix (swapping row to col - C to R)
     raster_plot(data_chunk, my.ncol, my.nrow, "T", steps)
     
+    ## fit data and plot three coefficient raster plots
     if(steps >= bufsize)
         {
             fit <- lm.fit(rhs, buffer)$coefficients
-            raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
-            raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
-            raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
-        }
-    
+    ##         raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
+    ##         raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
+    ##         raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
+      
     ## All these work fine!
     ##    X <- as.blockcyclic(X, bldim=c(4, 4))
     ##    X.pc <- prcomp(X)
     ##    comm.print(X.pc)
     
-    s <- sum(data_chunk)
-    n <- length(data_chunk)
-    sa <- allreduce(s)
-    na <- allreduce(n)
-    comm.cat(comm.rank(), "mean =", sa/na, "lmean =", s/n, "ln =", n, "\n",
-             quiet=TRUE, all.rank=TRUE)
-
     ##
     ## Here, write out the results of the analysis
-    ## For testing purposes, write the data.chunk back.
-    ##
+    a0 <- fit[1, ]
+    a1 <- fit[2, ]
+    a2 <- fit[3, ]
+    ## now use adios to write (T, a0, a1, a2). All are with dimensions:
+    ##       global.dim = g.dim
+    ##       local.dim = my.dim = my.count
+    ##       local.offset = my.start
+
+  
+
+
+
+    ## insert adios writing code here  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     }
     
     ## try to get more data
     adios.advance.step(file.ptr$pt, 0, adios.timeout.sec=1)

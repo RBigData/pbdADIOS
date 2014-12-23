@@ -19,7 +19,7 @@ groupname <- "restart"
 
 init() ##pbdMPI init
 
-filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/pbdADIOS_22_dec/pbdADIOS/tests/test_write.bp"
+filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/tests/test_write.bp"
 
 G <- NX * pbdMPI:::comm.size()
 O <- pbdMPI:::comm.rank() * NX + NX

@@ -38,12 +38,6 @@ static void finalizer0(SEXP Rptr)
   }
 }
 
-/* The fail happens inside the Free(ptr) above. It only happens for R_adios_read_open allocations. */
-
-//(For struct _ADIOS_FILE , struct _ADIOS_VARINFO, struct ADIOS_SELECTION)
-
-// Make sure to implement error checking mechanism
-
 //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h) 
 int read_method_hash(const char *search_str){
   typedef struct read_method_table {
@@ -107,19 +101,17 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm,
 
 
 
-
-
 SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
 		       SEXP R_adios_lockmode, SEXP R_timeout_sec){
   char *filename;
 
-  int read_method_value=1111; //init dummy value                           
+  int read_method_value = 1111; //init dummy value                           
   const char *read_method_name = CHARPT(R_adios_read_method, 0); //Passing Char pointer to "read_method_hash" function.
   read_method_value = read_method_hash(read_method_name); //Calling read_method_hash function    
 
   MPI_Comm comm;
 
-  int lock_mode_value=1111; //init dummy value     
+  int lock_mode_value = 1111; //init dummy value     
   const char *lock_method_name = CHARPT(R_adios_lockmode, 0); //Passing Char pointer to "lock_mode" function.                    
   lock_mode_value = lock_mode_hash(lock_method_name); //Calling read_method_hash function 
 
@@ -167,7 +159,7 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
   return(R_adios_var_info);	 
 }
 
-SEXP R_custom_inq_var_ndim(R_adios_var_info){
+SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -178,7 +170,7 @@ SEXP R_custom_inq_var_ndim(R_adios_var_info){
   return(R_custom_inq_var_ndim_val);
 }
 
-SEXP R_custom_inq_var_dims(R_adios_var_info){
+SEXP R_custom_inq_var_dims(SEXP R_adios_var_info){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -220,9 +212,6 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   R_adios_count = coerceVector(R_adios_count, INTSXP);
 
   ndim = INTEGER(R_adios_ndim);
-  //start = (uint64_t *) INTEGER(R_adios_start);
-  //count = (uint64_t *) INTEGER(R_adios_count);
-
   /* G: are we losing 64 bit capability here? */
   start = INTEGER(R_adios_start);
   count = INTEGER(R_adios_count);
@@ -239,17 +228,9 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
   ADIOS_SELECTION *adios_selection;
   SEXP R_adios_selection;
 
-  //printf("Value of Start 0 => %d\n", start_adios[0]);
-  //printf("Value of Start 1 => %d\n", start_adios[1]);
-
-  //printf("Value of Count 0 => %d\n", count_adios[0]);
-  //printf("Value of Count 1 => %d\n", count_adios[1]);
-
 
   adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
   newRptr(adios_selection, R_adios_selection, finalizer);
-  //  Rprintf("R_adios_selection_bounding_box address: %p\n",
-  //  	  (void *)R_ExternalPtrAddr(R_adios_selection));
   UNPROTECT(1);
   return(R_adios_selection);
 }
@@ -346,8 +327,6 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
 
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
-  int data_type_size = adios_type_size(adios_var_info -> type,
-				       adios_var_info -> value);
   int num_element = 1;
 
   const char *data_type_string = adios_type_to_string(adios_var_info -> type);
@@ -359,6 +338,7 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
   }
 
   //Check all these sizes again IMP. What to do INT VS FLAOT
+  R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
   
   //if(strcmp(datatype, "integer") == 0) {
     //cast to integer
@@ -372,7 +352,6 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
   //else if(strcmp(datatype, "double") == 0) {
     //cast to double
   else if(strcmp(data_type_string,"real") ==0){
-    R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
     float *data = (float *) adios_data;
     //float data_val = *(data + (*adios_dataindex));    
     for(int i=0;i<num_element;i++){
@@ -381,7 +360,6 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
     //REAL(R_custom_data_access_val) = data_val;
   }
   else if(strcmp(data_type_string,"double") ==0){
-    R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
     double *data = (double *) adios_data;
     //double data_val = *(data + (*adios_dataindex));
   
@@ -391,7 +369,7 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
     //REAL(R_custom_data_access_val)[0] = data_val;
   }
   else{
-    printf("Error found in R_custom_data_access\n");
+    error("Error found in R_custom_data_access\n");
   }
 
   UNPROTECT(1);

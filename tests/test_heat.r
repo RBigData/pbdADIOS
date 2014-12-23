@@ -46,20 +46,19 @@ raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 
 init.grid()
 
-adios.init.noxml() ## Writing without using XML [Writer]
-adios.read.init() ## Intialize reading method
+adios.init.noxml() ## Write without using XML ## WR
+adios.read.init() ## Initialize reading method
 
-adios.allocate.buffer(200) ## allocating size for ADIOS application in MB
+adios.allocate.buffer(300) ## allocating size for ADIOS application in MB ## WR
 
-groupname <- "restart"
-adios_group_ptr <-  adios.declare.group(groupname,"")
+groupname <- "restart" ## WR
+adios_group_ptr <-  adios.declare.group(groupname,"") ## WR
 
-adios.select.method(adios_group_ptr, "MPI", "", "")
-
+adios.select.method(adios_group_ptr, "MPI", "", "") ## WR
+filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/pbdADIOS_22_dec/pbdADIOS/tests/test_heat_w.bp" ## WR
 
 ## specify and open file for reading
-#dir.data <- "/lustre/atlas/scratch/ost/stf006/heat"
-dir.data <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/dataset"
+dir.data <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/dataset" 
 file <- paste(dir.data, "heat.bp", sep="/")
 file.ptr <- adios.read.open2(file)
 
@@ -69,7 +68,8 @@ variable <- "T"
 ## get variable dimensions
 varinfo = adios.inq.var(file.ptr$pt, variable)
 block <- adios.inq.var.blockinfo(file.ptr$pt, varinfo)
-comm.print("Before custom.inq.var.ndim")
+
+#comm.print("Before custom.inq.var.ndim")
 
 
 ndim <- custom.inq.var.ndim(varinfo)
@@ -77,7 +77,6 @@ dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
 #source("pbdADIOS/tests/partition.r")
-#source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/George_version_19_dec/pbdADIOS/tests/partition.r")
 source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/pbdADIOS_22_dec/pbdADIOS/tests/partition.r")
 
 g.dim <- dims # global.dim on write
@@ -87,19 +86,7 @@ my.dim <- my.count <- my.data.partition$my.dim # local.dim on write
 my.start <- my.data.partition$my.start # local.offset on write
 my.grid <- my.data.partition$my.grid
 
-
-my.dim.p <- paste(my.dim,collapse=",")
-g.dim.p <- paste(g.dim,collapse=",")
-my.start.p <- paste(my.start,collapse=",")
-
-print(my.dim.p)
-print(g.dim.p)
-print(my.start.p)
-
-#adios.define.var(adios_group_ptr, "T", "", paste(my.dim,collapse=","), paste(g.dim,collapse=","), paste(my.start,collapse=","))
-
-adios.define.var(adios_group_ptr, "T", "", "200,300", "400,300", "0,200")
-
+adios.define.var(adios_group_ptr, "T", "", toString(my.dim), toString(g.dim), toString(my.start))  ## WR
 
 errno <- 0 # Default value 0
 steps <- 0
@@ -179,10 +166,15 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     ##       global.dim = g.dim
     ##       local.dim = my.dim = my.count
     ##       local.offset = my.start
-
   
+   
+     adios_file_ptr <- adios.open(groupname, filename, "a") ## WR
+     groupsize <- object.size(data_chunk) ## Ask george       ## WR
 
-
+     adios.group.size(adios_file_ptr, groupsize) ## WR
+     adios.write(adios_file_ptr, "T", data_chunk) ## WR
+     adios.close(adios_file_ptr) ## WR
+     barrier() ## WR
 
     ## insert adios writing code here  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
      }
@@ -208,5 +200,8 @@ adios.read.close(file.ptr$pt)
 comm.print("File closed")
 adios.read.finalize.method("ADIOS_READ_METHOD_BP")
 comm.print("Finalized adios ...")
+
+adios.finalize(pbdMPI:::comm.rank()) # ADIOS finalize ## WR
+
 finalize() # pbdMPI finalize
 

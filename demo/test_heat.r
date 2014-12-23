@@ -27,7 +27,7 @@ raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 ## end function definitions
 
 
-## Intialize MPI and ADIOS 
+## Initialize MPI and ADIOS 
 
 init.grid() ## MPI/DMAT intializer
 adios.init.noxml() ## Write without using XML ## WR
@@ -155,8 +155,8 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     ##       local.dim = my.dim = my.count
     ##       local.offset = my.start
   
-   
      adios_file_ptr <- adios.open(groupname, filename, "a") ## WR
+
      groupsize <- object.size(data_chunk) ## Ask george       ## WR
 
      adios.group.size(adios_file_ptr, groupsize) ## WR

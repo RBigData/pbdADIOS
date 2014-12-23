@@ -55,7 +55,7 @@ groupname <- "restart" ## WR
 adios_group_ptr <-  adios.declare.group(groupname,"") ## WR
 
 adios.select.method(adios_group_ptr, "MPI", "", "") ## WR
-filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/tests/test_heat_w.bp" ## WR
+filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/demo/test_heat_w.bp" ## WR
 
 ## specify and open file for reading
 dir.data <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/dataset" 
@@ -77,7 +77,7 @@ dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
 #source("pbdADIOS/tests/partition.r")
-source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/tests/partition.r")
+source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/demo/partition.r")
 
 g.dim <- dims # global.dim on write
 split <- c(TRUE, FALSE)

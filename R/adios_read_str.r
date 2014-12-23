@@ -90,7 +90,6 @@ adios.advance.step <- function(adios.file.ptr, adios.last, adios.timeout.sec){
 }
 
 adios.errno <- function(){
-    print("inside adios.errono function")	    
     .Call("R_adios_errno")
 }
 

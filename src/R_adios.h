@@ -20,12 +20,10 @@
 #endif
 
 // for Writer
-typedef struct {
-  int64_t       m_adios_group;
-  int64_t       m_adios_file;
-} m_adios_file_group;
-
-
+//typedef struct {
+//  int64_t       m_adios_group;
+//  int64_t       m_adios_file;
+//} m_adios_file_group;
 
 /* Obtain character pointers. */
 #define CHARPT(x,i)     ((char*)CHAR(STRING_ELT(x,i)))
@@ -35,7 +33,6 @@ typedef struct {
 //SEXP R_adios_finalize(SEXP R_comm_rank);
 
 SEXP AsInt(int x);
-
 
 /* ADIOS file functions. */
 //SEXP R_adios_open(SEXP R_filename, SEXP R_comm);

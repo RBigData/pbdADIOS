@@ -165,7 +165,7 @@ SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info){
 
   SEXP R_custom_inq_var_ndim_val = PROTECT(allocVector(INTSXP, 1));
   INTEGER (R_custom_inq_var_ndim_val)[0] = adios_var_info -> ndim; 
-  //printf("In C ndim=%d \n", ndim_val);
+  //Rprintf("In C ndim=%d \n", ndim_val);
   UNPROTECT(1);
   return(R_custom_inq_var_ndim_val);
 }
@@ -183,7 +183,7 @@ SEXP R_custom_inq_var_dims(SEXP R_adios_var_info){
     //INTEGER (R_custom_inq_var_dims_val)[1] = adios_var_info -> dims[1];
   }
 
-  //printf("In C ndim=%d \n", ndim_val);                          
+  //Rprintf("In C ndim=%d \n", ndim_val);                          
           
   UNPROTECT(1);
   return(R_custom_inq_var_dims_val);
@@ -343,7 +343,7 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
   //if(strcmp(datatype, "integer") == 0) {
     //cast to integer
   if(strcmp(data_type_string,"integer") == 0){
-    printf("Error found in R_custom_data_access\n");
+    Rprintf("Error found in R_custom_data_access\n");
   //R_custom_data_access_val = PROTECT(allocVector(INTSXP, 1));
   //  int *data = (int *) adios_data;
   //  int data_val = *(data + (*adios_dataindex));
@@ -425,7 +425,7 @@ SEXP R_adios_read_finalize_method(SEXP R_adios_read_method){
 SEXP R_adios_errno(){
   SEXP R_adios_errno_val = PROTECT(allocVector(INTSXP, 1));
   INTEGER(R_adios_errno_val)[0] = adios_errno;
-  //printf("In C ndim=%d \n", adios_errno);
+  //Rprintf("In C ndim=%d \n", adios_errno);
   UNPROTECT(1);
   return(R_adios_errno_val);
 }

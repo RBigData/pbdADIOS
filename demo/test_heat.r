@@ -7,24 +7,6 @@ library(grid, quiet=TRUE)
 
 ## begin function definitions
 
-adios.read.init <- function(method="ADIOS_READ_METHOD_BP", par="verbose=3")
-{
-    invisible(adios.read.init.method("ADIOS_READ_METHOD_BP",
-                                     params="verbose=3"))
-}
-
-adios.read.open2 <- function(file, timeout=1, method="ADIOS_READ_METHOD_BP",
-                       lockmode="ADIOS_LOCKMODE_NONE")
-{
-    ## timeout default is 1 sec
-    pt <- adios.read.open(file, adios.timeout=timeout, "ADIOS_READ_METHOD_BP",
-                          adios.lockmode="ADIOS_LOCKMODE_NONE")
-    if(comm.rank() == 0) bpls <- system(paste("bpls", file), intern=TRUE)
-    else bpls <- NULL
-    bpls <- bcast(bpls)
-    list(pt=pt, bpls=bpls)
-}
-
 raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 {
     x <- data.frame(rasterToPoints(raster(matrix(x, nrow, ncol),
@@ -44,10 +26,12 @@ raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 }
 ## end function definitions
 
-init.grid()
 
+## Intialize MPI and ADIOS 
+
+init.grid() ## MPI/DMAT intializer
 adios.init.noxml() ## Write without using XML ## WR
-adios.read.init() ## Initialize reading method
+adios.read.init.method("ADIOS_READ_METHOD_BP", params="verbose=3") ## Initialize reading method
 
 adios.allocate.buffer(300) ## allocating size for ADIOS application in MB ## WR
 
@@ -57,17 +41,21 @@ adios_group_ptr <-  adios.declare.group(groupname,"") ## WR
 adios.select.method(adios_group_ptr, "MPI", "", "") ## WR
 filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/demo/test_heat_w.bp" ## WR
 
+
 ## specify and open file for reading
 dir.data <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/dataset" 
 file <- paste(dir.data, "heat.bp", sep="/")
-file.ptr <- adios.read.open2(file)
+
+timeout.read <- 1 ## in sec
+read.file.ptr <- adios.read.open(file, adios.timeout=timeout.read, "ADIOS_READ_METHOD_BP",
+                          adios.lockmode="ADIOS_LOCKMODE_NONE") ## Calling adios read function
 
 ## select variable to read
 variable <- "T"
 
 ## get variable dimensions
-varinfo = adios.inq.var(file.ptr$pt, variable)
-block <- adios.inq.var.blockinfo(file.ptr$pt, varinfo)
+varinfo = adios.inq.var(read.file.ptr, variable)
+block <- adios.inq.var.blockinfo(read.file.ptr, varinfo)
 
 #comm.print("Before custom.inq.var.ndim")
 
@@ -106,12 +94,12 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     comm.print("Selection.boundingbox complete ...")
     
     ## schedule the read
-    adios.data <- adios.schedule.read(varinfo, my.start, my.count, file.ptr$pt,
+    adios.data <- adios.schedule.read(varinfo, my.start, my.count, read.file.ptr,
                                       adios.selection, variable, 0, 1)
     comm.print("Schedule read complete ...")
     
     ## perform the read
-    adios.perform.reads(file.ptr$pt, 1)
+    adios.perform.reads(read.file.ptr, 1)
     comm.print("Perform read complete ...")
 
     data_chunk <- custom.data.access(adios.data, adios.selection, varinfo)
@@ -180,12 +168,12 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
      }
     
     ## try to get more data
-    adios.advance.step(file.ptr$pt, 0, adios.timeout.sec=1)
+    adios.advance.step(read.file.ptr, 0, adios.timeout.sec=1)
     comm.print(paste("Done advance.step", steps, "..."))
      
     ## check errors
     errno <- adios.errno()
-    comm.cat("Error Num",errno, "\n")
+    #comm.cat("Error Num",errno, "\n")
 
     ## if error is timeout (or EOF)
     if(errno == -22){ #-22 = err_step_notready
@@ -196,7 +184,7 @@ if(steps > 20) break
 } # While end 
 
 comm.print("Broke out of loop ...")
-adios.read.close(file.ptr$pt)
+adios.read.close(read.file.ptr)
 comm.print("File closed")
 adios.read.finalize.method("ADIOS_READ_METHOD_BP")
 comm.print("Finalized adios ...")

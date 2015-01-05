@@ -137,8 +137,8 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
         {
             fit <- lm.fit(rhs, buffer)$coefficients
     ##         raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
-    ##         raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
-    ##         raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
+             raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
+             raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
       
     ## All these work fine!
     ##    X <- as.blockcyclic(X, bldim=c(4, 4))

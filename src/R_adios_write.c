@@ -77,7 +77,15 @@ SEXP R_adios_select_method(SEXP R_m_adios_group, SEXP R_adios_method, SEXP R_adi
 //SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios_path, SEXP R_adios_type, SEXP R_adios_local_dim, SEXP R_adios_global_dim, SEXP R_adios_local_offset){
 SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios_path, SEXP R_adios_local_dim, SEXP R_adios_global_dim, SEXP R_adios_local_offset){ 
 
-  
+
+  const char *adios_type = CHARPT(R_adios_type, 0);
+  if(strcmp(adios_type,"adios_double") eq 0){
+
+
+  }
+   
+
+
   //int64_t *group = INTEGER(R_m_adios_group); // Make sure ?? 
   int64_t *group;
   group = R_ExternalPtrAddr(R_m_adios_group); // Make sure ?? 
@@ -97,6 +105,8 @@ SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios
   //Rprintf("Local dim is %s\n",local_dim);
   //Rprintf("Global dim is %s\n",global_dim);
   //Rprintf("Local_offset is %s\n",local_offset);
+  // Add support for adios_double and adios_integer
+
 
   adios_define_var (*group, varname, path, adios_double, local_dim, global_dim, local_offset); // ?? will support for dynamic type as a input ?? Should "group" pass as a pointer or not ??   
    

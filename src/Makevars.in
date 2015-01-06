@@ -1,17 +1,12 @@
 #################################################################
 
-PKG_CPPFLAGS = @MPI_CPPFLAGS@ @ADIOS_CPPFLAGS@
+PKG_CPPFLAGS = @ADIOS_CPPFLAGS@ @MPI_CPPFLAGS@
 #PKG_CFLAGS = -w
-PKG_LIBS = @MPI_LDFLAGS@ @ADIOS_LDFLAGS@
+PKG_LIBS = @ADIOS_LDFLAGS@ @MPI_LDFLAGS@ 
 
 
-OBJECTS = R_adios_read.o
-#	R_adios_write.o \
-#	writer_xml/R_adios_file.o \
-#	writer_xml/R_adios_group.o \
-#	writer_xml/R_adios_util.o \
-#	writer_xml/R_adios_write.o
-
+OBJECTS = R_adios_read.o \
+	R_adios_write.o 
 
 ### Start making here.
 all: $(SHLIB)

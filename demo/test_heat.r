@@ -6,23 +6,6 @@ library(ggplot2, quiet=TRUE)
 library(grid, quiet=TRUE)
 
 ## begin function definitions
-adios.init <- function(method="ADIOS_READ_METHOD_BP", par="verbose=3")
-{
-    invisible(adios.read.init.method("ADIOS_READ_METHOD_BP",
-                                     params="verbose=3"))
-}
-
-adios.open <- function(file, timeout=1, method="ADIOS_READ_METHOD_BP",
-                       lockmode="ADIOS_LOCKMODE_NONE")
-{
-    ## timeout default is 1 sec
-    pt <- adios.read.open(file, adios.timeout=timeout, "ADIOS_READ_METHOD_BP",
-                          adios.lockmode="ADIOS_LOCKMODE_NONE")
-    if(comm.rank() == 0) bpls <- system(paste("bpls", file), intern=TRUE)
-    else bpls <- NULL
-    bpls <- bcast(bpls)
-    list(pt=pt, bpls=bpls)
-}
 
 raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 {
@@ -43,25 +26,47 @@ raster_plot <- function(x, nrow, ncol, basename="raster", sequence=1, swidth=3)
 }
 ## end function definitions
 
-init.grid()
-adios.init()
+
+## Initialize MPI and ADIOS 
+
+init.grid() ## MPI/DMAT intializer
+adios.init.noxml() ## Write without using XML ## WR
+adios.read.init.method("ADIOS_READ_METHOD_BP", params="verbose=3") ## Initialize reading method
+
+adios.allocate.buffer(300) ## allocating size for ADIOS application in MB ## WR
+
+groupname <- "restart" ## WR
+adios_group_ptr <-  adios.declare.group(groupname,"") ## WR
+
+adios.select.method(adios_group_ptr, "MPI", "", "") ## WR
+filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/demo/test_heat_w.bp" ## WR
+
 
 ## specify and open file for reading
-dir.data <- "/lustre/atlas/scratch/ost/stf006/heat"
+dir.data <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/dataset" 
 file <- paste(dir.data, "heat.bp", sep="/")
-file.ptr <- adios.open(file)
+
+timeout.read <- 1 ## in sec
+read.file.ptr <- adios.read.open(file, adios.timeout=timeout.read, "ADIOS_READ_METHOD_BP",
+                          adios.lockmode="ADIOS_LOCKMODE_NONE") ## Calling adios read function
 
 ## select variable to read
 variable <- "T"
 
 ## get variable dimensions
-varinfo = adios.inq.var(file.ptr$pt, variable)
-block <- adios.inq.var.blockinfo(file.ptr$pt, varinfo)
+varinfo = adios.inq.var(read.file.ptr, variable)
+block <- adios.inq.var.blockinfo(read.file.ptr, varinfo)
+
+#comm.print("Before custom.inq.var.ndim")
+
+
 ndim <- custom.inq.var.ndim(varinfo)
 dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
+
 source("pbdADIOS/tests/partition.r")
+
 g.dim <- dims # global.dim on write
 split <- c(TRUE, FALSE)
 my.data.partition <- data.partition(seq(0, 0, along.with=g.dim), g.dim, split)
@@ -69,13 +74,7 @@ my.dim <- my.count <- my.data.partition$my.dim # local.dim on write
 my.start <- my.data.partition$my.start # local.offset on write
 my.grid <- my.data.partition$my.grid
 
-## partition across first dimension (expects at least 2d)
-slice_size0 <- as.integer(dims[1] %/% comm.size())
-slice_size <- slice_size0
-if(comm.rank() == (comm.size() - 1))
-    slice_size <- as.integer(slice_size + (dims[1] %% comm.size()))
-start <- c(as.integer(comm.rank() * slice_size0), rep(0, ndim - 1))
-count <- c(slice_size, as.integer(dims[2:ndim]))
+adios.define.var(adios_group_ptr, "T", "", toString(my.dim), toString(g.dim), toString(my.start))  ## WR
 
 errno <- 0 # Default value 0
 steps <- 0
@@ -95,12 +94,12 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
     comm.print("Selection.boundingbox complete ...")
     
     ## schedule the read
-    adios.data <- adios.schedule.read(varinfo, my.start, my.count, file.ptr$pt,
+    adios.data <- adios.schedule.read(varinfo, my.start, my.count, read.file.ptr,
                                       adios.selection, variable, 0, 1)
     comm.print("Schedule read complete ...")
     
     ## perform the read
-    adios.perform.reads(file.ptr$pt, 1)
+    adios.perform.reads(read.file.ptr, 1)
     comm.print("Perform read complete ...")
 
     data_chunk <- custom.data.access(adios.data, adios.selection, varinfo)
@@ -138,34 +137,43 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
         {
             fit <- lm.fit(rhs, buffer)$coefficients
     ##         raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
-    ##         raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
-    ##         raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
-        }
-    
+             raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
+             raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
+
     ## All these work fine!
     ##    X <- as.blockcyclic(X, bldim=c(4, 4))
     ##    X.pc <- prcomp(X)
     ##    comm.print(X.pc)
     
-    ##
     ## Here, write out the results of the analysis
     a0 <- fit[1, ]
     a1 <- fit[2, ]
     a2 <- fit[3, ]
+
     ## now use adios to write (T, a0, a1, a2). All are with dimensions:
     ##       global.dim = g.dim
     ##       local.dim = my.dim = my.count
     ##       local.offset = my.start
+  
+     adios_file_ptr <- adios.open(groupname, filename, "a") ## WR
+
+     groupsize <- object.size(data_chunk) ## Ask george       ## WR
+
+     adios.group.size(adios_file_ptr, groupsize) ## WR
+     adios.write(adios_file_ptr, "T", data_chunk) ## WR
+     adios.close(adios_file_ptr) ## WR
+     barrier() ## WR
 
     ## insert adios writing code here  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     }
     
     ## try to get more data
-    adios.advance.step(file.ptr$pt, 0, adios.timeout.sec=1)
+    adios.advance.step(read.file.ptr, 0, adios.timeout.sec=1)
     comm.print(paste("Done advance.step", steps, "..."))
      
     ## check errors
     errno <- adios.errno()
-    comm.cat("Error Num",errno, "\n")
+    #comm.cat("Error Num",errno, "\n")
 
     ## if error is timeout (or EOF)
     if(errno == -22){ #-22 = err_step_notready
@@ -176,9 +184,12 @@ if(steps > 20) break
 } # While end 
 
 comm.print("Broke out of loop ...")
-adios.read.close(file.ptr$pt)
+adios.read.close(read.file.ptr)
 comm.print("File closed")
 adios.read.finalize.method("ADIOS_READ_METHOD_BP")
 comm.print("Finalized adios ...")
+
+adios.finalize(pbdMPI:::comm.rank()) # ADIOS finalize ## WR
+
 finalize() # pbdMPI finalize
 

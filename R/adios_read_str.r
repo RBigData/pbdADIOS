@@ -27,6 +27,7 @@ adios.read.init.method <- function(adios.read.method, comm = pbdMPI::.SPMD.CT$co
                                   params){
     .Call("R_adios_read_init_method", as.character(adios.read.method),
           comm.c2f(comm), as.character(params))
+     invisible()
 }
 
 adios.read.open <- function(adios.filename, adios.read.method,
@@ -38,12 +39,14 @@ adios.read.open <- function(adios.filename, adios.read.method,
 }
 
 adios.read.close <- function(adios.file.ptr){
-    invisible(.Call("R_adios_read_close", adios.file.ptr))
+    .Call("R_adios_read_close", adios.file.ptr)
+    invisible()
 }
 
 adios.read.finalize.method<- function(adios.read.method){
-    invisible(.Call("R_adios_read_finalize_method",
-                    as.character(adios.read.method)))
+    .Call("R_adios_read_finalize_method",
+                    as.character(adios.read.method))
+     invisible()		    
 }
 
 adios.inq.var <- function(adios.file.ptr, adios.varname){
@@ -85,12 +88,16 @@ adios.perform.reads <- function(adios.file.ptr, adios.blocking){
 }
 
 adios.advance.step <- function(adios.file.ptr, adios.last, adios.timeout.sec){
-    invisible(.Call("R_adios_advance_step",adios.file.ptr,
-                    as.integer(adios.last), as.numeric(adios.timeout.sec)))
+    .Call("R_adios_advance_step",adios.file.ptr,
+                    as.integer(adios.last), as.numeric(adios.timeout.sec))
+    invisible()
 }
 
 adios.errno <- function(){
-    .Call(R_adios_errno)
+    .Call("R_adios_errno")
 }
+
+
+
 
 

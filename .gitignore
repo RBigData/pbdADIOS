@@ -9,4 +9,6 @@
 *.orig
 
 src/Makevars
+autom4te.cache
+
 

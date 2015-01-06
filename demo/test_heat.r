@@ -64,8 +64,8 @@ ndim <- custom.inq.var.ndim(varinfo)
 dims <- custom.inq.var.dims(varinfo)
 
 ## get dimensions and split
-#source("pbdADIOS/tests/partition.r")
-source("/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/demo/partition.r")
+
+source("pbdADIOS/tests/partition.r")
 
 g.dim <- dims # global.dim on write
 split <- c(TRUE, FALSE)
@@ -137,19 +137,19 @@ while(errno != -21) { ## This is hard-coded for now. -21=err_end_of_stream
         {
             fit <- lm.fit(rhs, buffer)$coefficients
     ##         raster_plot(fit[1, ], my.ncol, my.nrow, "a0", steps)
-    ##         raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
-    ##         raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
-      
+             raster_plot(fit[2, ], my.ncol, my.nrow, "a1", steps)
+             raster_plot(fit[3, ], my.ncol, my.nrow, "a2", steps)
+
     ## All these work fine!
     ##    X <- as.blockcyclic(X, bldim=c(4, 4))
     ##    X.pc <- prcomp(X)
     ##    comm.print(X.pc)
     
-    ##
     ## Here, write out the results of the analysis
     a0 <- fit[1, ]
     a1 <- fit[2, ]
     a2 <- fit[3, ]
+
     ## now use adios to write (T, a0, a1, a2). All are with dimensions:
     ##       global.dim = g.dim
     ##       local.dim = my.dim = my.count

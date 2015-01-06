@@ -20,7 +20,7 @@
 #endif
 
 // for Writer
-//typedef struct {
+// typedef struct {
 //  int64_t       m_adios_group;
 //  int64_t       m_adios_file;
 //} m_adios_file_group;
@@ -41,13 +41,11 @@ SEXP AsInt(int x);
 /* For internal buffeer management and to construct the group index table.*/
 //SEXP R_adios_group_size(SEXP R_adios_handle, SEXP R_adios_groupsize,
 //			SEXP R_adios_totalsize);
-
-
 /* ADIOS read functions. */
 //SEXP R_adios_read(SEXP R_adios_handle, SEXP R_var_name, SEXP R_var,
 //		  SEXP R_adios_buf_size);
 
-/* New read method for Streaming*/
+/* New read method for Streaming */
 
 int read_method_hash(const char *search_str);
 int lock_mode_hash(const char *search_str);
@@ -73,7 +71,6 @@ SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last,
 			  SEXP R_adios_timeout_sec);
 
 SEXP R_adios_errno();
-
 
 
 /* ADIOS writer methods */

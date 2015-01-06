@@ -78,11 +78,10 @@ SEXP R_adios_select_method(SEXP R_m_adios_group, SEXP R_adios_method, SEXP R_adi
 SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios_path, SEXP R_adios_local_dim, SEXP R_adios_global_dim, SEXP R_adios_local_offset){ 
 
 
-  const char *adios_type = CHARPT(R_adios_type, 0);
-  if(strcmp(adios_type,"adios_double") eq 0){
-
-
-  }
+  //const char *adios_type = CHARPT(R_adios_type, 0);
+  //if(strcmp(adios_type,"adios_double") eq 0){
+  //
+  //}
    
 
 

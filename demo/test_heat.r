@@ -189,7 +189,7 @@ comm.print("File closed")
 adios.read.finalize.method("ADIOS_READ_METHOD_BP")
 comm.print("Finalized adios ...")
 
-adios.finalize(pbdMPI:::comm.rank()) # ADIOS finalize ## WR
+adios.finalize(pbdMPI::comm.rank()) # ADIOS finalize ## WR
 
 finalize() # pbdMPI finalize
 

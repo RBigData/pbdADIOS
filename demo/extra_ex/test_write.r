@@ -21,11 +21,11 @@ init() ##pbdMPI init
 
 filename <- "/Users/pragnesh/5.1.1/SGN_pbdADIOS/SGN_23_dec/pbdADIOS/tests/test_write.bp"
 
-G <- NX * pbdMPI:::comm.size()
-O <- pbdMPI:::comm.rank() * NX + NX
+G <- NX * pbdMPI::comm.size()
+O <- pbdMPI::comm.rank() * NX + NX
 
 for(i in 1:NX){
-  t[i] <- pbdMPI:::comm.rank() + (i * 0.1) + 0.01
+  t[i] <- pbdMPI::comm.rank() + (i * 0.1) + 0.01
 }
 
 adios.init.noxml() ## implicitly using comm
@@ -55,5 +55,5 @@ for(j in 1:num_timestamp) {
 
 }
 
-adios.finalize(pbdMPI:::comm.rank()) # ADIOS finalize
+adios.finalize(pbdMPI::comm.rank()) # ADIOS finalize
 finalize() # pbdMPI final

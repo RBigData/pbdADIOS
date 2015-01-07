@@ -1,18 +1,11 @@
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
 #include "R_adios.h"
-#include "adios_read.h"
 
-#define INT(x) INTEGER(x)[0]
-#define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue)); R_RegisterCFinalizerEx(Rptr, fin, TRUE)
- /* newRptr(already_allocated_C_pointer, R_pointer_to_be_made_for_it, finalizer) */
 
 static void finalizer(SEXP Rptr)
 {
   void *ptr = (void *) R_ExternalPtrAddr(Rptr);
   if (NULL == ptr) {
-    //    Rprintf("finalizer: Nothing to finalize\n");
+    //    R_dbg_print("finalizer: Nothing to finalize\n");
     return;
   } else {
     //    Rprintf("finalizer: About to free: %p ...\n", ptr);

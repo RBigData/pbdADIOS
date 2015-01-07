@@ -1,10 +1,6 @@
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include "R_adios.h"
-
-#define __STDC_FORMAT_MACROS
+#include <stdint.h>
 #include <inttypes.h>
+#include "R_adios.h"
 
 
 SEXP R_adios_init_noxml(SEXP R_comm){
@@ -152,7 +148,7 @@ SEXP R_adios_group_size(SEXP R_m_adios_file, SEXP R_adios_group_size){
 
   uint64_t group_size = (uint64_t) INTEGER(R_adios_group_size)[0]; // ??
 
-  //Rprintf("Group_size : %" PRIu64 "\n", group_size);
+  Rprintf("Group_size : %" PRIu64 "\n", group_size);
   
 
   SEXP R_adios_total_size;

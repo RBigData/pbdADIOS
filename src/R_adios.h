@@ -25,7 +25,11 @@
 //  int64_t       m_adios_file;
 //} m_adios_file_group;
 
-/* Obtain character pointers. */
+
+#define INT(x) INTEGER(x)[0]
+#define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue)); R_RegisterCFinalizerEx(Rptr, fin, TRUE)
+ /* newRptr(already_allocated_C_pointer, R_pointer_to_be_made_for_it, finalizer) */
+
 #define CHARPT(x,i)     ((char*)CHAR(STRING_ELT(x,i)))
 
 /* ADIOS utility functions. */

@@ -12,6 +12,6 @@
 } # End of .First.lib().
 
 .Last.lib <- function(libpath){
-  pbdADIOS::adios.finalize(pbdMPI:::comm.rank())
+  pbdADIOS::adios.finalize(pbdMPI::comm.rank())
   library.dynam.unload("pbdADIOS", libpath)
 } # End of .Last.lib().

@@ -20,14 +20,13 @@
 #' }
 #' 
 #' @export
-
 adios.init.noxml <- function(comm = pbdMPI::.SPMD.CT$comm){
-  .Call(R_adios_init_noxml,comm.c2f(comm))   
+  .Call(R_adios_init_noxml, comm.c2f(comm))
   invisible()
 }
 
 adios.allocate.buffer <- function(adios.buffersize){
-  .Call(R_adios_allocate_buffer,as.integer(adios.buffersize))  
+  .Call(R_adios_allocate_buffer, as.integer(adios.buffersize))  
   invisible()
 } 
 
@@ -49,7 +48,7 @@ adios.define.var <- function(adios.group_p, adios.varname, adios.path, adios.loc
 
 adios.open <- function(adios.groupname, adios.filename, adios.mode, comm = pbdMPI::.SPMD.CT$comm){
   
-  .Call(R_adios_open,as.character(adios.groupname), as.character(adios.filename), as.character(adios.mode),comm.c2f(comm))
+  .Call(R_adios_open,as.character(adios.groupname), as.character(adios.filename), as.character(adios.mode), comm.c2f(comm))
 }
 
 adios.group.size <- function(adios.file_p, adios.groupsize){
@@ -69,7 +68,4 @@ adios.finalize <- function(comm = .SPMD.CT$comm){
   .Call(R_adios_finalize, comm.rank(comm))
   invisible()
 } # End of adios.finalize()
-
-
-
 

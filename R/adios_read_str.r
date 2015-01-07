@@ -35,7 +35,7 @@ adios.read.open <- function(adios.filename, adios.read.method,
                             adios.timeout.sec){  
     .Call(R_adios_read_open, as.character(adios.filename),
           as.character(adios.read.method), comm.c2f(comm),
-          as.character(adios.lockmode),as.numeric(adios.timeout.sec))
+          as.character(adios.lockmode), as.numeric(adios.timeout.sec))
 }
 
 adios.read.close <- function(adios.file.ptr){
@@ -84,11 +84,11 @@ custom.data.access <- function(adios.data, adios.selection, adios.varinfo){
 }
 
 adios.perform.reads <- function(adios.file.ptr, adios.blocking){
-    .Call(R_adios_perform_reads,adios.file.ptr, as.integer(adios.blocking))
+    .Call(R_adios_perform_reads, adios.file.ptr, as.integer(adios.blocking))
 }
 
 adios.advance.step <- function(adios.file.ptr, adios.last, adios.timeout.sec){
-    .Call(R_adios_advance_step,adios.file.ptr,
+    .Call(R_adios_advance_step, adios.file.ptr,
                     as.integer(adios.last), as.numeric(adios.timeout.sec))
     invisible()
 }

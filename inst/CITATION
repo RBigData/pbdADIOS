@@ -1,1 +1,29 @@
+citHeader("To cite pbdADIOS in a publication, use:")
+
+citEntry(
+  entry = "Misc",
+  title = "pbdADIOS: Programming with Big Data --
+           Interface to ADIOS",
+  author = personList(as.person("Pragneshkumar Patel"),
+                      as.person("George Ostrouchov"),
+                      as.person("Wei-Chen Chen"),
+                      as.person("Drew Schmidt")),
+  year = "2015",
+  note = "R Package, URL https://github.com/RBigData/pbdADIOS",
+  textVersion = "Patel, P., Ostrouchov, G., Chen, W.-C., and Schmidt, D. (2015) pbdADIOS: Programming with Big Data -- Interface to ADIOS, URL https://github.com/RBigData/pbdADIOS",
+  key = "Patel2015pbdADIOSpackage"
+)
+
+citEntry(
+  entry = "Manual",
+  title = "A Quick Guide to the pbdADIOS Package",
+  author = personList(as.person("Pragneshkumar Patel"),
+                      as.person("George Ostrouchov"),
+                      as.person("Wei-Chen Chen"),
+                      as.person("Drew Schmidt")),
+  year = "2015",
+  note = "R Vignette, URL https://github.com/RBigData/pbdADIOS",
+  textVersion = "Patel, P., Ostrouchov, G., Chen, W.-C., and Schmidt, D. (2015) A Quick Guide to the pbdADIOS Package. R Vignette, URL https://github.com/RBigData/pbdADIOS",
+  key = "Patel2015pbdADIOSvignette"
+)
 

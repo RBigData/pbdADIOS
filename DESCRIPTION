@@ -9,10 +9,12 @@ Authors@R: c(person("Pragneshkumar", "Patel", role = c("aut", "cre"), email =
 Depends:
     R (>= 3.0.0),
     pbdMPI
+Suggests: knitr
+VignetteBuilder: knitr
 LazyLoad: yes
 LazyData: yes
 Description: Package to read from ADIOS, including staging.
-SystemRequirements: OpenMPI (>= 1.5.4) on Solaris, Linux and Mac.
+SystemRequirements: OpenMPI (>= 1.5.4),
     ADIOS.
 License: Mozilla Public License 2.0
 URL: http://r-pbd.org/

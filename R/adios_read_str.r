@@ -46,7 +46,7 @@ adios.read.close <- function(adios.file.ptr){
 adios.read.finalize.method<- function(adios.read.method){
     .Call("R_adios_read_finalize_method",
                     as.character(adios.read.method))
-     invisible()		    
+     invisible()        
 }
 
 adios.inq.var <- function(adios.file.ptr, adios.varname){

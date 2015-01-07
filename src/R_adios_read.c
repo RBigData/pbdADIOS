@@ -5,14 +5,14 @@ static void finalizer(SEXP Rptr)
 {
   void *ptr = (void *) R_ExternalPtrAddr(Rptr);
   if (NULL == ptr) {
-    //    R_dbg_print("finalizer: Nothing to finalize\n");
+    R_debug_print("finalizer: Nothing to finalize\n");
     return;
   } else {
-    //    Rprintf("finalizer: About to free: %p ...\n", ptr);
+    R_debug_print("finalizer: About to free: %p ...\n", ptr);
     Free(ptr);
-    //    Rprintf("finalizer: Freed %p.\n", ptr);
+    R_debug_print("finalizer: Freed %p.\n", ptr);
     R_ClearExternalPtr(Rptr);
-    //    Rprintf("finalizer: %p Cleared Rptr.\n", ptr);
+    R_debug_print("finalizer: %p Cleared Rptr.\n", ptr);
   }
 }
 
@@ -22,12 +22,12 @@ static void finalizer0(SEXP Rptr)
      something else cleared the memory pointed to. */
   void *ptr = (void *) R_ExternalPtrAddr(Rptr);
   if (NULL == ptr) {
-    //    Rprintf("finalizer0: Nothing to finalize\n");
+    R_debug_print("finalizer0: Nothing to finalize\n");
     return;
   } else {
-    //    Rprintf("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
+    R_debug_print("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
     R_ClearExternalPtr(Rptr);
-    //    Rprintf("finalizer0: %p Cleared Rptr.\n", ptr);
+    R_debug_print("finalizer0: %p Cleared Rptr.\n", ptr);
   }
 }
 
@@ -127,8 +127,8 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
   adios_file_ptr  = adios_read_open(filename, read_method_value, comm,
 				    lock_mode_value, *timeout_sec);
   newRptr(adios_file_ptr, R_adios_file_ptr, finalizer0);
-  //  Rprintf("R_adios_read_open address: %p\n",
-  //     (void *)R_ExternalPtrAddr(R_adios_file_ptr));
+  R_debug_print("R_adios_read_open address: %p\n",
+       (void *)R_ExternalPtrAddr(R_adios_file_ptr));
   UNPROTECT(1);
   return(R_adios_file_ptr);
 }
@@ -146,8 +146,8 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
 
   adios_var_info = adios_inq_var(fp,CHARPT(R_adios_varname, 0));
   newRptr(adios_var_info, R_adios_var_info, finalizer);
-  //  Rprintf("R_adios_inq_var address: %p\n",
-  //     (void *)R_ExternalPtrAddr(R_adios_var_info));
+  R_debug_print("R_adios_inq_var address: %p\n",
+       (void *)R_ExternalPtrAddr(R_adios_var_info));
   UNPROTECT(1);
   return(R_adios_var_info);	 
 }
@@ -158,7 +158,7 @@ SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info){
 
   SEXP R_custom_inq_var_ndim_val = PROTECT(allocVector(INTSXP, 1));
   INTEGER (R_custom_inq_var_ndim_val)[0] = adios_var_info -> ndim; 
-  //Rprintf("In C ndim=%d \n", ndim_val);
+  R_debug_print("In C ndim=%d \n", ndim_val);
   UNPROTECT(1);
   return(R_custom_inq_var_ndim_val);
 }
@@ -176,7 +176,7 @@ SEXP R_custom_inq_var_dims(SEXP R_adios_var_info){
     //INTEGER (R_custom_inq_var_dims_val)[1] = adios_var_info -> dims[1];
   }
 
-  //Rprintf("In C ndim=%d \n", ndim_val);                          
+  R_debug_print("In C ndim=%d \n", ndim_val);                          
           
   UNPROTECT(1);
   return(R_custom_inq_var_dims_val);
@@ -301,8 +301,8 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
 		      *nsteps,adios_data); 
   newRptr(adios_data, R_adios_data, finalizer);
-  //  Rprintf("R_adios_schedule_read address: %p\n",
-  //  	  (void *)R_ExternalPtrAddr(R_adios_data));
+  R_debug_print("R_adios_schedule_read address: %p\n",
+        (void *)R_ExternalPtrAddr(R_adios_data));
   UNPROTECT(1);
   return(R_adios_data);
 }
@@ -336,7 +336,7 @@ SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
   //if(strcmp(datatype, "integer") == 0) {
     //cast to integer
   if(strcmp(data_type_string,"integer") == 0){
-    Rprintf("Error found in R_custom_data_access\n");
+    R_debug_print("Error found in R_custom_data_access\n");
   //R_custom_data_access_val = PROTECT(allocVector(INTSXP, 1));
   //  int *data = (int *) adios_data;
   //  int data_val = *(data + (*adios_dataindex));
@@ -418,7 +418,7 @@ SEXP R_adios_read_finalize_method(SEXP R_adios_read_method){
 SEXP R_adios_errno(){
   SEXP R_adios_errno_val = PROTECT(allocVector(INTSXP, 1));
   INTEGER(R_adios_errno_val)[0] = adios_errno;
-  //Rprintf("In C ndim=%d \n", adios_errno);
+  R_debug_print("In C ndim=%d \n", adios_errno);
   UNPROTECT(1);
   return(R_adios_errno_val);
 }

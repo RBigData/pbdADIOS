@@ -92,20 +92,20 @@ SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios
   const char *global_dim = CHARPT(R_adios_global_dim, 0);
   const char *local_offset = CHARPT(R_adios_local_offset, 0);
 
-  //Rprintf("Calling adios_define_var function\n");
-  //Rprintf("Value of group is %p\n",group);
-  //Rprintf("The Direction is %p\n",&group);
-  //Rprintf("Varname is %s\n",varname);
-  //Rprintf("Path is %s\n",path);
-  //Rprintf("Local dim is %s\n",local_dim);
-  //Rprintf("Global dim is %s\n",global_dim);
-  //Rprintf("Local_offset is %s\n",local_offset);
+  R_debug_print("Calling adios_define_var function\n");
+  R_debug_print("Value of group is %p\n",group);
+  R_debug_print("The Direction is %p\n",&group);
+  R_debug_print("Varname is %s\n",varname);
+  R_debug_print("Path is %s\n",path);
+  R_debug_print("Local dim is %s\n",local_dim);
+  R_debug_print("Global dim is %s\n",global_dim);
+  R_debug_print("Local_offset is %s\n",local_offset);
   // Add support for adios_double and adios_integer
 
 
   adios_define_var (*group, varname, path, adios_double, local_dim, global_dim, local_offset); // ?? will support for dynamic type as a input ?? Should "group" pass as a pointer or not ??   
    
-  //Rprintf("Done adios_define_var function\n");
+  R_debug_print("Done adios_define_var function\n");
 
   //free(group);
    return(R_NilValue);
@@ -117,7 +117,7 @@ SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios
 
 SEXP R_adios_open(SEXP R_adios_group_name, SEXP R_adios_file_name, SEXP R_adios_mode, SEXP R_comm){ 
 
-  //Rprintf("Calling R_adios_open function\n");
+  R_debug_print("Calling R_adios_open function\n");
   SEXP R_m_adios_file;
   int64_t *m_adios_file; 
   m_adios_file = (int64_t*) malloc(sizeof(int64_t)); //Make sure this type ??              
@@ -148,14 +148,14 @@ SEXP R_adios_group_size(SEXP R_m_adios_file, SEXP R_adios_group_size){
 
   uint64_t group_size = (uint64_t) INTEGER(R_adios_group_size)[0]; // ??
 
-  Rprintf("Group_size : %" PRIu64 "\n", group_size);
+  R_debug_print("Group_size : %" PRIu64 "\n", group_size);
   
 
   SEXP R_adios_total_size;
   uint64_t *total_size;
   total_size = (uint64_t*) malloc(sizeof(uint64_t)); //Make sure this type ?? 
 
-  //Rprintf("IN R_adios_group_size\n");
+  R_debug_print("IN R_adios_group_size\n");
 
   PROTECT(R_adios_total_size = R_MakeExternalPtr(total_size,
 						 R_NilValue, R_NilValue));
@@ -197,7 +197,7 @@ SEXP R_adios_write(SEXP R_m_adios_file, SEXP R_adios_var_name, SEXP R_adios_var)
     check = -1; //                                                      
   }
   
-  //Rprintf("IN R_adios_write function call \n");
+  R_debug_print("IN R_adios_write function call \n");
 
   //adios_write(*file_p, var_name, (void *) var_address);
   // free(var_address); 
@@ -213,7 +213,7 @@ SEXP R_adios_close(SEXP R_m_adios_file){
   int64_t *file_p;
   file_p = R_ExternalPtrAddr(R_m_adios_file);
 
-  //Rprintf("IN R_adios_close function call \n ");
+  R_debug_print("IN R_adios_close function call \n ");
   //adios_close(file_p);  // Need to pass as a pointer of not ??
    adios_close(*file_p); 
 
@@ -223,7 +223,7 @@ SEXP R_adios_close(SEXP R_m_adios_file){
 }
 
 SEXP R_adios_finalize(SEXP R_comm_rank){
-  //Rprintf("In R_adios_finalize\n");
+  R_debug_print("In R_adios_finalize\n");
   adios_finalize(INTEGER(R_comm_rank)[0]);
   return(R_NilValue);
 

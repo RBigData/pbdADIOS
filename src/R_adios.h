@@ -26,6 +26,13 @@
 //} m_adios_file_group;
 
 
+#ifdef DEBUG
+# define R_debug_print(...) Rprintf(__VA_ARGS__)
+#else
+# define R_debug_print(...)
+#endif
+
+
 #define INT(x) INTEGER(x)[0]
 #define newRptr(ptr,Rptr,fin) PROTECT(Rptr = R_MakeExternalPtr(ptr, R_NilValue, R_NilValue)); R_RegisterCFinalizerEx(Rptr, fin, TRUE)
  /* newRptr(already_allocated_C_pointer, R_pointer_to_be_made_for_it, finalizer) */

@@ -76,7 +76,7 @@ int lock_mode_hash(const char *search_str){
 
 
 SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm,
-			      SEXP R_params){
+            SEXP R_params){
   //since R has no enum construct. Get String from R and using lookup table send integer value to ADIOS
   //To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h)
 
@@ -95,7 +95,7 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method, SEXP R_comm,
 
 
 SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
-		       SEXP R_adios_lockmode, SEXP R_timeout_sec){
+           SEXP R_adios_lockmode, SEXP R_timeout_sec){
   char *filename;
 
   int read_method_value = 1111; //init dummy value                           
@@ -125,7 +125,7 @@ SEXP R_adios_read_open(SEXP R_filename, SEXP R_adios_read_method, SEXP R_comm,
   /* Note this is the reference that gets double-freed. Don't see how it
      is different from others. Is there some other corruption? */
   adios_file_ptr  = adios_read_open(filename, read_method_value, comm,
-				    lock_mode_value, *timeout_sec);
+            lock_mode_value, *timeout_sec);
   newRptr(adios_file_ptr, R_adios_file_ptr, finalizer0);
   R_debug_print("R_adios_read_open address: %p\n",
        (void *)R_ExternalPtrAddr(R_adios_file_ptr));
@@ -149,7 +149,7 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr, SEXP R_adios_varname){
   R_debug_print("R_adios_inq_var address: %p\n",
        (void *)R_ExternalPtrAddr(R_adios_var_info));
   UNPROTECT(1);
-  return(R_adios_var_info);	 
+  return(R_adios_var_info);   
 }
 
 SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info){
@@ -168,7 +168,7 @@ SEXP R_custom_inq_var_dims(SEXP R_adios_var_info){
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
   SEXP R_custom_inq_var_dims_val = PROTECT(allocVector(INTSXP,
-						       adios_var_info -> ndim));
+                   adios_var_info -> ndim));
   for(int i=0;i<adios_var_info -> ndim;i++){
 
     INTEGER (R_custom_inq_var_dims_val)[i] = adios_var_info -> dims[i];
@@ -195,7 +195,7 @@ SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, SEXP R_adios_var_info){
 }
 
 SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
-				    SEXP R_adios_count){
+            SEXP R_adios_count){
   // Ask norbert for malloc size = ndim is ok or not 
   int *ndim;
   int *start;
@@ -229,9 +229,9 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, SEXP R_adios_start,
 }
 
 SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
-			   SEXP R_adios_count, SEXP R_adios_file_ptr,
-			   SEXP R_adios_selection, SEXP R_adios_varname,
-			   SEXP R_adios_from_steps, SEXP R_adios_nsteps){
+         SEXP R_adios_count, SEXP R_adios_file_ptr,
+         SEXP R_adios_selection, SEXP R_adios_varname,
+         SEXP R_adios_from_steps, SEXP R_adios_nsteps){
   ADIOS_VARINFO *adios_var_info;
   adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
@@ -299,7 +299,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
   //adios_data = (void *) malloc(sizeof(adios_data));
   adios_data = malloc(ndata * datasize);
   adios_schedule_read(fp, adios_selection, varname, *from_steps,
-		      *nsteps,adios_data); 
+          *nsteps,adios_data); 
   newRptr(adios_data, R_adios_data, finalizer);
   R_debug_print("R_adios_schedule_read address: %p\n",
         (void *)R_ExternalPtrAddr(R_adios_data));
@@ -308,7 +308,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info, SEXP R_adios_start,
 }
 
 SEXP R_custom_data_access(SEXP R_adios_data, SEXP R_adios_selection,
-			  SEXP R_adios_var_info){
+        SEXP R_adios_var_info){
   void *adios_data;
   adios_data = R_ExternalPtrAddr(R_adios_data);
 
@@ -382,7 +382,7 @@ SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, SEXP R_adios_blocking){
 }
 
 SEXP R_adios_advance_step(SEXP R_adios_file_ptr, SEXP R_adios_last,
-			  SEXP R_adios_timeout_sec){
+        SEXP R_adios_timeout_sec){
   SEXP ret;
   PROTECT(ret = allocVector(INTSXP, 1));
   

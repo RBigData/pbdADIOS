@@ -130,7 +130,7 @@ SEXP R_adios_open(SEXP R_adios_group_name, SEXP R_adios_file_name, SEXP R_adios_
   comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
 
   PROTECT(R_m_adios_file = R_MakeExternalPtr(m_adios_file,
-					     R_NilValue, R_NilValue));
+               R_NilValue, R_NilValue));
 
   //adios_open (*m_adios_file, group_name, file_name, mode, comm); // Calling adios_open 
 
@@ -158,7 +158,7 @@ SEXP R_adios_group_size(SEXP R_m_adios_file, SEXP R_adios_group_size){
   R_debug_print("IN R_adios_group_size\n");
 
   PROTECT(R_adios_total_size = R_MakeExternalPtr(total_size,
-						 R_NilValue, R_NilValue));
+             R_NilValue, R_NilValue));
   
   //adios_group_size (*file_p, group_size, *total_size);
   adios_group_size (*file_p, group_size, total_size); // Should pass file pointer or not(Manual and example are contradict) 

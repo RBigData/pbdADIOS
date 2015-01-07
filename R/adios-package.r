@@ -1,6 +1,9 @@
 #'  Package to read from ADIOS, including staging.
 #'
 #' @name pbdADIOS-package
+#'
+#' @exportPattern "^adios\\.[[:alpha:]]+"
+#'
 #' @useDynLib pbdADIOS,
 #   ### Reader
 #'  R_adios_read_init_method,

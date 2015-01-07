@@ -9,7 +9,8 @@ Authors@R: c(person("Pragneshkumar", "Patel", role = c("aut", "cre"), email =
 Depends:
     R (>= 3.0.0),
     pbdMPI
-Suggests: knitr
+Suggests:
+    knitr
 VignetteBuilder: knitr
 LazyLoad: yes
 LazyData: yes

@@ -3,6 +3,7 @@
 #' @name pbdADIOS-package
 #'
 #' @exportPattern "^adios\\.[[:alpha:]]+"
+#' @exportPattern "^custom\\.[[:alpha:]]+"
 #'
 #' @useDynLib pbdADIOS,
 #   ### Reader

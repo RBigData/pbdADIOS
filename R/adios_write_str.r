@@ -64,7 +64,7 @@ adios.close <- function(adios.file_p){
    invisible()
 }
 
-adios.finalize <- function(comm = .SPMD.CT$comm){
+adios.finalize <- function(comm = pbdMPI::.SPMD.CT$comm){
   .Call(R_adios_finalize, comm.rank(comm))
   invisible()
 } # End of adios.finalize()

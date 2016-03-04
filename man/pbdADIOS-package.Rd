@@ -3,7 +3,7 @@
 \docType{package}
 \name{pbdADIOS-package}
 \alias{pbdADIOS-package}
-\title{logisticPCA-package}
+\title{pbdADIOS-package}
 \description{
 Package to read from ADIOS, including staging.
 }

@@ -2,9 +2,6 @@
 #'
 #' @name pbdADIOS-package
 #'
-#' @exportPattern "^adios\\.[[:alpha:]]+"
-#' @exportPattern "^custom\\.[[:alpha:]]+"
-#'
 #' @useDynLib pbdADIOS,
 #   ### Reader
 #'  R_adios_read_init_method,
@@ -35,7 +32,7 @@
 #'
 #' @import pbdMPI
 #' @docType package
-#' @title logisticPCA-package
+#' @title pbdADIOS-package
 #' @author Pragneshkumar Patel, George Ostrouchov, Wei-Chen Chen, Drew Schmidt
 #' @keywords package
 NULL

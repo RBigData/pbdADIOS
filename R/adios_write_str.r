@@ -1,25 +1,3 @@
-#' @title Write Initialization
-#' 
-#' @description 
-#' A description of what the function does.
-#' 
-#' @param adios.init.noxml 
-#' A communicator number.
-#' Description of the variable.
-#' 
-#' @details
-#' A more detailed description, if you like.
-#' 
-#' @return Description of the return.
-#' 
-#' @seealso \code{\link{adios.open}}
-#' 
-#' @examples \dontrun{
-#' library(pbdADIOS)
-#' whatever <- adios.init.noxml(stuff)
-#' }
-#' 
-#' @export
 adios.init.noxml <- function(comm = pbdMPI::.SPMD.CT$comm){
   .Call(R_adios_init_noxml, comm.c2f(comm))
   invisible()
@@ -63,9 +41,3 @@ adios.close <- function(adios.file_p){
   .Call(R_adios_close, adios.file_p)
    invisible()
 }
-
-adios.finalize <- function(comm = pbdMPI::.SPMD.CT$comm){
-  .Call(R_adios_finalize, comm.rank(comm))
-  invisible()
-} # End of adios.finalize()
-

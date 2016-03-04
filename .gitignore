@@ -11,4 +11,4 @@
 src/Makevars
 autom4te.cache
 
-
+*.html

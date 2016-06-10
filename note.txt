@@ -30,3 +30,42 @@ R CMD SHLIB tmp.c
 在function内创建的pointer, use newRptr, otherwise use R_ExternalPtrAddr to get the pointer
 Pay attention to finalizer and finalizer0
 External pointer SEXPs are intended to handle references to C structures such as ‘handles’
+
+difference between INTERGER and asInteger
+zeroes <- cfunction(c(n_ = "integer"), '
+  int n = asInteger(n_);
+
+  SEXP out = PROTECT(allocVector(INTSXP, n));
+  memset(INTEGER(out), 0, n * sizeof(int));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+// should us as.integer to convert double to int
+zeroes1 <- cfunction(c(n_ = "integer"), '
+  int* n = INTEGER(n_);
+
+  SEXP out = PROTECT(allocVector(INTSXP, *n));
+  memset(INTEGER(out), 0, (*n) * sizeof(int));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+zeroes2 <- cfunction(c(n_ = "integer"), '
+
+  int* n = INTEGER(coerceVector(n_, INTSXP));
+
+  SEXP out = PROTECT(allocVector(INTSXP, *n));
+  memset(INTEGER(out), 0, (*n) * sizeof(int));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+
+

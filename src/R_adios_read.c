@@ -5,6 +5,9 @@
 * https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
 */
 
+/*
+* Finalizer that frees memory and clears R pointer
+*/
 static void finalizer(SEXP Rptr)
 {
     void *ptr = (void *) R_ExternalPtrAddr(Rptr);
@@ -20,11 +23,11 @@ static void finalizer(SEXP Rptr)
     }
 }
 
-
+/* 
+* Finalizer that only clears R pointer
+*/
 static void finalizer0(SEXP Rptr)
 {
-    /* This finalizer only clears the R pointer assuming that
-         something else cleared the memory pointed to. */
     void *ptr = (void *) R_ExternalPtrAddr(Rptr);
     if (NULL == ptr) {
         R_debug_print("finalizer0: Nothing to finalize\n");
@@ -36,8 +39,9 @@ static void finalizer0(SEXP Rptr)
     }
 }
 
-
-//To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h) 
+/*
+* ADIOS_READ_METHOD lookup table
+*/
 int read_method_hash(const char *search_str)
 {
     typedef struct read_method_table {
@@ -58,10 +62,11 @@ int read_method_hash(const char *search_str)
         }
     }
     return -EINVAL;
-} /*End of read_method_hash */
+} 
 
-
-//To construct look up table use public/adios_read_v2.h (Ask ADIOS team about adios_read_v2.h)                          
+/*
+* ADIOS_LOCKMODE lookup table
+*/                       
 int lock_mode_hash(const char *search_str)
 {
     typedef struct lock_mode_table {
@@ -80,7 +85,7 @@ int lock_mode_hash(const char *search_str)
         }
     }
     return -EINVAL;
-} /*End of lock_mode */
+}
 
 
 SEXP R_adios_read_init_method(SEXP R_adios_read_method,
@@ -101,7 +106,7 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method,
 
     UNPROTECT(1);
     return ret;
-} /* End of R_adios_read_init_method(). */
+} 
 
 
 SEXP R_adios_read_open(SEXP R_filename, 
@@ -130,6 +135,7 @@ SEXP R_adios_read_open(SEXP R_filename,
 
     filename   = CHARPT(R_filename, 0);
     comm       = MPI_Comm_f2c(INTEGER(R_comm)[0]);
+    //R does NOT have any objects that are in "float" (single precision) representations 
     timeout_sec= REAL(R_timeout_sec); //double check FLOAT vs DOUBLE in R 
 
     // pointer to an ADIOS_FILE struct
@@ -195,18 +201,27 @@ SEXP R_custom_inq_var_dims(SEXP R_adios_var_info)
 SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, 
                                SEXP R_adios_var_info)
 {
+    SEXP ret;
+    PROTECT(ret = allocVector(INTSXP, 1));
+
     ADIOS_FILE *fp;
     fp = R_ExternalPtrAddr(R_adios_file_ptr);
 
     ADIOS_VARINFO *adios_var_info;
     adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
-    adios_inq_var_blockinfo(fp, adios_var_info);
+    INT(ret) = adios_inq_var_blockinfo(fp, adios_var_info);
 
-    return(R_NilValue);
+    UNPROTECT(1);
+    return ret;
 }
 
 
+/* 
+* adios_selection_bounding_box API.
+* ADIOS_SELECTION object can be simply freed by free(), so adios_selection_delete is not implemented here
+* https://github.com/ornladios/ADIOS/blob/master/src/public/adios_selection.h
+*/
 SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, 
                                     SEXP R_adios_start,
                                     SEXP R_adios_count)
@@ -235,7 +250,6 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim,
 
     ADIOS_SELECTION *adios_selection;
     SEXP R_adios_selection;
-
 
     adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
     newRptr(adios_selection, R_adios_selection, finalizer);

@@ -7,7 +7,8 @@
 * https://github.com/ornladios/ADIOS/blob/master/src/public/adios.h
 */
 
-SEXP R_adios_init_noxml(SEXP R_comm){
+SEXP R_adios_init_noxml(SEXP R_comm)
+{
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     
@@ -18,7 +19,8 @@ SEXP R_adios_init_noxml(SEXP R_comm){
 } /* End of R_adios_d_init_method(). */
 
 
-SEXP R_adios_allocate_buffer(SEXP R_buffer_size){
+SEXP R_adios_allocate_buffer(SEXP R_buffer_size)
+{
 // SEXP R_adios_allocate_buffer(SEXP R_adios_buffer_when, SEXP R_buffer_size){
 // Later will add support for different methods
 // Need to create enum 
@@ -34,7 +36,9 @@ SEXP R_adios_allocate_buffer(SEXP R_buffer_size){
 
 
 
-SEXP R_adios_declare_group(SEXP R_adios_group_name, SEXP R_adios_time_index) {
+SEXP R_adios_declare_group(SEXP R_adios_group_name, 
+                           SEXP R_adios_time_index) 
+{
     //Later will add suport for adios_flag_yes or adios_flag_no 
 
     const char *group_name = CHARPT(R_adios_group_name, 0);
@@ -56,7 +60,11 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name, SEXP R_adios_time_index) {
 }
 
 
-SEXP R_adios_select_method(SEXP R_m_adios_group, SEXP R_adios_method, SEXP R_adios_params, SEXP R_adios_base_path ){
+SEXP R_adios_select_method(SEXP R_m_adios_group, 
+                           SEXP R_adios_method, 
+                           SEXP R_adios_params, 
+                           SEXP R_adios_base_path )
+{
     
     //int64_t *group = INTEGER(R_m_adios_group); // Make sure ??
  
@@ -76,7 +84,13 @@ SEXP R_adios_select_method(SEXP R_m_adios_group, SEXP R_adios_method, SEXP R_adi
 
 
 //SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios_path, SEXP R_adios_type, SEXP R_adios_local_dim, SEXP R_adios_global_dim, SEXP R_adios_local_offset){
-SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios_path, SEXP R_adios_local_dim, SEXP R_adios_global_dim, SEXP R_adios_local_offset){ 
+SEXP R_adios_define_var(SEXP R_m_adios_group, 
+                        SEXP R_adios_varname, 
+                        SEXP R_adios_path, 
+                        SEXP R_adios_local_dim, 
+                        SEXP R_adios_global_dim, 
+                        SEXP R_adios_local_offset)
+{ 
 
 
     //const char *adios_type = CHARPT(R_adios_type, 0);
@@ -118,7 +132,11 @@ SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios
 
 
 //SEXP R_adios_open(SEXP R_m_adios_file, SEXP R_adios_group_name, SEXP R_adios_file_name, SEXP R_adios_mode, SEXP R_comm){
-SEXP R_adios_open(SEXP R_adios_group_name, SEXP R_adios_file_name, SEXP R_adios_mode, SEXP R_comm){ 
+SEXP R_adios_open(SEXP R_adios_group_name, 
+                  SEXP R_adios_file_name, 
+                  SEXP R_adios_mode, 
+                  SEXP R_comm)
+{ 
 
     R_debug_print("Calling R_adios_open function\n");
     SEXP R_m_adios_file;
@@ -144,7 +162,9 @@ SEXP R_adios_open(SEXP R_adios_group_name, SEXP R_adios_file_name, SEXP R_adios_
 }
 
 
-SEXP R_adios_group_size(SEXP R_m_adios_file, SEXP R_adios_group_size){
+SEXP R_adios_group_size(SEXP R_m_adios_file, 
+                        SEXP R_adios_group_size)
+{
 
     //int64_t *file_p = INTEGER(R_m_adios_file); // ??
     int64_t *file_p;
@@ -173,7 +193,10 @@ SEXP R_adios_group_size(SEXP R_m_adios_file, SEXP R_adios_group_size){
 }
 
 
-SEXP R_adios_write(SEXP R_m_adios_file, SEXP R_adios_var_name, SEXP R_adios_var){
+SEXP R_adios_write(SEXP R_m_adios_file, 
+                   SEXP R_adios_var_name, 
+                   SEXP R_adios_var)
+{
 
     //int64_t *file_p = INTEGER(R_m_adios_file); // ??
     int64_t *file_p;
@@ -211,7 +234,8 @@ SEXP R_adios_write(SEXP R_m_adios_file, SEXP R_adios_var_name, SEXP R_adios_var)
 }
 
 
-SEXP R_adios_close(SEXP R_m_adios_file){
+SEXP R_adios_close(SEXP R_m_adios_file)
+{
     
     //int64_t *file_p = INTEGER(R_m_adios_file); // ?? 
     int64_t *file_p;
@@ -227,7 +251,8 @@ SEXP R_adios_close(SEXP R_m_adios_file){
 }
 
 
-SEXP R_adios_finalize(SEXP R_comm_rank){
+SEXP R_adios_finalize(SEXP R_comm_rank)
+{
     R_debug_print("In R_adios_finalize\n");
     adios_finalize(INTEGER(R_comm_rank)[0]);
     return(R_NilValue);

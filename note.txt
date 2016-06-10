@@ -1,0 +1,32 @@
+sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
+sudo R CMD REMOVE pbdADIOS
+
+sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load --clean
+sudo R CMD REMOVE -l /usr/local/lib/R/site-library pbdADIOS
+
+> .libPaths()
+[1] "/home/pbdr/R/i686-pc-linux-gnu-library/3.3"
+[2] "/usr/local/lib/R/site-library"             
+[3] "/usr/lib/R/site-library"                   
+[4] "/usr/lib/R/library"  
+
+git clone https://github.com/YupingLu/pbdADIOS.git
+R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" 
+R CMD REMOVE pbdADIOS
+
+need to change the NAMESPACE
+
+This version is right?
+git clone https://github.com/sgn11/pbdADIOS.git
+
+Error: '.SPMD.CT' is not an exported object from 'namespace:pbdMPI'
+sudo R CMD REMOVE -l /usr/local/lib/R/site-library pbdMPI
+git clone https://github.com/RBigData/pbdMPI.git
+R CMD INSTALL pbdMPI
+
+Compile c source code
+R CMD SHLIB tmp.c
+
+在function内创建的pointer, use newRptr, otherwise use R_ExternalPtrAddr to get the pointer
+Pay attention to finalizer and finalizer0
+External pointer SEXPs are intended to handle references to C structures such as ‘handles’

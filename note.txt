@@ -74,4 +74,6 @@ te <- cfunction(c(n_ = "numeric"), '
   return ScalarReal(a);
 ')
 
+method to get communicator
+comm = .pbd_env$SPMD.CT$comm
 

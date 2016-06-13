@@ -7,6 +7,9 @@
 * https://github.com/ornladios/ADIOS/blob/master/src/public/adios.h
 */
 
+/**
+ * ADIOS No-XML API's
+ */
 SEXP R_adios_init_noxml(SEXP R_comm)
 {
     MPI_Comm comm;
@@ -15,27 +18,33 @@ SEXP R_adios_init_noxml(SEXP R_comm)
     adios_init_noxml(comm); //Calling adios_init_nomxl function 
 
     return(R_NilValue);
+} 
 
-} /* End of R_adios_d_init_method(). */
-
-
+/**
+ *  To allocate ADIOS buffer OBSOLETE?
+ *  adios_buffer_alloc_when - indicates when ADIOS buffer should be allocated. 
+ *  The value can be ei- ther ADIOS_BUFFER_ALLOC_NOW or ADIOS_BUFFER_ALLOC_LATER.
+ */
 SEXP R_adios_allocate_buffer(SEXP R_buffer_size)
 {
 // SEXP R_adios_allocate_buffer(SEXP R_adios_buffer_when, SEXP R_buffer_size){
 // Later will add support for different methods
 // Need to create enum 
 // const char *buffer_when = CHARPT(R_adios_buffer_when, 0);
-    
+    SEXP ret;
+    PROTECT(ret = allocVector(INTSXP, 1));
+
     uint64_t buffer_size;
-    buffer_size   = (uint64_t) INTEGER(R_buffer_size)[0]; //Make sure this conv is correct ??
-    adios_allocate_buffer(ADIOS_BUFFER_ALLOC_NOW, buffer_size);
+    buffer_size   = (uint64_t) asReal(R_buffer_size); //Make sure this conv is correct ??
+    INT(ret) = adios_allocate_buffer(ADIOS_BUFFER_ALLOC_NOW, buffer_size);
  
-    return(R_NilValue);
+    return ret;
 
-} /* End of R_adios_allocate_buffer(). */
+} 
 
-
-
+/**
+ * To declare a ADIOS group
+ */
 SEXP R_adios_declare_group(SEXP R_adios_group_name, 
                            SEXP R_adios_time_index) 
 {
@@ -48,8 +57,7 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name,
     int64_t *m_adios_group;
     m_adios_group  = (int64_t*) malloc(sizeof(int64_t)); //Make sure this type ??
 
-    PROTECT(R_m_adios_group = R_MakeExternalPtr(m_adios_group,
-                                                                                     R_NilValue, R_NilValue));
+    PROTECT(R_m_adios_group = R_MakeExternalPtr(m_adios_group, R_NilValue, R_NilValue));
 
  //adios_declare_group (*m_adios_group, "restart", "", adios_flag_yes); // Returns group id   
     adios_declare_group (m_adios_group, group_name, time_index, adios_flag_yes); // ??
@@ -59,7 +67,9 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name,
 
 }
 
-
+/**
+ *  To select a I/O method for a ADIOS group
+ */
 SEXP R_adios_select_method(SEXP R_m_adios_group, 
                            SEXP R_adios_method, 
                            SEXP R_adios_params, 
@@ -82,8 +92,11 @@ SEXP R_adios_select_method(SEXP R_m_adios_group,
 
 }
 
-
-//SEXP R_adios_define_var(SEXP R_m_adios_group, SEXP R_adios_varname, SEXP R_adios_path, SEXP R_adios_type, SEXP R_adios_local_dim, SEXP R_adios_global_dim, SEXP R_adios_local_offset){
+/**
+ * To define a ADIOS variable
+ * Returns a variable ID, which can be used in adios_write_byid()
+ * 0 return value indicates an error
+ */
 SEXP R_adios_define_var(SEXP R_m_adios_group, 
                         SEXP R_adios_varname, 
                         SEXP R_adios_path, 
@@ -119,7 +132,6 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
     R_debug_print("Local_offset is %s\n",local_offset);
     // Add support for adios_double and adios_integer
 
-
     adios_define_var (*group, varname, path, adios_double, local_dim, global_dim, local_offset); // ?? will support for dynamic type as a input ?? Should "group" pass as a pointer or not ??   
      
     R_debug_print("Done adios_define_var function\n");
@@ -130,8 +142,10 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
     
 }
 
-
-//SEXP R_adios_open(SEXP R_m_adios_file, SEXP R_adios_group_name, SEXP R_adios_file_name, SEXP R_adios_mode, SEXP R_comm){
+/**
+ * This function is to open or to append to an output file
+ * modes = "r" = "read", "w" = "write", "a" = "append", "u" = "update"
+ */
 SEXP R_adios_open(SEXP R_adios_group_name, 
                   SEXP R_adios_file_name, 
                   SEXP R_adios_mode, 
@@ -161,7 +175,10 @@ SEXP R_adios_open(SEXP R_adios_group_name,
     return(R_m_adios_file);
 }
 
-
+/**
+ * This function passes the size of the group to the internal ADIOS transport structure 
+ * to facilitate the internal buffer management and to construct the group index table
+ */
 SEXP R_adios_group_size(SEXP R_m_adios_file, 
                         SEXP R_adios_group_size)
 {
@@ -192,7 +209,9 @@ SEXP R_adios_group_size(SEXP R_m_adios_file,
 
 }
 
-
+/**
+ * write the data either to internal buffer or disk
+ */
 SEXP R_adios_write(SEXP R_m_adios_file, 
                    SEXP R_adios_var_name, 
                    SEXP R_adios_var)
@@ -233,7 +252,9 @@ SEXP R_adios_write(SEXP R_m_adios_file,
     
 }
 
-
+/**
+ * commit write/read operation and close the data
+ */
 SEXP R_adios_close(SEXP R_m_adios_file)
 {
     
@@ -250,14 +271,19 @@ SEXP R_adios_close(SEXP R_m_adios_file)
 
 }
 
-
+/**
+ * terminate ADIOS
+ */
 SEXP R_adios_finalize(SEXP R_comm_rank)
 {
+    SEXP ret;
+    PROTECT(ret = allocVector(INTSXP, 1));
+    
     R_debug_print("In R_adios_finalize\n");
-    adios_finalize(INTEGER(R_comm_rank)[0]);
-    return(R_NilValue);
-
-} /* End of R_adios_finalize(). */
+    INT(ret) = adios_finalize(asInteger(R_comm_rank));
+    UNPROTECT(1);
+    return ret;
+}
 
 
 

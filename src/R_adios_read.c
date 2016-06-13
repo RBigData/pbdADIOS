@@ -1,13 +1,15 @@
 #include "R_adios.h"
 
-/*
-* R wrapper of ADIOS read API
-* https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
-*/
+// Do I need to include stdint etc here to use uint64_t?
 
-/*
-* Finalizer that frees memory and clears R pointer
-*/
+/**
+ *  R wrapper of ADIOS read API
+ *  https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
+ */
+
+/**
+ *  Finalizer that frees memory and clears R pointer
+ */
 static void finalizer(SEXP Rptr)
 {
     void *ptr = (void *) R_ExternalPtrAddr(Rptr);
@@ -23,9 +25,9 @@ static void finalizer(SEXP Rptr)
     }
 }
 
-/* 
-* Finalizer that only clears R pointer
-*/
+/** 
+ *  Finalizer that only clears R pointer
+ */
 static void finalizer0(SEXP Rptr)
 {
     void *ptr = (void *) R_ExternalPtrAddr(Rptr);
@@ -39,9 +41,9 @@ static void finalizer0(SEXP Rptr)
     }
 }
 
-/*
-* ADIOS_READ_METHOD lookup table
-*/
+/**
+ *  ADIOS_READ_METHOD lookup table
+ */
 int read_method_hash(const char *search_str)
 {
     typedef struct read_method_table {
@@ -64,9 +66,9 @@ int read_method_hash(const char *search_str)
     return -EINVAL;
 } 
 
-/*
-* ADIOS_LOCKMODE lookup table
-*/                       
+/**
+ *  ADIOS_LOCKMODE lookup table
+ */                       
 int lock_mode_hash(const char *search_str)
 {
     typedef struct lock_mode_table {
@@ -87,7 +89,9 @@ int lock_mode_hash(const char *search_str)
     return -EINVAL;
 }
 
-
+/**
+ *  Initialize a reading method before opening a file/stream with using the method.
+ */
 SEXP R_adios_read_init_method(SEXP R_adios_read_method,
                               SEXP R_comm,
                               SEXP R_params)
@@ -108,7 +112,12 @@ SEXP R_adios_read_init_method(SEXP R_adios_read_method,
     return ret;
 } 
 
-
+/**
+ *  Open an adios file/stream as a stream.
+ *  Only one step at a time can be read. The list of variables will change when
+ *  advancing the step if the writing application writes different variables at
+ *  different times.
+ */
 SEXP R_adios_read_open(SEXP R_filename, 
                        SEXP R_adios_read_method, 
                        SEXP R_comm,
@@ -145,10 +154,15 @@ SEXP R_adios_read_open(SEXP R_filename,
     R_debug_print("R_adios_read_open address: %p\n",
              (void *)R_ExternalPtrAddr(R_adios_file_ptr));
     UNPROTECT(1);
-    return(R_adios_file_ptr);
+    return R_adios_file_ptr;
 }
 
-
+/** 
+ *  Open an adios file/stream as a stream.
+ *  Only one step at a time can be read. The list of variables will change when
+ *  advancing the step if the writing application writes different variables at
+ *  different times.
+ */
 SEXP R_adios_inq_var(SEXP R_adios_file_ptr, 
                      SEXP R_adios_varname)
 {
@@ -159,45 +173,29 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr,
     SEXP R_adios_var_info;
 
     adios_var_info = adios_inq_var(fp,CHARPT(R_adios_varname, 0));
-    newRptr(adios_var_info, R_adios_var_info, finalizer);
+    newRptr(adios_var_info, R_adios_var_info, finalizer0);
     R_debug_print("R_adios_inq_var address: %p\n",
              (void *)R_ExternalPtrAddr(R_adios_var_info));
     UNPROTECT(1);
-    return(R_adios_var_info);   
+    return R_adios_var_info;   
 }
 
-
-SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info)
+/** Free memory used by an ADIOS_VARINFO struct */
+SEXP R_adios_free_varinfo (SEXP R_adios_var_info)
 {
     ADIOS_VARINFO *adios_var_info;
     adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
+    adios_free_varinfo (adios_var_info);
 
-    SEXP R_custom_inq_var_ndim_val = PROTECT(allocVector(INTSXP, 1));
-    INTEGER (R_custom_inq_var_ndim_val)[0] = adios_var_info -> ndim; 
-    R_debug_print("In C ndim=%d \n", ndim_val);
-    UNPROTECT(1);
-    return(R_custom_inq_var_ndim_val);
+    return R_NilValue;
 }
 
-
-SEXP R_custom_inq_var_dims(SEXP R_adios_var_info)
-{
-    ADIOS_VARINFO *adios_var_info;
-    adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
-
-    SEXP R_custom_inq_var_dims_val = PROTECT(allocVector(INTSXP,
-                                     adios_var_info -> ndim));
-    for(int i=0;i<adios_var_info -> ndim;i++){
-        INTEGER (R_custom_inq_var_dims_val)[i] = adios_var_info -> dims[i];
-    }
-
-    R_debug_print("In C ndim=%d \n", ndim_val);                          
-                    
-    UNPROTECT(1);
-    return(R_custom_inq_var_dims_val);
-}
-
-
+/** Get the block-decomposition of the variable about how it is stored in 
+ *  the file or stream. The decomposition information are recorded in the
+ *  metadata, so no extra file access is necessary after adios_fopen() for 
+ *  this operation. The result is stored in the array of 
+ *  ADIOS_VARBLOCK structs under varinfo.blocks. 
+ */
 SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, 
                                SEXP R_adios_var_info)
 {
@@ -216,36 +214,58 @@ SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr,
     return ret;
 }
 
+/** Get number of dimensions */
+SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info)
+{
+    ADIOS_VARINFO *adios_var_info;
+    adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
 
-/* 
-* adios_selection_bounding_box API.
-* ADIOS_SELECTION object can be simply freed by free(), so adios_selection_delete is not implemented here
-* https://github.com/ornladios/ADIOS/blob/master/src/public/adios_selection.h
-*/
-SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim, 
+    SEXP R_custom_inq_var_ndim_val = PROTECT(allocVector(INTSXP, 1));
+    INT(R_custom_inq_var_ndim_val) = adios_var_info -> ndim; 
+    R_debug_print("In C ndim=%d \n", adios_var_info -> ndim);
+    UNPROTECT(1);
+    return R_custom_inq_var_ndim_val;
+}
+
+/** Get size of each dimension */
+SEXP R_custom_inq_var_dims(SEXP R_adios_var_info)
+{
+    ADIOS_VARINFO *adios_var_info;
+    adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
+
+    SEXP R_custom_inq_var_dims_val = PROTECT(allocVector(INTSXP,
+                                     adios_var_info -> ndim));
+    for(int i=0;i<adios_var_info -> ndim;i++){
+        INTEGER (R_custom_inq_var_dims_val)[i] = adios_var_info -> dims[i];
+    }
+                                            
+    UNPROTECT(1);
+    return R_custom_inq_var_dims_val;
+}
+
+/** 
+ *  adios_selection_bounding_box API.
+ *  ADIOS_SELECTION object can be simply freed by free(), so adios_selection_delete is not implemented here
+ *  https://github.com/ornladios/ADIOS/blob/master/src/public/adios_selection.h
+ *  R reads double values here and then convert them into int and uint64_t
+ */
+SEXP R_adios_selection_boundingbox(SEXP R_adios_ndim, 
                                     SEXP R_adios_start,
                                     SEXP R_adios_count)
 {
-    // Ask norbert for malloc size = ndim is ok or not 
-    int *ndim;
-    int *start;
-    int *count;
+    // Make sure R_adios_ndim is interger
+    //int* ndim = INTEGER(coerceVector(R_adios_ndim, INTSXP));
+    int* ndim = INTEGER(R_adios_ndim);
+    double* start = REAL(R_adios_start);
+    double* count = REAL(R_adios_count);
 
-    R_adios_start = coerceVector(R_adios_start, INTSXP);
-    R_adios_count = coerceVector(R_adios_count, INTSXP);
-
-    ndim = INTEGER(R_adios_ndim);
-    /* G: are we losing 64 bit capability here? */
-    start = INTEGER(R_adios_start);
-    count = INTEGER(R_adios_count);
-
-    //Malloc  
+    //Malloc 
     uint64_t *start_adios =  malloc( (*ndim) * sizeof(uint64_t));
     uint64_t *count_adios =  malloc( (*ndim) * sizeof(uint64_t));
     //Copy from start to start_adios and count to count_adios
     for (int pos = 0; pos < *ndim; pos++) { 
-        start_adios[pos] = start[pos];
-        count_adios[pos] = count[pos];
+        start_adios[pos] = (uint64_t)start[pos];
+        count_adios[pos] = (uint64_t)count[pos];
     }
 
     ADIOS_SELECTION *adios_selection;
@@ -254,10 +274,18 @@ SEXP R_adios_selection_bounding_box(SEXP R_adios_ndim,
     adios_selection = adios_selection_boundingbox(*ndim, start_adios, count_adios);
     newRptr(adios_selection, R_adios_selection, finalizer);
     UNPROTECT(1);
-    return(R_adios_selection);
+
+    // free memory
+    Free(start_adios);
+    Free(count_adios);
+    return R_adios_selection;
 }
 
-
+/**
+ *  Schedule reading a variable (slice) from the file.
+ *  You need to call adios_perform_reads() to do the reading.
+ *  Return: pointer to the memory to hold dsata of the variable.
+ */
 SEXP R_adios_schedule_read(SEXP R_adios_var_info, 
                            SEXP R_adios_start,
                            SEXP R_adios_count, 
@@ -269,51 +297,22 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info,
 {
     ADIOS_VARINFO *adios_var_info;
     adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
+                  
+    uint64_t ndim = adios_var_info->ndim;
+    double* start = REAL(R_adios_start);
+    double* count = REAL(R_adios_count);
 
-    // Ask norbert for malloc size = ndim is ok or not                      
-    uint64_t ndim = adios_var_info -> ndim;
-    int *start;
-    int *count;
-
-    R_adios_start = coerceVector(R_adios_start, INTSXP);
-    R_adios_count = coerceVector(R_adios_count, INTSXP);
-
-    //ndim = (uint64_t *) INTEGER(R_adios_ndim);
-    //start = (uint64_t *) INTEGER(R_adios_start);      
-    //count = (uint64_t *) INTEGER(R_adios_count); 
- 
-    start = INTEGER(R_adios_start);
-    count = INTEGER(R_adios_count);
-
-    //Malloc                         
-    //uint64_t *start_adios =  malloc( (*ndim) * sizeof(uint64_t));
-    //uint64_t *count_adios =  malloc( (*ndim) * sizeof(uint64_t));
-    //Copy from start to start_adios and count to count_adios              
-
-    uint64_t *start_adios =  malloc( (adios_var_info -> ndim)*sizeof(uint64_t));  
-    uint64_t *count_adios =  malloc( (adios_var_info -> ndim)*sizeof(uint64_t));  
-
-    //for (int pos = 0; pos < *ndim; pos++) {
-    for (int pos = 0; pos < adios_var_info -> ndim; pos++) {
-        start_adios[pos] = start[pos];
-        count_adios[pos] = count[pos];
+    //Malloc 
+    uint64_t *start_adios =  malloc( (ndim) * sizeof(uint64_t));
+    uint64_t *count_adios =  malloc( (ndim) * sizeof(uint64_t));
+    //Copy from start to start_adios and count to count_adios
+    for (int pos = 0; pos < ndim; pos++) { 
+        start_adios[pos] = (uint64_t)start[pos];
+        count_adios[pos] = (uint64_t)count[pos];
     }
 
-
-    //const char *datatype = CHARPT(R_adios_datatype,0);
-    //int datasize = 0;
-    //if(strcmp(datatype, "integer") == 0) {
-    //datasize = 4;
-        //}
-        //else if(strcmp(datatype, "double") == 0) {
-        //datasize = 8;
-    //}
-    //else{
-    //datasize = 0;
-    //}
-    // add more datatypes here such as float, long int etc..
-
-    int datasize = adios_type_size(adios_var_info -> type, adios_var_info->value);
+    // get the memory size of one data element of an adios type, may ask Nobert this function?
+    int datasize = adios_type_size(adios_var_info->type, adios_var_info->value);
 
     SEXP R_adios_data;
     ADIOS_FILE * fp;
@@ -331,7 +330,7 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info,
     uint64_t ndata = 1;
     for (int dim = 0; dim < ndim; dim++)
         ndata *= count[dim];
-    //adios_data = (void *) malloc(sizeof(adios_data));
+    
     adios_data = malloc(ndata * datasize);
     adios_schedule_read(fp, adios_selection, varname, *from_steps,
                     *nsteps,adios_data); 
@@ -339,75 +338,17 @@ SEXP R_adios_schedule_read(SEXP R_adios_var_info,
     R_debug_print("R_adios_schedule_read address: %p\n",
                 (void *)R_ExternalPtrAddr(R_adios_data));
     UNPROTECT(1);
-    return(R_adios_data);
+
+    // free memory
+    Free(start_adios);
+    Free(count_adios);
+
+    return R_adios_data;
 }
 
-
-SEXP R_custom_data_access(SEXP R_adios_data, 
-                          SEXP R_adios_selection, 
-                          SEXP R_adios_var_info)
-{
-    void *adios_data;
-    adios_data = R_ExternalPtrAddr(R_adios_data);
-
-    ADIOS_SELECTION *adios_selection;
-    adios_selection = R_ExternalPtrAddr(R_adios_selection);
-
-    //const char *datatype = CHARPT(R_adios_datatype,0);
-    //int datasize = 0;
-
-    ADIOS_VARINFO *adios_var_info;
-    adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
-    int num_element = 1;
-
-    const char *data_type_string = adios_type_to_string(adios_var_info -> type);
-
-    SEXP R_custom_data_access_val; 
-
-    for (int pos = 0; pos < adios_var_info -> ndim; pos++) {
-        num_element = num_element * adios_selection -> u.bb.count[pos];
-    }
-
-    //Check all these sizes again IMP. What to do INT VS FLAOT
-    R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
-    
-    //if(strcmp(datatype, "integer") == 0) {
-        //cast to integer
-    if(strcmp(data_type_string,"integer") == 0){
-        R_debug_print("Error found in R_custom_data_access\n");
-    //R_custom_data_access_val = PROTECT(allocVector(INTSXP, 1));
-    //  int *data = (int *) adios_data;
-    //  int data_val = *(data + (*adios_dataindex));
-    //  INTEGER(R_custom_data_access_val)[0] = data_val;
-    }
-    //else if(strcmp(datatype, "double") == 0) {
-        //cast to double
-    else if(strcmp(data_type_string,"real") ==0){
-        float *data = (float *) adios_data;
-        //float data_val = *(data + (*adios_dataindex));    
-        for(int i=0;i<num_element;i++){
-            REAL(R_custom_data_access_val)[i] = *(data + i);
-        }
-        //REAL(R_custom_data_access_val) = data_val;
-    }
-    else if(strcmp(data_type_string,"double") ==0){
-        double *data = (double *) adios_data;
-        //double data_val = *(data + (*adios_dataindex));
-    
-        for(int i=0;i<num_element;i++){
-            REAL(R_custom_data_access_val)[i] = *(data + i);
-        }
-        //REAL(R_custom_data_access_val)[0] = data_val;
-    }
-    else{
-        error("Error found in R_custom_data_access\n");
-    }
-
-    UNPROTECT(1);
-    return(R_custom_data_access_val); 
-}
-
-
+/**
+ *  Let ADIOS perform the scheduled reads
+ */
 SEXP R_adios_perform_reads(SEXP R_adios_file_ptr, 
                            SEXP R_adios_blocking)
 {
@@ -422,7 +363,73 @@ SEXP R_adios_perform_reads(SEXP R_adios_file_ptr,
     return ret;
 }
 
+/**
+ * Copy the scheduled reads from C object to R object
+ */
+SEXP R_custom_data_access(SEXP R_adios_data, 
+                          SEXP R_adios_selection, 
+                          SEXP R_adios_var_info)
+{
+    void *adios_data;
+    adios_data = R_ExternalPtrAddr(R_adios_data);
 
+    ADIOS_SELECTION *adios_selection;
+    adios_selection = R_ExternalPtrAddr(R_adios_selection);
+
+    ADIOS_VARINFO *adios_var_info;
+    adios_var_info = R_ExternalPtrAddr(R_adios_var_info);
+
+    // should we use unit64_t for the number of elements
+    int num_element = 1;
+
+    enum ADIOS_DATATYPES data_type;
+    data_type = adios_var_info->type;
+
+    SEXP R_custom_data_access_val; 
+
+    for (int pos = 0; pos < adios_var_info->ndim; pos++) {
+        //Assume we only use the ADIOS_SELECTION_BOUNDINGBOX method
+        num_element = num_element * adios_selection->u.bb.count[pos];
+    }
+
+    //cast to specific datatypes (consider other datatypes later, i.e. string, complex)
+    switch(data_type) {
+        case adios_integer:
+            R_custom_data_access_val = PROTECT(allocVector(INTSXP, num_element));
+            int *data = (int *) adios_data;
+            for(int i=0;i<num_element;i++){
+                INTEGER(R_custom_data_access_val)[i] = *(data + i);
+            }
+            UNPROTECT(1);
+            break;
+        case adios_real:
+            R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
+            float *data = (float *) adios_data;   
+            for(int i=0;i<num_element;i++){
+                REAL(R_custom_data_access_val)[i] = *(data + i);
+            }
+            UNPROTECT(1);
+            break;
+        case adios_double:
+            R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
+            float *data = (double *) adios_data;   
+            for(int i=0;i<num_element;i++){
+                REAL(R_custom_data_access_val)[i] = *(data + i);
+            }
+            UNPROTECT(1);
+            break;
+        case adios_string:
+            //printf ("%s\n", (char *)data);
+            break;
+        default:
+            error("Error found in R_custom_data_access\n");
+    }
+    return R_custom_data_access_val; 
+}
+
+/**
+ * Advance the current step of a stream. For files opened as file, stepping has no effect.
+ */
 SEXP R_adios_advance_step(SEXP R_adios_file_ptr, 
                           SEXP R_adios_last, 
                           SEXP R_adios_timeout_sec)
@@ -434,42 +441,58 @@ SEXP R_adios_advance_step(SEXP R_adios_file_ptr,
     fp = R_ExternalPtrAddr(R_adios_file_ptr);
     
     int last;
-    last = *INTEGER(R_adios_last);
+    last = asInteger(R_adios_last);
     
     float timeout_sec;
-    timeout_sec = (float) *REAL(R_adios_timeout_sec);
+    timeout_sec = (float) asReal(R_adios_timeout_sec);
     
     INT(ret) = adios_advance_step(fp, last, timeout_sec);
     UNPROTECT(1);
     return ret;
 }
 
-
+/**
+ *  Close an adios file.
+ *  It will free the content of the underlying data structures and the fp pointer itself.
+ */
 SEXP R_adios_read_close(SEXP R_adios_file_ptr)
 {
+    SEXP ret;
+    PROTECT(ret = allocVector(INTSXP, 1));
+
     ADIOS_FILE * fp;
     fp = R_ExternalPtrAddr(R_adios_file_ptr);
-    adios_read_close(fp);
-    return(R_NilValue);
+    INT(ret) = adios_read_close(fp);
+
+    return ret;
 }
 
-
+/**
+ *  Finalize the selected method. Required for all methods that are initialized. 
+ */
 SEXP R_adios_read_finalize_method(SEXP R_adios_read_method)
 {
+    SEXP ret;
+    PROTECT(ret = allocVector(INTSXP, 1));
+
     enum ADIOS_READ_METHOD read_method_value=1111; //init dummy value                          
     const char *method_name = CHARPT(R_adios_read_method, 0); //Passing Char pointer to "read_method_hash" function.                                    
     read_method_value = (enum ADIOS_READ_METHOD) read_method_hash(method_name); //Calling read_method\ hash function  
-    adios_read_finalize_method(read_method_value);
-    return(R_NilValue);
+
+    INT(ret) = adios_read_finalize_method(read_method_value);
+
+    return ret;
 }
 
-
+/**
+ *  Get error number
+ */
 SEXP R_adios_errno()
 {
     SEXP R_adios_errno_val = PROTECT(allocVector(INTSXP, 1));
     INTEGER(R_adios_errno_val)[0] = adios_errno;
     R_debug_print("In C ndim=%d \n", adios_errno);
     UNPROTECT(1);
-    return(R_adios_errno_val);
+    return R_adios_errno_val;
 }
 

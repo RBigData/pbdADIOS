@@ -67,5 +67,11 @@ zeroes2 <- cfunction(c(n_ = "integer"), '
   return out;
 ')
 
+te <- cfunction(c(n_ = "numeric"), '
+  double n = asReal(n_);
+
+  int a = n;
+  return ScalarReal(a);
+')
 
 

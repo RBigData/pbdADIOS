@@ -99,9 +99,11 @@ SEXP R_adios_select_method(SEXP R_m_adios_group,
                            SEXP R_adios_method, 
                            SEXP R_adios_params, 
                            SEXP R_adios_base_path);
+
 SEXP R_adios_define_var(SEXP R_m_adios_group, 
                         SEXP R_adios_varname, 
-                        SEXP R_adios_path, 
+                        SEXP R_adios_path,
+                        SEXP R_adios_type,
                         SEXP R_adios_local_dim, 
                         SEXP R_adios_global_dim, 
                         SEXP R_adios_local_offset);

@@ -1,5 +1,3 @@
-#include <stdint.h>
-#include <inttypes.h>
 #include "R_adios.h"
 
 /* 
@@ -181,6 +179,7 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name,
                            SEXP R_adios_time_index,
                            SEXP R_adios_flag) 
 {
+
     const char *group_name = CHARPT(R_adios_group_name, 0);
     const char *time_index = CHARPT(R_adios_time_index, 0);
 
@@ -193,8 +192,7 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name,
     int64_t *m_adios_group;
     m_adios_group = (int64_t *)malloc(sizeof(int64_t)); 
 
-    //adios_declare_group (*m_adios_group, "restart", "", adios_flag_yes); // Returns group id   
-    adios_declare_group(m_adios_group, group_name, time_index, adios_flag_value); // ??
+    adios_declare_group(m_adios_group, group_name, time_index, adios_flag_value); 
     newRptr(m_adios_group, R_m_adios_group, finalizer);
     UNPROTECT(1);
 
@@ -202,7 +200,7 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name,
 }
 
 /**
- *  To select a I/O method for a ADIOS group. Is group id a pointer here, need to check???
+ *  To select a I/O method for a ADIOS group. m_adios_group is value here.
  */
 SEXP R_adios_select_method(SEXP R_m_adios_group, 
                            SEXP R_adios_method, 
@@ -212,14 +210,14 @@ SEXP R_adios_select_method(SEXP R_m_adios_group,
     SEXP ret;
     PROTECT(ret = allocVector(INTSXP, 1));
 
-    int64_t *group;
-    group = R_ExternalPtrAddr(R_m_adios_group); // Make sure ??
+    int64_t *m_adios_group;
+    m_adios_group = R_ExternalPtrAddr(R_m_adios_group);
 
     const char *method = CHARPT(R_adios_method, 0);
     const char *params = CHARPT(R_adios_params, 0);
     const char *base_path = CHARPT(R_adios_base_path, 0);
 
-    INT(ret) = adios_select_method(*group, method, params, base_path);
+    INT(ret) = adios_select_method(*m_adios_group, method, params, base_path);
 
     return ret;
 }
@@ -241,8 +239,8 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
     const char *adios_type = CHARPT(R_adios_type, 0);
     adios_type_value = adios_datatypes_hash(adios_type); //Calling adios_datatypes_hash function
     
-    int64_t *group;
-    group = R_ExternalPtrAddr(R_m_adios_group); // Make sure ?? 
+    int64_t *m_adios_group;
+    m_adios_group = R_ExternalPtrAddr(R_m_adios_group); 
 
     const char *varname = CHARPT(R_adios_varname, 0);
     const char *path = CHARPT(R_adios_path, 0);
@@ -250,21 +248,11 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
     const char *global_dim = CHARPT(R_adios_global_dim, 0);
     const char *local_offset = CHARPT(R_adios_local_offset, 0);
 
-    R_debug_print("Calling adios_define_var function\n");
-    R_debug_print("Value of group is %p\n",group);
-    R_debug_print("The Direction is %p\n",&group);
-    R_debug_print("Varname is %s\n",varname);
-    R_debug_print("Path is %s\n",path);
-    R_debug_print("Local dim is %s\n",local_dim);
-    R_debug_print("Global dim is %s\n",global_dim);
-    R_debug_print("Local_offset is %s\n",local_offset);
-
     SEXP R_varid;
     //Malloc
     PROTECT(R_varid = allocVector(REALSXP, 1));
 
-    // Should "group" pass as a pointer or not ??
-    REAL(R_varid)[0] = adios_define_var(*group, varname, path, adios_type_value, local_dim, global_dim, local_offset);
+    REAL(R_varid)[0] = adios_define_var(*m_adios_group, varname, path, adios_type_value, local_dim, global_dim, local_offset);
     UNPROTECT(1); 
 
     return R_varid;
@@ -273,18 +261,18 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
 /**
  * This function is to open or to append to an output file
  * modes = "r" = "read", "w" = "write", "a" = "append", "u" = "update"
+ * return adios file id pointer
  */
-SEXP R_adios_open(SEXP R_adios_fd,
-                  SEXP R_adios_group_name, 
+SEXP R_adios_open(SEXP R_adios_group_name, 
                   SEXP R_adios_file_name, 
                   SEXP R_adios_mode, 
                   SEXP R_comm)
 { 
-    SEXP ret;
-    PROTECT(ret = allocVector(INTSXP, 1));
-
-    int64_t *adios_fd = R_ExternalPtrAddr(R_m_adios_group);         
-
+    SEXP R_m_adios_file;
+    //Malloc
+    int64_t *m_adios_file;
+    m_adios_file = (int64_t *)malloc(sizeof(int64_t)); 
+    
     const char *group_name = CHARPT(R_adios_group_name, 0);
     const char *file_name = CHARPT(R_adios_file_name, 0);
     const char *mode = CHARPT(R_adios_mode, 0);
@@ -292,10 +280,12 @@ SEXP R_adios_open(SEXP R_adios_fd,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
 
-    INT(ret) = adios_open(adios_fd, group_name, file_name, mode, comm); 
+    adios_open(m_adios_file, group_name, file_name, mode, comm); 
 
+    newRptr(m_adios_file, R_m_adios_file, finalizer);
     UNPROTECT(1);
-    return ret;
+
+    return R_m_adios_file;
 }
 
 /**
@@ -305,20 +295,19 @@ SEXP R_adios_open(SEXP R_adios_fd,
 SEXP R_adios_group_size(SEXP R_m_adios_file, 
                         SEXP R_adios_group_size)
 {
-    int64_t *file_p;
-    file_p = R_ExternalPtrAddr(R_m_adios_file);
+    int64_t *m_adios_file;
+    m_adios_file = R_ExternalPtrAddr(R_m_adios_file);
 
-    uint64_t group_size = (uint64_t) asReal(R_adios_group_size);
+    uint64_t group_size = (uint64_t)asReal(R_adios_group_size);
     R_debug_print("Group_size : %" PRIu64 "\n", group_size);
     
     SEXP R_adios_total_size;
     uint64_t *total_size;
-    total_size = (uint64_t*) malloc(sizeof(uint64_t)); //Make sure this type ?? 
+    total_size = (uint64_t*) malloc(sizeof(uint64_t)); 
 
     R_debug_print("IN R_adios_group_size\n");
     
-    // Should pass file pointer or not(Manual and example are contradict) 
-    adios_group_size (*file_p, group_size, total_size); 
+    adios_group_size (*m_adios_file, group_size, total_size); 
     newRptr(total_size, R_adios_total_size, finalizer);
     
     UNPROTECT(1);
@@ -332,40 +321,35 @@ SEXP R_adios_write(SEXP R_m_adios_file,
                    SEXP R_adios_var_name, 
                    SEXP R_adios_var)
 {
-    SEXP ret;
-    PROTECT(ret = allocVector(INTSXP, 1));
-
-    //int64_t *file_p = INTEGER(R_m_adios_file); // ??
-    int64_t *file_p;
-    file_p = R_ExternalPtrAddr(R_m_adios_file);
+    int64_t *m_adios_file;
+    m_adios_file = R_ExternalPtrAddr(R_m_adios_file);
 
     const char *var_name; 
     var_name = CHARPT(R_adios_var_name, 0);
 
-    void *var; 
-    var = R_ExternalPtrAddr(R_adios_var); // ?? 
-    INT(ret) = adios_write(*file_p, var_name, var; // Make sure ??
+    // need to check here!!!
+    /*void *var; 
+    var = R_ExternalPtrAddr(R_adios_var); 
+    INT(ret) = adios_write(*file_p, var_name, var); */
     
-    /*int check;
+    int check;
 
     if(IS_INTEGER(R_adios_var)){
         int *int_var;
         int_var = INTEGER(R_adios_var);
-        check = adios_write(*file_p, var_name, int_var);
+        check = adios_write(*m_adios_file, var_name, (void *)int_var);
     }else if(IS_NUMERIC(R_adios_var)){
         double *double_var;
         double_var = REAL(R_adios_var);
-        check = adios_write(*file_p, var_name, double_var);
+        check = adios_write(*m_adios_file, var_name, (void *)double_var);
     }
     else{
         check = -1; //                                                      
-    }*/
+    }
     
     R_debug_print("IN R_adios_write function call \n");
 
-    UNPROTECT(1);
-    return ret;
-    
+    return R_NilValue;
 }
 
 /**
@@ -376,17 +360,15 @@ SEXP R_adios_close(SEXP R_m_adios_file)
     SEXP ret;
     PROTECT(ret = allocVector(INTSXP, 1));
     
-    //int64_t *file_p = INTEGER(R_m_adios_file); // ?? 
-    int64_t *file_p;
-    file_p = R_ExternalPtrAddr(R_m_adios_file);
+    int64_t *m_adios_file;
+    m_adios_file = R_ExternalPtrAddr(R_m_adios_file);
 
     R_debug_print("IN R_adios_close function call \n ");
-    //adios_close(file_p);  // Need to pass as a pointer of not ??
+
     INT(ret) = adios_close(*file_p); 
 
     UNPROTECT(1);
     return ret;
-
 }
 
 /**

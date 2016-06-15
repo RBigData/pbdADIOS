@@ -111,8 +111,7 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
                         SEXP R_adios_global_dim, 
                         SEXP R_adios_local_offset);
 
-SEXP R_adios_open(SEXP R_adios_fd,
-                  SEXP R_adios_group_name, 
+SEXP R_adios_open(SEXP R_adios_group_name, 
                   SEXP R_adios_file_name, 
                   SEXP R_adios_mode, 
                   SEXP R_comm);

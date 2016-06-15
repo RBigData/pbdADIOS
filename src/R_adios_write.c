@@ -142,7 +142,7 @@ SEXP R_adios_init_noxml(SEXP R_comm)
 } 
 
 /**
- *  To allocate ADIOS buffer OBSOLETE?
+ *  To allocate ADIOS buffer. This method is OBSOLETE.
  *  adios_buffer_alloc_when - indicates when ADIOS buffer should be allocated. 
  *  The value can be ei- ther ADIOS_BUFFER_ALLOC_NOW or ADIOS_BUFFER_ALLOC_LATER.
  */
@@ -157,10 +157,21 @@ SEXP R_adios_allocate_buffer(SEXP R_adios_buffer_when,
     buffer_when_value = buffer_alloc_when_hash(buffer_when); //Calling buffer_alloc_when_hash function
 
     uint64_t buffer_size;
-    buffer_size   = (uint64_t) asReal(R_buffer_size); //Make sure this conv is correct ??
+    buffer_size   = (uint64_t)asReal(R_buffer_size); //Make sure this conv is correct ??
     INT(ret) = adios_allocate_buffer(buffer_when_value, buffer_size);
  
     return ret;
+}
+
+/**
+ *  To set maximum buffer size for each adios_open()...adios_close() operation.
+ */
+SEXP R_adios_set_max_buffer_size(SEXP R_max_buffer_size_MB)
+{
+    uint64_t max_buffer_size_MB = (uint64_t)asReal(R_max_buffer_size_MB);
+    adios_set_max_buffer_size(max_buffer_size_MB);
+
+    return R_NilValue;
 }
 
 /**

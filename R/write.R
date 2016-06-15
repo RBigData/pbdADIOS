@@ -12,7 +12,14 @@ adios.allocate.buffer <- function(adios.buffer.when,
           as.character(adios.buffer.when),
           as.integer(adios.buffersize))  
     invisible()
-} 
+}
+
+adios.set.max.buffersize <- function(adios.max.buffersize)
+{
+    .Call(R_adios_set_max_buffer_size, 
+          as.numeric(adios.max.buffersize)  
+    invisible()
+}
 
 adios.declare.group <- function(adios.groupname, 
                                 adios.timeindex,

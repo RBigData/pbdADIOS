@@ -91,6 +91,9 @@ SEXP R_adios_init_noxml(SEXP R_comm);
 
 SEXP R_adios_allocate_buffer(SEXP R_adios_buffer_when, 
                              SEXP R_buffer_size);
+
+SEXP R_adios_set_max_buffer_size(SEXP R_max_buffer_size_MB);
+
 SEXP R_adios_declare_group(SEXP R_adios_group_name, 
                            SEXP R_adios_time_index,
                            SEXP R_adios_flag);

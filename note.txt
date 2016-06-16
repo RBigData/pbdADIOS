@@ -111,15 +111,16 @@ autoconf configure.ac && autoreconf -if
 3. 
 R CMD SHLIB *.c
 
+dyn.load('R_adios_read.so')
+source("read.R")
+
+.Call('R_adios_read_init_method', 
+        as.character("ADIOS_READ_METHOD_BP"), 
+        comm.c2f(pbdMPI:::.pbd_env$SPMD.CT$comm), 
+        as.character("verbose=3"))
 
 
-
-
-
-
-
-
-
+.Call(R_adios_errno)
 
 
 

@@ -1,9 +1,9 @@
 
 adios.read.init.method <- function(adios.read.method, 
-                                   comm = pbdMPI::.pbd_env$SPMD.CT$comm, 
+                                   comm = pbdMPI:::.pbd_env$SPMD.CT$comm, 
                                    params)
 {
-    .Call(R_adios_read_init_method, 
+    .Call("R_adios_read_init_method", 
         as.character(adios.read.method), 
         comm.c2f(comm), 
         as.character(params))
@@ -12,11 +12,11 @@ adios.read.init.method <- function(adios.read.method,
 
 adios.read.open <- function(adios.filename, 
                             adios.read.method, 
-                            comm = pbdMPI::.pbd_env$SPMD.CT$comm, 
+                            comm = pbdMPI:::.pbd_env$SPMD.CT$comm, 
                             adios.lockmode, 
                             adios.timeout.sec)
 {  
-    .Call(R_adios_read_open, 
+    .Call("R_adios_read_open", 
         as.character(adios.filename),
         as.character(adios.read.method), 
         comm.c2f(comm),
@@ -27,41 +27,41 @@ adios.read.open <- function(adios.filename,
 adios.inq.var <- function(adios.file.ptr, 
                           adios.varname)
 {
-    .Call(R_adios_inq_var, 
+    .Call("R_adios_inq_var", 
           adios.file.ptr, 
           as.character(adios.varname))
 }
 
 adios.free.varinfo <- function(adios.varinfo)
 {
-    .Call(R_adios_free_varinfo, 
+    .Call("R_adios_free_varinfo", 
           adios.varinfo)
 }
 
 adios.inq.var.blockinfo <- function(adios.file.ptr, 
                                     adios.varinfo)
 {
-    .Call(R_adios_inq_var_blockinfo,
+    .Call("R_adios_inq_var_blockinfo",
           adios.file.ptr, 
           adios.varinfo)
 }
 
 custom.inq.var.ndim <- function(adios.varinfo)
 {
-    .Call(R_custom_inq_var_ndim, 
+    .Call("R_custom_inq_var_ndim", 
           adios.varinfo)
 }
 
 custom.inq.var.dims <- function(adios.varinfo)
 {
-    .Call(R_custom_inq_var_dims, 
+    .Call("R_custom_inq_var_dims", 
           adios.varinfo)
 }
 
 adios.selection.boundingbox <- function(adios.ndim, 
                                         adios.start, 
                                         adios.count){
-    .Call(R_adios_selection_bounding_box, 
+    .Call("R_adios_selection_bounding_box", 
           as.integer(adios.ndim),
           as.numeric(adios.start), 
           as.numeric(adios.count))
@@ -76,7 +76,7 @@ adios.schedule.read <- function(adios.varinfo,
                                 adios.from.steps, 
                                 adios.nsteps)
 {
-    .Call(R_adios_schedule_read, 
+    .Call("R_adios_schedule_read", 
           adios.varinfo, 
           as.numeric(adios.start),
           as.numeric(adios.count), 
@@ -89,7 +89,7 @@ adios.schedule.read <- function(adios.varinfo,
 
 adios.perform.reads <- function(adios.file.ptr, 
                                 adios.blocking){
-    .Call(R_adios_perform_reads, 
+    .Call("R_adios_perform_reads", 
           adios.file.ptr, 
           as.integer(adios.blocking))
 }
@@ -97,7 +97,7 @@ adios.perform.reads <- function(adios.file.ptr,
 custom.data.access <- function(adios.data, 
                                adios.selection, 
                                adios.varinfo){
-    .Call(R_custom_data_access, 
+    .Call("R_custom_data_access", 
           adios.data, 
           adios.selection,
           adios.varinfo)
@@ -106,7 +106,7 @@ custom.data.access <- function(adios.data,
 adios.advance.step <- function(adios.file.ptr, 
                                adios.last, 
                                adios.timeout.sec){
-    .Call(R_adios_advance_step, 
+    .Call("R_adios_advance_step", 
           adios.file.ptr,
           as.integer(adios.last), 
           as.numeric(adios.timeout.sec))
@@ -115,21 +115,20 @@ adios.advance.step <- function(adios.file.ptr,
 
 adios.read.close <- function(adios.file.ptr)
 {
-    .Call(R_adios_read_close, 
+    .Call("R_adios_read_close", 
           adios.file.ptr)
     invisible()
 }
 
 adios.read.finalize.method<- function(adios.read.method)
 {
-    .Call(R_adios_read_finalize_method, 
+    .Call("R_adios_read_finalize_method", 
           as.character(adios.read.method))
     invisible()
 }
 
-
 adios.errno<- function()
 {
-    .Call(R_adios_errno)
+    .Call("R_adios_errno")
     invisible()
 }

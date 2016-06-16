@@ -63,8 +63,8 @@ adios.selection.boundingbox <- function(adios.ndim,
                                         adios.count){
     .Call(R_adios_selection_bounding_box, 
           as.integer(adios.ndim),
-          as.integer(adios.start), 
-          as.integer(adios.count))
+          as.numeric(adios.start), 
+          as.numeric(adios.count))
 }
 
 adios.schedule.read <- function(adios.varinfo, 
@@ -78,8 +78,8 @@ adios.schedule.read <- function(adios.varinfo,
 {
     .Call(R_adios_schedule_read, 
           adios.varinfo, 
-          as.integer(adios.start),
-          as.integer(adios.count), 
+          as.numeric(adios.start),
+          as.numeric(adios.count), 
           adios.file.ptr, 
           adios.selection,
           as.character(adios.varname), 

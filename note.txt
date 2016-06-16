@@ -91,6 +91,7 @@ te <- cfunction(c(n_ = "numeric"), '
   return R_NilValue;
 ')
 
-
+06/16/2016
+Remember to support other types, i.e. String for read API
 
 

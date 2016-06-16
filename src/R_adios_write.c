@@ -156,7 +156,8 @@ SEXP R_adios_allocate_buffer(SEXP R_adios_buffer_when,
 
     uint64_t buffer_size;
     buffer_size   = (uint64_t)asReal(R_buffer_size); //Make sure this conv is correct ??
-    INT(ret) = adios_allocate_buffer(buffer_when_value, buffer_size);
+    INT(ret) = adios_allocate_buffer(buffer_when_value, 
+                                     buffer_size);
  
     return ret;
 }
@@ -192,7 +193,10 @@ SEXP R_adios_declare_group(SEXP R_adios_group_name,
     int64_t *m_adios_group;
     m_adios_group = (int64_t *)malloc(sizeof(int64_t)); 
 
-    adios_declare_group(m_adios_group, group_name, time_index, adios_flag_value); 
+    adios_declare_group(m_adios_group, 
+                        group_name, 
+                        time_index, 
+                        adios_flag_value); 
     newRptr(m_adios_group, R_m_adios_group, finalizer);
     UNPROTECT(1);
 
@@ -217,7 +221,10 @@ SEXP R_adios_select_method(SEXP R_m_adios_group,
     const char *params = CHARPT(R_adios_params, 0);
     const char *base_path = CHARPT(R_adios_base_path, 0);
 
-    INT(ret) = adios_select_method(*m_adios_group, method, params, base_path);
+    INT(ret) = adios_select_method(*m_adios_group, 
+                                   method, 
+                                   params, 
+                                   base_path);
 
     return ret;
 }
@@ -252,7 +259,12 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
     //Malloc
     PROTECT(R_varid = allocVector(REALSXP, 1));
 
-    REAL(R_varid)[0] = adios_define_var(*m_adios_group, varname, path, adios_type_value, local_dim, global_dim, local_offset);
+    REAL(R_varid)[0] = adios_define_var(*m_adios_group, 
+                                        varname, path, 
+                                        adios_type_value, 
+                                        local_dim, 
+                                        global_dim, 
+                                        local_offset);
     UNPROTECT(1); 
 
     return R_varid;
@@ -280,7 +292,11 @@ SEXP R_adios_open(SEXP R_adios_group_name,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
 
-    adios_open(m_adios_file, group_name, file_name, mode, comm); 
+    adios_open(m_adios_file, 
+               group_name, 
+               file_name, 
+               mode, 
+               comm); 
 
     newRptr(m_adios_file, R_m_adios_file, finalizer);
     UNPROTECT(1);
@@ -307,7 +323,9 @@ SEXP R_adios_group_size(SEXP R_m_adios_file,
 
     R_debug_print("IN R_adios_group_size\n");
     
-    adios_group_size (*m_adios_file, group_size, total_size); 
+    adios_group_size (*m_adios_file, 
+                      group_size, 
+                      total_size); 
     newRptr(total_size, R_adios_total_size, finalizer);
     
     UNPROTECT(1);
@@ -337,11 +355,15 @@ SEXP R_adios_write(SEXP R_m_adios_file,
     if(IS_INTEGER(R_adios_var)){
         int *int_var;
         int_var = INTEGER(R_adios_var);
-        check = adios_write(*m_adios_file, var_name, (void *)int_var);
+        check = adios_write(*m_adios_file, 
+                            var_name, 
+                            (void *)int_var);
     }else if(IS_NUMERIC(R_adios_var)){
         double *double_var;
         double_var = REAL(R_adios_var);
-        check = adios_write(*m_adios_file, var_name, (void *)double_var);
+        check = adios_write(*m_adios_file, 
+                            var_name, 
+                            (void *)double_var);
     }
     else{
         check = -1; //                                                      

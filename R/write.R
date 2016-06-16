@@ -5,15 +5,6 @@ adios.init.noxml <- function(comm = pbdMPI::.pbd_env$SPMD.CT$comm)
     invisible()
 }
 
-adios.allocate.buffer <- function(adios.buffer.when,
-                                  adios.buffersize)
-{
-    .Call(R_adios_allocate_buffer, 
-          as.character(adios.buffer.when),
-          as.integer(adios.buffersize))  
-    invisible()
-}
-
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
     .Call(R_adios_set_max_buffer_size, 

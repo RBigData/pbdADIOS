@@ -387,7 +387,7 @@ SEXP R_adios_close(SEXP R_m_adios_file)
 
     R_debug_print("IN R_adios_close function call \n ");
 
-    INT(ret) = adios_close(*file_p); 
+    INT(ret) = adios_close(*m_adios_file); 
 
     UNPROTECT(1);
     return ret;

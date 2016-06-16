@@ -94,4 +94,26 @@ te <- cfunction(c(n_ = "numeric"), '
 06/16/2016
 Remember to support other types, i.e. String for read API
 
+First pull new github files.
+git reset --hard HEAD 
+git clean -f 
+git pull
+
+steps to create shared library
+1.
+./configure --with-adios-home=/opt/adios/1.10
+2. R CMD SHLIB *.c
+
+
+
+
+
+
+
+
+
+
+
+
+
 

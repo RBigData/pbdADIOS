@@ -268,8 +268,8 @@ SEXP R_adios_selection_boundingbox(SEXP R_adios_ndim,
     double* count = REAL(R_adios_count);
 
     //Malloc 
-    uint64_t *start_adios =  malloc( (*ndim) * sizeof(uint64_t));
-    uint64_t *count_adios =  malloc( (*ndim) * sizeof(uint64_t));
+    uint64_t *start_adios =  malloc( (ndim) * sizeof(uint64_t));
+    uint64_t *count_adios =  malloc( (ndim) * sizeof(uint64_t));
     //Copy from start to start_adios and count to count_adios
     for (int pos = 0; pos < ndim; pos++) { 
         start_adios[pos] = (uint64_t)start[pos];
@@ -429,7 +429,7 @@ SEXP R_custom_data_access(SEXP R_adios_data,
             break;
         case adios_double:
             R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
-            float *data = (double *) adios_data;   
+            double *data = (double *) adios_data;   
             for(int i=0;i<num_element;i++){
                 REAL(R_custom_data_access_val)[i] = *(data + i);
             }

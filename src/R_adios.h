@@ -52,7 +52,7 @@ SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr,
                                SEXP R_adios_var_info);
 
 SEXP R_custom_inq_var_ndim(SEXP R_adios_var_info);
-SEXP R_custom_inq_var_dims(SEXP R_adios_var_info)
+SEXP R_custom_inq_var_dims(SEXP R_adios_var_info);
 
 SEXP R_adios_selection_boundingbox(SEXP R_adios_ndim, 
                                     SEXP R_adios_start,

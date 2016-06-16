@@ -99,10 +99,17 @@ git reset --hard HEAD
 git clean -f 
 git pull
 
+or
+rm -rf pbdADIOS
+git clone https://github.com/YupingLu/pbdADIOS.git
+
 steps to create shared library
 1.
+autoconf configure.ac && autoreconf -if
+2.
 ./configure --with-adios-home=/opt/adios/1.10
-2. R CMD SHLIB *.c
+3. 
+R CMD SHLIB *.c
 
 
 

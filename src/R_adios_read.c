@@ -413,25 +413,25 @@ SEXP R_custom_data_access(SEXP R_adios_data,
     switch(data_type) {
         case adios_integer:
             R_custom_data_access_val = PROTECT(allocVector(INTSXP, num_element));
-            int *data = (int *) adios_data;
+            int *data_int = (int *) adios_data;
             for(int i=0;i<num_element;i++){
-                INTEGER(R_custom_data_access_val)[i] = *(data + i);
+                INTEGER(R_custom_data_access_val)[i] = *(data_int + i);
             }
             UNPROTECT(1);
             break;
         case adios_real:
             R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
-            float *data = (float *) adios_data;   
+            float *data_float = (float *) adios_data;   
             for(int i=0;i<num_element;i++){
-                REAL(R_custom_data_access_val)[i] = *(data + i);
+                REAL(R_custom_data_access_val)[i] = *(data_float + i);
             }
             UNPROTECT(1);
             break;
         case adios_double:
             R_custom_data_access_val = PROTECT(allocVector(REALSXP, num_element));
-            double *data = (double *) adios_data;   
+            double *data_double = (double *) adios_data;   
             for(int i=0;i<num_element;i++){
-                REAL(R_custom_data_access_val)[i] = *(data + i);
+                REAL(R_custom_data_access_val)[i] = *(data_double + i);
             }
             UNPROTECT(1);
             break;

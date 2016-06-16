@@ -47,6 +47,12 @@ ADIOS_LDFLAGS=`${ADIOS_PATH}/bin/adios_config -l`
 # ADIOS_LDFLAGS="/Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadios.a /Users/pragnesh/5.1.1/SGN_pbdADIOS/adios-1.8.0/lib/libadiosread.a -lmxml"
 
 # pbdMPI
+dnl Determine R_HOME.
+: ${R_HOME=`R RHOME`}
+if test -z "${R_HOME}"; then
+    echo "could not determine R_HOME"
+    exit 1
+fi
 R_SCMD="${R_HOME}/bin/Rscript -e"
 
 MPI_CPPFLAGS=`${R_SCMD} "source('./R/get_conf.r');get.conf('PKG_CPPFLAGS','"${R_ARCH}"')"`

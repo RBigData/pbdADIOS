@@ -12,7 +12,7 @@
 #'  R_custom_inq_var_ndim,
 #'  R_custom_inq_var_dims,
 #'  R_adios_inq_var_blockinfo,
-#'  R_adios_selection_bounding_box,
+#'  R_adios_selection_boundingbox,
 #'  R_adios_schedule_read,
 #'  R_custom_data_access,
 #'  R_adios_perform_reads,

@@ -61,7 +61,7 @@ custom.inq.var.dims <- function(adios.varinfo)
 adios.selection.boundingbox <- function(adios.ndim, 
                                         adios.start, 
                                         adios.count){
-    .Call("R_adios_selection_bounding_box", 
+    .Call("R_adios_selection_boundingbox", 
           as.integer(adios.ndim),
           as.numeric(adios.start), 
           as.numeric(adios.count))

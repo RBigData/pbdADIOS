@@ -136,7 +136,7 @@ SEXP R_adios_init_noxml(SEXP R_comm)
     
     adios_init_noxml(comm); //Calling adios_init_nomxl function 
 
-    return(R_NilValue);
+    return R_NilValue;
 } 
 
 /**

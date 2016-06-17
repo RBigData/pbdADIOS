@@ -8,7 +8,7 @@ adios.init.noxml <- function(comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
     .Call("R_adios_set_max_buffer_size", 
-          as.numeric(adios.max.buffersize))  
+          as.numeric(adios.max.buffersize))
     invisible()
 }
 
@@ -33,7 +33,6 @@ adios.select.method <- function(adios.group_p,
           as.character(adios.method), 
           as.character(adios.params), 
           as.character(adios.basepath))        
-    invisible()
 }
 
 adios.define.var <- function(adios.group_p, 
@@ -53,7 +52,6 @@ adios.define.var <- function(adios.group_p,
           as.character(adios.localdim), 
           as.character(adios.globaldim), 
           as.character(adios.localoffset))
-    invisible()
 }
 
 adios.open <- function(adios_fd,
@@ -87,18 +85,17 @@ adios.write <- function(adios.file_p,
           adios.file_p, 
           as.character(adios.varname), 
           adios.var)
+    invisible()
 }
 
 adios.close <- function(adios.file_p)
 {
     .Call("R_adios_close", 
           adios.file_p)
-    invisible()
 }
 
 adios.finalize <- function(comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_finalize", 
           comm.rank(comm))
-    invisible()
 }

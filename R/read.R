@@ -7,7 +7,6 @@ adios.read.init.method <- function(adios.read.method,
         as.character(adios.read.method), 
         comm.c2f(comm), 
         as.character(params))
-   invisible()
 }
 
 adios.read.open <- function(adios.filename, 
@@ -36,6 +35,7 @@ adios.free.varinfo <- function(adios.varinfo)
 {
     .Call("R_adios_free_varinfo", 
           adios.varinfo)
+    invisible()
 }
 
 adios.inq.var.blockinfo <- function(adios.file.ptr, 
@@ -110,25 +110,21 @@ adios.advance.step <- function(adios.file.ptr,
           adios.file.ptr,
           as.integer(adios.last), 
           as.numeric(adios.timeout.sec))
-    invisible()
 }
 
 adios.read.close <- function(adios.file.ptr)
 {
     .Call("R_adios_read_close", 
           adios.file.ptr)
-    invisible()
 }
 
 adios.read.finalize.method<- function(adios.read.method)
 {
     .Call("R_adios_read_finalize_method", 
           as.character(adios.read.method))
-    invisible()
 }
 
 adios.errno<- function()
 {
     .Call("R_adios_errno")
-    invisible()
 }

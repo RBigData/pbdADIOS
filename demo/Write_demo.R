@@ -25,7 +25,7 @@ for(i in 1:NX){
 
 pbdADIOS:::adios.init.noxml() ## implicitly using comm
 pbdADIOS:::adios.set.max.buffersize(200) ## Buffer size is in MB
-adios_group_ptr <-  pbdADIOS:::adios.declare.group(groupname,"". "adios_flag_yes") 
+adios_group_ptr <-  pbdADIOS:::adios.declare.group(groupname,"", "adios_flag_yes") 
 
 pbdADIOS:::adios.select.method(adios_group_ptr, "MPI", "", "")
 

@@ -54,15 +54,13 @@ adios.define.var <- function(adios.group_p,
           as.character(adios.localoffset))
 }
 
-adios.open <- function(adios_fd,
-                       adios.groupname, 
+adios.open <- function(adios.groupname, 
                        adios.filename, 
                        adios.mode, 
                        comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
 {
   
     .Call("R_adios_open",
-          adios_fd,
           as.character(adios.groupname), 
           as.character(adios.filename), 
           as.character(adios.mode), 

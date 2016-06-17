@@ -8,7 +8,7 @@ adios.init.noxml <- function(comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
     .Call("R_adios_set_max_buffer_size", 
-          as.numeric(adios.max.buffersize)  
+          as.numeric(adios.max.buffersize))  
     invisible()
 }
 

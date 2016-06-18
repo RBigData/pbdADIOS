@@ -1,0 +1,335 @@
+[
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios.h",
+        "file_last_write" : 1466185300
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 13,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 13,
+                "name" : "finalizer(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:R_adios_read.c@F@finalizer"
+            },
+            {
+                "column" : 13,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 31,
+                "name" : "finalizer0(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:R_adios_read.c@F@finalizer0"
+            },
+            {
+                "column" : 5,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 47,
+                "name" : "read_method_hash(const char *)",
+                "parent_name" : "",
+                "usr" : "c:@F@read_method_hash"
+            },
+            {
+                "column" : 5,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 72,
+                "name" : "lock_mode_hash(const char *)",
+                "parent_name" : "",
+                "usr" : "c:@F@lock_mode_hash"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 95,
+                "name" : "R_adios_read_init_method(SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_read_init_method"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 125,
+                "name" : "R_adios_read_open(SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_read_open"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 171,
+                "name" : "R_adios_inq_var(SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_inq_var"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 192,
+                "name" : "R_adios_free_varinfo(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_free_varinfo"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 207,
+                "name" : "R_adios_inq_var_blockinfo(SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_inq_var_blockinfo"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 227,
+                "name" : "R_custom_inq_var_ndim(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_custom_inq_var_ndim"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 240,
+                "name" : "R_custom_inq_var_dims(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_custom_inq_var_dims"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 261,
+                "name" : "R_adios_selection_boundingbox(SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_selection_boundingbox"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 299,
+                "name" : "R_adios_schedule_read(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_schedule_read"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 366,
+                "name" : "R_adios_perform_reads(SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_perform_reads"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 386,
+                "name" : "R_custom_data_access(SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_custom_data_access"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 450,
+                "name" : "R_adios_advance_step(SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_advance_step"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 477,
+                "name" : "R_adios_read_close(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_read_close"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 492,
+                "name" : "R_adios_read_finalize_method(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_read_finalize_method"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+                "kind" : 6,
+                "line" : 509,
+                "name" : "R_adios_errno",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_errno"
+            }
+        ],
+        "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_read.c",
+        "file_last_write" : 1466103329
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 13,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 11,
+                "name" : "finalizer(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:R_adios_write.c@F@finalizer"
+            },
+            {
+                "column" : 13,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 29,
+                "name" : "finalizer0(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:R_adios_write.c@F@finalizer0"
+            },
+            {
+                "column" : 5,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 45,
+                "name" : "buffer_alloc_when_hash(const char *)",
+                "parent_name" : "",
+                "usr" : "c:@F@buffer_alloc_when_hash"
+            },
+            {
+                "column" : 5,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 68,
+                "name" : "adios_flag_hash(const char *)",
+                "parent_name" : "",
+                "usr" : "c:@F@adios_flag_hash"
+            },
+            {
+                "column" : 5,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 91,
+                "name" : "adios_datatypes_hash(const char *)",
+                "parent_name" : "",
+                "usr" : "c:@F@adios_datatypes_hash"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 132,
+                "name" : "R_adios_init_noxml(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_init_noxml"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 147,
+                "name" : "R_adios_allocate_buffer(SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_allocate_buffer"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 168,
+                "name" : "R_adios_set_max_buffer_size(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_set_max_buffer_size"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 179,
+                "name" : "R_adios_declare_group(SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_declare_group"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 209,
+                "name" : "R_adios_select_method(SEXP, SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_select_method"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 237,
+                "name" : "R_adios_define_var(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_define_var"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 278,
+                "name" : "R_adios_open(SEXP, SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_open"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 311,
+                "name" : "R_adios_group_size(SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_group_size"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 338,
+                "name" : "R_adios_write(SEXP, SEXP, SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_write"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 380,
+                "name" : "R_adios_close(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_close"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+                "kind" : 6,
+                "line" : 399,
+                "name" : "R_adios_finalize(SEXP)",
+                "parent_name" : "",
+                "usr" : "c:@F@R_adios_finalize"
+            }
+        ],
+        "file" : "/Users/yupinglu/github/pbdADIOS/src/R_adios_write.c",
+        "file_last_write" : 1466183769
+    }
+]

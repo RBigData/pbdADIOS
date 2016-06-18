@@ -1,0 +1,121 @@
+sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load
+sudo R CMD REMOVE pbdADIOS
+
+sudo R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" --no-test-load --clean
+sudo R CMD REMOVE -l /usr/local/lib/R/site-library pbdADIOS
+
+> .libPaths()
+[1] "/home/pbdr/R/i686-pc-linux-gnu-library/3.3"
+[2] "/usr/local/lib/R/site-library"             
+[3] "/usr/lib/R/site-library"                   
+[4] "/usr/lib/R/library"  
+
+git clone https://github.com/YupingLu/pbdADIOS.git
+R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" 
+R CMD REMOVE pbdADIOS
+
+need to change the NAMESPACE
+
+This version is right?
+git clone https://github.com/sgn11/pbdADIOS.git
+
+Error: '.SPMD.CT' is not an exported object from 'namespace:pbdMPI'
+sudo R CMD REMOVE -l /usr/local/lib/R/site-library pbdMPI
+git clone https://github.com/RBigData/pbdMPI.git
+R CMD INSTALL pbdMPI
+
+Compile c source code
+R CMD SHLIB tmp.c
+
+在function内创建的pointer, use newRptr, otherwise use R_ExternalPtrAddr to get the pointer
+Pay attention to finalizer and finalizer0
+External pointer SEXPs are intended to handle references to C structures such as ‘handles’
+
+difference between INTERGER and asInteger
+zeroes <- cfunction(c(n_ = "integer"), '
+  int n = asInteger(n_);
+
+  SEXP out = PROTECT(allocVector(INTSXP, n));
+  memset(INTEGER(out), 0, n * sizeof(int));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+// should us as.integer to convert double to int
+zeroes1 <- cfunction(c(n_ = "integer"), '
+  int* n = INTEGER(n_);
+
+  SEXP out = PROTECT(allocVector(INTSXP, *n));
+  memset(INTEGER(out), 0, (*n) * sizeof(int));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+zeroes2 <- cfunction(c(n_ = "integer"), '
+
+  int* n = INTEGER(coerceVector(n_, INTSXP));
+
+  SEXP out = PROTECT(allocVector(INTSXP, *n));
+  memset(INTEGER(out), 0, (*n) * sizeof(int));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+te <- cfunction(c(n_ = "numeric"), '
+  double n = asReal(n_);
+
+  int a = n;
+  return ScalarReal(a);
+')
+
+method to get communicator
+comm = .pbd_env$SPMD.CT$comm
+
+
+int adios_write (int64_t fd_p, const char * name, const void * var);
+check
+
+int adios_close (int64_t fd_p);
+check
+
+te <- cfunction(c(n_ = "numeric"), '
+  double n = asReal(n_);
+  n = 10;
+  REAL(n_)[0] = n;
+  return R_NilValue;
+')
+
+06/16/2016
+Remember to support other types, i.e. String for read API
+
+First pull new github files.
+git reset --hard HEAD 
+git clean -f 
+git pull
+
+or
+rm -rf pbdADIOS
+git clone https://github.com/YupingLu/pbdADIOS.git
+
+steps to create shared library
+1.
+autoconf configure.ac && autoreconf -if
+2.
+./configure --with-adios-home=/opt/adios/1.10
+3. 
+R CMD SHLIB *.c
+
+dyn.load('R_adios_read.so')
+source("read.R")
+
+R CMD build pbdADIOS 
+R CMD check pbdADIOS_0.1-0.tar.gz 
+R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=/opt/adios/1.10" 
+
+learn when to use invisible

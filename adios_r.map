@@ -1,0 +1,97 @@
+Read API
+
+
+int adios_read_init_method (enum ADIOS_READ_METHOD method, 
+                            MPI_Comm comm, 
+                            const char * parameters);
+
+
+ADIOS_FILE * adios_read_open (const char * fname, 
+                              enum ADIOS_READ_METHOD method, 
+                              MPI_Comm comm, 
+                              enum ADIOS_LOCKMODE lock_mode,
+                              float timeout_sec);
+
+
+ADIOS_VARINFO * adios_inq_var (ADIOS_FILE *fp, const char * varname);  
+
+void adios_free_varinfo (ADIOS_VARINFO *cp);
+
+int adios_inq_var_blockinfo (ADIOS_FILE *fp, ADIOS_VARINFO * varinfo);
+
+ADIOS_SELECTION * adios_selection_boundingbox (int ndim, const uint64_t *start, const uint64_t *count);
+
+int adios_schedule_read (const ADIOS_FILE * fp,
+                         const ADIOS_SELECTION * sel,
+                         const char            * varname,
+                         int                     from_steps,
+                         int                     nsteps,
+                         void                  * data);
+
+int adios_perform_reads (const ADIOS_FILE *fp, int blocking);
+
+
+int adios_advance_step (ADIOS_FILE *fp, int last, float timeout_sec); 
+
+int adios_read_close (ADIOS_FILE *fp);
+
+int adios_read_finalize_method(enum ADIOS_READ_METHOD method);
+
+
+
+Write API
+
+
+int adios_init_noxml (MPI_Comm comm);
+
+int adios_allocate_buffer (
+        enum ADIOS_BUFFER_ALLOC_WHEN adios_buffer_alloc_when,
+        uint64_t buffer_size
+        );
+
+
+
+void adios_set_max_buffer_size (uint64_t max_buffer_size_MB);
+
+int adios_declare_group (int64_t * id, 
+                         const char * name,
+                         const char * time_index, 
+                         enum ADIOS_FLAG stats
+                        );
+
+int adios_select_method (int64_t group, 
+                         const char * method,
+                         const char * parameters,
+                         const char * base_path
+                        );
+
+
+int64_t adios_define_var (int64_t group_id, 
+                          const char * name,
+                          const char * path,
+                          enum ADIOS_DATATYPES type,
+                          const char * dimensions,
+                          const char * global_dimensions,
+                          const char * local_offsets
+                         );
+
+
+int adios_open (int64_t * fd, 
+                const char * group_name, 
+                const char * name,
+                const char * mode, 
+                MPI_Comm comm
+               );
+
+int adios_group_size (int64_t fd_p, 
+                      uint64_t data_size,
+                      uint64_t * total_size
+                     ); 
+
+
+int adios_write (int64_t fd_p, const char * name, const void * var);
+
+
+int adios_close (int64_t fd_p);
+
+int adios_finalize (int mype);

@@ -163,10 +163,9 @@ SEXP R_adios_read_open(SEXP R_filename,
 }
 
 /** 
- *  Open an adios file/stream as a stream.
- *  Only one step at a time can be read. The list of variables will change when
- *  advancing the step if the writing application writes different variables at
- *  different times.
+ *  Inquiry about a variable.
+ *  This function does not read anything from the file but processes info
+ *  already in memory after fopen.
  */
 SEXP R_adios_inq_var(SEXP R_adios_file_ptr, 
                      SEXP R_adios_varname)

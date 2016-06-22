@@ -435,7 +435,12 @@ SEXP R_custom_data_access(SEXP R_adios_data,
             UNPROTECT(1);
             break;
         case adios_string:
-            //printf ("%s\n", (char *)data);
+            R_custom_data_access_val = PROTECT(allocVector(STRSXP, num_element));
+            char *data_string = (char *) adios_data;   
+            for(int i=0;i<num_element;i++){
+                SET_STRING_ELT(R_custom_data_access_val, i, mkChar(data_string + i));
+            }
+            UNPROTECT(1);
             break;
         default:
             error("Error found in R_custom_data_access\n");

@@ -123,3 +123,27 @@ learn when to use invisible
 06/18/2016
 learn to use git
 
+
+abc <- cfunction(NULL, '
+  SEXP out = PROTECT(allocVector(STRSXP, 3));
+  char greeting[] = "Hello World";
+  char greeting1[] = "This is my test";
+  char greeting2[] = "lol";
+  SET_STRING_ELT(out, 0, mkChar(greeting));
+  SET_STRING_ELT(out, 1, mkChar(greeting1));
+  SET_STRING_ELT(out, 2, mkChar(greeting2));
+
+  UNPROTECT(1);
+
+  return out;
+')
+
+
+
+
+
+
+
+
+
+

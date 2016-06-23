@@ -47,25 +47,25 @@ time mpirun -np 4 --mca mpi_warn_on_fork 0 \
     Rscript /ccs/home/ost/adios/pbdADIOS/tests/test_heat.r
 ```
 
+# Install
+This file is for a Linux, Mac OS X and Solaris 
 
-## This file is for a Linux, Mac OS X and Solaris 
-
---- 'pbdMPI' Installation:
+1. 'pbdMPI' Installation:
 
    See 'pbdMPI/INSTALL' for the details.
 
 
---- MXML installation
+2.  MXML installation
 
-1. Install MXML. Download MXML from : http://www.msweet.org/projects.php?Z3
+Install MXML. Download MXML from : http://www.msweet.org/projects.php?Z3
   > ./configure --prefix=SpecifyInstallPath  
   > make
   > make install 
 
 
---- ADIOS  Installation:
+3. ADIOS  Installation:
 
-2. Install ADIOS. Download from : https://www.olcf.ornl.gov/center-projects/adios/
+Install ADIOS. Download from : https://www.olcf.ornl.gov/center-projects/adios/
    > ./configure CFLAGS="-w -fpic" --prefix=SpecifyInstallPath \  
      --disable-fortran \
       --without-hdf5 \
@@ -82,9 +82,9 @@ time mpirun -np 4 --mca mpi_warn_on_fork 0 \
     > make install
 
 
---- 'pbdADIOS' Installation: 
+4. 'pbdADIOS' Installation: 
 
-3. Download and install 'pbdADIOS'
+Download and install 'pbdADIOS'
 
    > R CMD INSTALL pbdADIOS_0.1-0.tar.gz --configure-args="--with-adios-home=Specify_ADIOS_InstallPath"
 

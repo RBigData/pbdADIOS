@@ -9,7 +9,7 @@
 #'
 #' @export
 adios.read.init.method <- function(adios.read.method, 
-                                   comm = pbdMPI:::.pbd_env$SPMD.CT$comm, 
+                                   comm = .pbd_env$SPMD.CT$comm, 
                                    params)
 {
     .Call("R_adios_read_init_method", 
@@ -36,7 +36,7 @@ adios.read.init.method <- function(adios.read.method,
 #' @export
 adios.read.open <- function(adios.filename, 
                             adios.read.method, 
-                            comm = pbdMPI:::.pbd_env$SPMD.CT$comm, 
+                            comm = .pbd_env$SPMD.CT$comm, 
                             adios.lockmode, 
                             adios.timeout.sec)
 {  

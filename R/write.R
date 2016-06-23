@@ -3,7 +3,7 @@
 #' @param comm
 #'
 #' @export
-adios.init.noxml <- function(comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
+adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_init_noxml", 
           comm.c2f(comm))
@@ -111,7 +111,7 @@ adios.define.var <- function(adios.group_p,
 adios.open <- function(adios.groupname, 
                        adios.filename, 
                        adios.mode, 
-                       comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
+                       comm = .pbd_env$SPMD.CT$comm)
 {
   
     .Call("R_adios_open",
@@ -172,7 +172,7 @@ adios.close <- function(adios.file_p)
 #' @param comm
 #'
 #' @export
-adios.finalize <- function(comm = pbdMPI:::.pbd_env$SPMD.CT$comm)
+adios.finalize <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_finalize", 
           comm.rank(comm))

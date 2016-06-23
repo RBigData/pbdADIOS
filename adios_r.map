@@ -37,6 +37,15 @@ int adios_read_close (ADIOS_FILE *fp);
 
 int adios_read_finalize_method(enum ADIOS_READ_METHOD method);
 
+int adios_get_attr (ADIOS_FILE            * fp,
+                    const char            * attrname,
+                    enum ADIOS_DATATYPES  * type,
+                    int                   * size,
+                    void                 ** data);
+
+int adios_get_attr_byid (ADIOS_FILE  * fp, int attrid, 
+                         enum ADIOS_DATATYPES * type,
+                         int * size, void ** data);
 
 
 Write API

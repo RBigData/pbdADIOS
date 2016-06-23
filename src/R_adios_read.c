@@ -518,36 +518,3 @@ SEXP R_adios_errno()
     UNPROTECT(1);
     return R_adios_errno_val;
 }
-
-/**
- *  Get error number
- */
-/*SEXP R_adios_get_attr(SEXP R_adios_fp, 
-                      SEXP R_adios_attrname, 
-                      SEXP R_adios_type,
-                      SEXP R_adios_size,
-                      SEXP R_adios_data)
-{
-
-}
-int adios_get_attr (ADIOS_FILE            * fp,
-                    const char            * attrname,
-                    enum ADIOS_DATATYPES  * type,
-                    int                   * size,
-                    void                 ** data);
-
-/**
- *  Get error number
- */
-/*SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
-                           SEXP R_adios_attrid, 
-                           SEXP R_adios_type,
-                           SEXP R_adios_size,
-                           SEXP R_adios_data,)
-{
-    
-}
-int adios_get_attr_byid (ADIOS_FILE  * fp, int attrid, 
-                         enum ADIOS_DATATYPES * type,
-                         int * size, void ** data);*/
-

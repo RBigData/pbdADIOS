@@ -153,5 +153,3 @@ adios.define.var(adios_group_ptr, "T", "","adios_double", toString(my.dim), toSt
 
 check adios r code, change parameters
 mpirun -np 12 ./heat_transfer_adios1 heat  4 3    40 60   12 500
-
-

@@ -81,6 +81,19 @@ SEXP R_adios_read_finalize_method(SEXP R_adios_read_method);
 
 SEXP R_adios_errno();
 
+/* ADIOS get attributes API */
+struct ATTR{
+    enum ADIOS_DATATYPES type;
+    int size;
+    void *data;
+};
+
+SEXP R_adios_get_attr(SEXP R_adios_fp, 
+                      SEXP R_adios_attrname);
+
+SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
+                           SEXP R_adios_attrid);
+
 
 /* ADIOS write API */
 int buffer_alloc_when_hash(const char *search_str);

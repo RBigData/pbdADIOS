@@ -158,7 +158,7 @@ SEXP R_adios_allocate_buffer(SEXP R_adios_buffer_when,
     buffer_size   = (uint64_t)asReal(R_buffer_size); //Make sure this conv is correct ??
     INT(ret) = adios_allocate_buffer(buffer_when_value, 
                                      buffer_size);
- 
+    UNPROTECT(1);
     return ret;
 }
 
@@ -225,7 +225,7 @@ SEXP R_adios_select_method(SEXP R_m_adios_group,
                                    method, 
                                    params, 
                                    base_path);
-
+    UNPROTECT(1);
     return ret;
 }
 
@@ -266,7 +266,6 @@ SEXP R_adios_define_var(SEXP R_m_adios_group,
                                         global_dim, 
                                         local_offset);
     UNPROTECT(1); 
-
     return R_varid;
 }
 

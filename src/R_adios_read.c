@@ -1,7 +1,5 @@
 #include "R_adios.h"
 
-// Do I need to include stdint etc here to use uint64_t?
-
 /**
  *  R wrapper of ADIOS read API
  *  https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
@@ -487,6 +485,7 @@ SEXP R_adios_read_close(SEXP R_adios_file_ptr)
     fp = R_ExternalPtrAddr(R_adios_file_ptr);
     INT(ret) = adios_read_close(fp);
 
+    UNPROTECT(1);
     return ret;
 }
 
@@ -504,6 +503,7 @@ SEXP R_adios_read_finalize_method(SEXP R_adios_read_method)
 
     INT(ret) = adios_read_finalize_method(read_method_value);
 
+    UNPROTECT(1);
     return ret;
 }
 

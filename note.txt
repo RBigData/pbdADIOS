@@ -153,3 +153,21 @@ adios.define.var(adios_group_ptr, "T", "","adios_double", toString(my.dim), toSt
 
 check adios r code, change parameters
 mpirun -np 12 ./heat_transfer_adios1 heat  4 3    40 60   12 500
+
+
+
+dummy <- cfunction(body = '
+  SEXP out;
+
+  int* number;
+  number = (int *)malloc(5 * sizeof(int));
+  for(int i=0; i<5; i++)
+    number[i] = i;
+  PROTECT(out = R_MakeExternalPtr(number, R_NilValue, R_NilValue)); 
+  UNPROTECT(1);
+  return out;
+')
+
+a = dummy()
+a[1]
+Error in a[1] : object of type 'externalptr' is not subsettable

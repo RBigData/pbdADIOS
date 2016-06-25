@@ -171,3 +171,8 @@ dummy <- cfunction(body = '
 a = dummy()
 a[1]
 Error in a[1] : object of type 'externalptr' is not subsettable
+
+06/25/2016
+roxygen2::roxygenise()
+
+

@@ -2,6 +2,7 @@
 #' 
 #' @param comm
 #'
+#' @rdname write
 #' @export
 adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 {
@@ -14,6 +15,7 @@ adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 #' 
 #' @param adios.max.buffersize
 #'
+#' @rdname write
 #' @export
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
@@ -30,6 +32,7 @@ adios.set.max.buffersize <- function(adios.max.buffersize)
 #' 
 #' @return adios group id pointer
 #'
+#' @rdname write
 #' @export
 adios.declare.group <- function(adios.groupname, 
                                 adios.timeindex,
@@ -48,6 +51,7 @@ adios.declare.group <- function(adios.groupname,
 #' @param adios.params
 #' @param adios.basepath
 #'
+#' @rdname write
 #' @export
 adios.select.method <- function(adios.group_p, 
                                 adios.method, 
@@ -75,6 +79,7 @@ adios.select.method <- function(adios.group_p,
 #' @return a variable ID, which can be used in adios_write_byid()
 #'    0 return value indicates an error
 #'
+#' @rdname write
 #' @export
 adios.define.var <- function(adios.group_p, 
                              adios.varname, 
@@ -107,6 +112,7 @@ adios.define.var <- function(adios.group_p,
 #'
 #' @return adios file id pointer
 #' 
+#' @rdname write
 #' @export
 adios.open <- function(adios.groupname, 
                        adios.filename, 
@@ -129,6 +135,7 @@ adios.open <- function(adios.groupname,
 #'
 #' @return R_adios_total_size
 #' 
+#' @rdname write
 #' @export
 adios.group.size <- function(adios.file_p, 
                              adios.groupsize)
@@ -144,6 +151,7 @@ adios.group.size <- function(adios.file_p,
 #' @param adios.varname
 #' @param adios.var
 #'
+#' @rdname write
 #' @export
 adios.write <- function(adios.file_p, 
                         adios.varname, 
@@ -160,6 +168,7 @@ adios.write <- function(adios.file_p,
 #' 
 #' @param adios.file_p
 #'
+#' @rdname write
 #' @export
 adios.close <- function(adios.file_p)
 {
@@ -171,6 +180,7 @@ adios.close <- function(adios.file_p)
 #' 
 #' @param comm
 #'
+#' @rdname write
 #' @export
 adios.finalize <- function(comm = .pbd_env$SPMD.CT$comm)
 {

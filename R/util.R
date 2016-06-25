@@ -3,6 +3,7 @@
 #' @param adios.rank comm rank
 #' @param adios.fp
 #'
+#' @rdname util
 #' @export
 adios.attr.read <- function(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm), 
                             adios.fp)

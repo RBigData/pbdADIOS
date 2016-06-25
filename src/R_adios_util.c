@@ -30,8 +30,7 @@ static void finalizer(SEXP Rptr)
 SEXP R_adios_get_attr(SEXP R_adios_fp, 
                       SEXP R_adios_attrname)
 {
-    ADIOS_FILE *fp;
-    fp = R_ExternalPtrAddr(R_adios_fp);
+    ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
     const char *attrname = CHARPT(R_adios_attrname, 0);
 
     struct ATTR *getattr;
@@ -57,8 +56,7 @@ SEXP R_adios_get_attr(SEXP R_adios_fp,
 SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
                            SEXP R_adios_attrid)
 {
-    ADIOS_FILE *fp;
-    fp = R_ExternalPtrAddr(R_adios_fp);
+    ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
     int attrid = asInteger(R_adios_attrid);
 
     struct ATTR *getattr;
@@ -82,19 +80,19 @@ SEXP R_adios_get_attr_byid(SEXP R_adios_fp,
 SEXP R_adios_print_attr(SEXP R_adios_rank,
                         SEXP R_adios_fp,
                         SEXP R_adios_attrid,
-                        SEXP R_adios_type,
-                        SEXP R_adios_size,
-                        SEXP R_adios_data)
+                        SEXP R_adios_get_attr)
 {
     int rank = asInteger(R_adios_rank);
-    ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_file_ptr);
+    ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
     int attrid = asInteger(R_adios_attrid);
-    enum ADIOS_DATATYPES attr_type = asInteger(R_adios_type);
-    int attr_size = asInteger(R_adios_size);
-    void *data = R_ExternalPtrAddr(R_adios_data);
 
-    Rprintf ("rank %d: attr: %s %s = ", rank, adios_type_to_string(attr_type), f->attr_namelist [attrid]);
-    int type_size = adios_type_size (attr_type, data);
+    struct ATTR *getattr = R_ExternalPtrAddr(R_adios_get_attr);
+    enum ADIOS_DATATYPES attr_type = getattr->type;
+    int attr_size = getattr->size;
+    void *data = getattr->data;
+
+    Rprintf ("rank %d: attr: %s %s = ", rank, adios_type_to_string(attr_type), fp->attr_namelist[attrid]);
+    int type_size = adios_type_size(attr_type, data);
     int nelems = attr_size / type_size;
     int k;
     char *p = (char*)data;
@@ -124,16 +122,16 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
 }
 
 /**
- * print the adios attributes
+ * print all the adios attributes
  */
 SEXP R_adios_attr_read(SEXP R_adios_rank,
                         SEXP R_adios_fp)
 {   
     int i;
+    ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
 
     for (i = 0; i < fp->nattrs; i++)
     {
-        ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_file_ptr);
         SEXP R_getattr;
        
         R_getattr = R_adios_get_attr(R_adios_fp, mkString(fp->attr_namelist[i]));

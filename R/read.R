@@ -41,11 +41,11 @@ adios.read.open <- function(adios.filename,
                             adios.timeout.sec)
 {  
     .Call("R_adios_read_open", 
-        as.character(adios.filename),
-        as.character(adios.read.method), 
-        comm.c2f(comm),
-        as.character(adios.lockmode), 
-        as.numeric(adios.timeout.sec))
+          as.character(adios.filename),
+          as.character(adios.read.method), 
+          comm.c2f(comm),
+          as.character(adios.lockmode), 
+          as.numeric(adios.timeout.sec))
 }
 
 #' @title Inquiry about a variable.

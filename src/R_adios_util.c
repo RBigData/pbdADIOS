@@ -47,24 +47,6 @@ SEXP R_adios_get_attr(SEXP R_adios_fp,
  *       attrid   index of attribute (0..fp->nattrs-1)
  *                in fp->attr_namelist of ADIOS_FILE struct
  */
-SEXP R_adios_get_attr(SEXP R_adios_fp, 
-                      SEXP R_adios_attrname,
-                      SEXP R_adios_getattr)
-{
-    ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
-    const char *attrname = CHARPT(R_adios_attrname, 0);
-    struct ATTR *getattr = R_ExternalPtrAddr(R_adios_getattr);
-
-    adios_get_attr(fp, 
-                   attrname, 
-                   &getattr->type, 
-                   &getattr->size, 
-                   &getattr->data);
-
-    return R_NilValue;
-}
-
-
 SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
                            SEXP R_adios_attrid,
                            SEXP R_adios_getattr)

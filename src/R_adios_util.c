@@ -62,11 +62,11 @@ SEXP R_adios_get_attr_byid(SEXP R_adios_fp,
     struct ATTR *getattr;
     SEXP R_getattr;
 
-    adios_get_attr(fp, 
-                   attrid, 
-                   &getattr->type, 
-                   &getattr->size, 
-                   &getattr->data);
+    adios_get_attr_byid(fp, 
+                        attrid, 
+                        &getattr->type, 
+                        &getattr->size, 
+                        &getattr->data);
 
     newRptr(getattr, R_getattr, finalizer);
     UNPROTECT(1);

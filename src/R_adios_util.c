@@ -11,8 +11,6 @@ static void finalizer(SEXP Rptr)
         return;
     } else {
         R_debug_print("finalizer: About to free: %p ...\n", ptr);
-        Free(ptr->data);
-        Free(ptr);
         R_debug_print("finalizer: Freed %p.\n", ptr);
         R_ClearExternalPtr(Rptr);
         R_debug_print("finalizer: %p Cleared Rptr.\n", ptr);
@@ -28,13 +26,12 @@ static void finalizer(SEXP Rptr)
  *  Return: struct of type, size and data.
  */
 SEXP R_adios_get_attr(SEXP R_adios_fp, 
-                      SEXP R_adios_attrname)
+                      SEXP R_adios_attrname,
+                      SEXP R_adios_getattr)
 {
     ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
     const char *attrname = CHARPT(R_adios_attrname, 0);
-
-    struct ATTR *getattr;
-    SEXP R_getattr;
+    struct ATTR *getattr = R_ExternalPtrAddr(R_adios_getattr);
 
     adios_get_attr(fp, 
                    attrname, 
@@ -42,10 +39,7 @@ SEXP R_adios_get_attr(SEXP R_adios_fp,
                    &getattr->size, 
                    &getattr->data);
 
-    newRptr(getattr, R_getattr, finalizer);
-    UNPROTECT(1);
-
-    return R_getattr;
+    return R_NilValue;
 }
 
 /**
@@ -59,7 +53,7 @@ SEXP R_adios_get_attr_byid(SEXP R_adios_fp,
     ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
     int attrid = asInteger(R_adios_attrid);
 
-    struct ATTR *getattr;
+    /*struct ATTR *getattr;
     SEXP R_getattr;
 
     adios_get_attr_byid(fp, 
@@ -71,7 +65,7 @@ SEXP R_adios_get_attr_byid(SEXP R_adios_fp,
     newRptr(getattr, R_getattr, finalizer);
     UNPROTECT(1);
 
-    return R_getattr;
+    return R_getattr;*/
 }
 
 /**
@@ -90,6 +84,8 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
     enum ADIOS_DATATYPES attr_type = getattr->type;
     int attr_size = getattr->size;
     void *data = getattr->data;
+
+    // store attribute information into vector
 
     Rprintf ("rank %d: attr: %s %s = ", rank, adios_type_to_string(attr_type), fp->attr_namelist[attrid]);
     int type_size = adios_type_size(attr_type, data);
@@ -119,6 +115,7 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
         p=p+type_size;
     }
     Rprintf("\n");
+    return R_NilValue;
 }
 
 /**
@@ -129,13 +126,22 @@ SEXP R_adios_attr_read(SEXP R_adios_rank,
 {   
     int i;
     ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
+    int rank = asInteger(R_adios_rank);
+
+    struct ATTR attrs;
+    SEXP R_adios_getattr;
+    newRptr(&attrs, R_adios_getattr, finalizer);
+    
 
     for (i = 0; i < fp->nattrs; i++)
-    {
-        SEXP R_getattr;
-       
-        R_getattr = R_adios_get_attr(R_adios_fp, mkString(fp->attr_namelist[i]));
-        R_adios_print_attr(R_adios_rank, R_adios_fp, ScalarInteger(i), R_getattr);
+    {       
+        R_adios_get_attr(R_adios_fp, mkString(fp->attr_namelist[i]), R_adios_getattr);
+        R_adios_print_attr(R_adios_rank, R_adios_fp, ScalarInteger(i), R_adios_getattr);
+        Free(attrs.data);
+        attrs.data = 0;
     }
+
+    UNPROTECT(1);
+    return R_NilValue;
 }
 

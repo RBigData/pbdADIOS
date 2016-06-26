@@ -10,4 +10,5 @@ adios.attr.read <- function(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm),
     .Call("R_adios_attr_read", 
           as.integer(adios.rank),
           adios.fp)
+    invisible()
 }

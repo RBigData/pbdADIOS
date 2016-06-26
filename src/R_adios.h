@@ -89,7 +89,8 @@ struct ATTR{
 };
 
 SEXP R_adios_get_attr(SEXP R_adios_fp, 
-                      SEXP R_adios_attrname);
+                      SEXP R_adios_attrname,
+                      SEXP R_adios_getattr);
 
 SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
                            SEXP R_adios_attrid);
@@ -101,7 +102,6 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
 
 SEXP R_adios_attr_read(SEXP R_adios_rank,
                         SEXP R_adios_fp);
-
 
 /* ADIOS write API */
 int buffer_alloc_when_hash(const char *search_str);

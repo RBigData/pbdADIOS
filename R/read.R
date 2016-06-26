@@ -255,6 +255,7 @@ adios.read.close <- function(adios.file.ptr)
 {
     .Call("R_adios_read_close", 
           adios.file.ptr)
+    invisible()
 }
 
 #' @title Finalize the selected method.
@@ -269,6 +270,7 @@ adios.read.finalize.method<- function(adios.read.method)
 {
     .Call("R_adios_read_finalize_method", 
           as.character(adios.read.method))
+    invisible()
 }
 
 #' @title Get error number

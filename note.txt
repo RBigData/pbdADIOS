@@ -175,4 +175,45 @@ Error in a[1] : object of type 'externalptr' is not subsettable
 06/25/2016
 roxygen2::roxygenise()
 
+06/26/2016
+pbdr@pbdrVM:~/pbdrtest$ bpls -la heat.bp 
+  integer  gndx                     6*scalar = 160 / 160 / 160 / 0
+  integer  gndy                     6*scalar = 150 / 150 / 150 / 0
+  integer  /info/nproc              6*scalar = 12 / 12 / 12 / 0
+  integer  /info/npx                6*scalar = 4 / 4 / 4 / 0
+  integer  /info/npy                6*scalar = 3 / 3 / 3 / 0
+  integer  offx                     6*scalar = 0 / 120 / 60 / 44.7214
+  integer  offy                     6*scalar = 0 / 100 / 50 / 40.8248
+  integer  ndx                      6*scalar = 40 / 40 / 40 / 0
+  integer  ndy                      6*scalar = 50 / 50 / 50 / 0
+  integer  step                     6*scalar = 1 / 6 / 3.5 / 1.70783
+  integer  iterations               6*scalar = 500 / 500 / 500 / 0
+  double   T                        6*{150, 160} = 0.000212009 / 999.47 / 442.536 / 318.995
+  double   dT                       6*{150, 160} = 6.27403e-06 / 0.720097 / 0.135503 / 0.115625
+  string   /info/nproc/description  attr   = "Number of writers"
+  string   /info/npx/description    attr   = "Number of processors in x dimension"
+  string   /info/npy/description    attr   = "Number of processors in y dimension"
+  string   T/description            attr   = "Temperature 2D array with 2D decomposition"
+  string   dT/description           attr   = "delta T"
+  
+pbdr@pbdrVM:~/pbdrtest$ bpls -a heat.bp 
+  integer  gndx                     6*scalar
+  integer  gndy                     6*scalar
+  integer  /info/nproc              6*scalar
+  integer  /info/npx                6*scalar
+  integer  /info/npy                6*scalar
+  integer  offx                     6*scalar
+  integer  offy                     6*scalar
+  integer  ndx                      6*scalar
+  integer  ndy                      6*scalar
+  integer  step                     6*scalar
+  integer  iterations               6*scalar
+  double   T                        6*{150, 160}
+  double   dT                       6*{150, 160}
+  string   /info/nproc/description  attr
+  string   /info/npx/description    attr
+  string   /info/npy/description    attr
+  string   T/description            attr
+  string   dT/description           attr
+
 

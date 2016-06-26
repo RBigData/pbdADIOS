@@ -7,6 +7,7 @@
 #'  R_adios_read_init_method,
 #'  R_adios_read_open,
 #'  R_adios_inq_var,
+#'  R_adios_inq_var_byid,
 #'  R_adios_free_varinfo,
 #'  R_adios_inq_var_blockinfo,
 #'  R_custom_inq_var_ndim,
@@ -30,7 +31,14 @@
 #'  R_adios_group_size,
 #'  R_adios_write,
 #'  R_adios_close,
-#'  R_adios_finalize
+#'  R_adios_finalize,
+#'
+#   ### ADIOS get attributes API
+#'  R_adios_get_attr,
+#'  R_adios_get_attr_byid,
+#'  R_adios_print_attr,
+#'  R_adios_attr_read,
+#'  R_adios_var_attr_read
 #'
 #' @import pbdMPI
 #' @docType package

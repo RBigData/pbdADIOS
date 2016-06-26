@@ -69,6 +69,22 @@ adios.inq.var <- function(adios.file.ptr,
           as.character(adios.varname))
 }
 
+#' @title Inquiry a variable by index.
+#' 
+#' @param adios.file.ptr
+#' @param adios.varid
+#' 
+#' @return adios_var_info pointer
+#' 
+#' @export
+adios.inq.var.byid <- function(adios.file.ptr, 
+                               adios.varid)
+{
+    .Call("R_adios_inq_var_byid", 
+          adios.file.ptr, 
+          as.integer(adios.varid))
+}
+
 #' @title Free memory used by an ADIOS_VARINFO struct.
 #' 
 #' @param adios.varinfo

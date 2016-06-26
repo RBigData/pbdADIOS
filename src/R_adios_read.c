@@ -185,6 +185,30 @@ SEXP R_adios_inq_var(SEXP R_adios_file_ptr,
     return R_adios_var_info;   
 }
 
+/** 
+ *  Inquiry a variable by index
+ *       varid    index of variable (0..fp->nvars-1)
+ *                in fp->vars_namelist of ADIOS_FILE struct
+ */
+SEXP R_adios_inq_var_byid(SEXP R_adios_file_ptr, 
+                          SEXP R_adios_varid)
+{
+    ADIOS_FILE * fp;
+    fp = R_ExternalPtrAddr(R_adios_file_ptr);
+    int varid = asInteger(R_adios_varid);
+
+    ADIOS_VARINFO *adios_var_info;
+    SEXP R_adios_var_info;
+
+    adios_var_info = adios_inq_var_byid(fp, 
+                                        varid);
+    newRptr(adios_var_info, R_adios_var_info, finalizer0);
+    R_debug_print("R_adios_inq_var address: %p\n",
+             (void *)R_ExternalPtrAddr(R_adios_var_info));
+    UNPROTECT(1);
+    return R_adios_var_info;   
+}
+
 /** Free memory used by an ADIOS_VARINFO struct */
 SEXP R_adios_free_varinfo (SEXP R_adios_var_info)
 {

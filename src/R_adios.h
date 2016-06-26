@@ -47,6 +47,8 @@ SEXP R_adios_read_open(SEXP R_filename,
 
 SEXP R_adios_inq_var(SEXP R_adios_file_ptr, 
                      SEXP R_adios_varname);
+SEXP R_adios_inq_var_byid(SEXP R_adios_file_ptr, 
+                          SEXP R_adios_varid);
 SEXP R_adios_free_varinfo (SEXP R_adios_var_info);
 SEXP R_adios_inq_var_blockinfo(SEXP R_adios_file_ptr, 
                                SEXP R_adios_var_info);
@@ -93,7 +95,8 @@ SEXP R_adios_get_attr(SEXP R_adios_fp,
                       SEXP R_adios_getattr);
 
 SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
-                           SEXP R_adios_attrid);
+                           SEXP R_adios_attrid,
+                           SEXP R_adios_getattr);
 
 SEXP R_adios_print_attr(SEXP R_adios_rank,
                         SEXP R_adios_fp,
@@ -102,6 +105,9 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
 
 SEXP R_adios_attr_read(SEXP R_adios_rank,
                         SEXP R_adios_fp);
+
+SEXP R_adios_var_attr_read(SEXP R_adios_rank,
+                           SEXP R_adios_fp);
 
 /* ADIOS write API */
 int buffer_alloc_when_hash(const char *search_str);

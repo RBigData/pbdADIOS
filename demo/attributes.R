@@ -12,4 +12,12 @@ file.ptr <- adios.read.open(file, "ADIOS_READ_METHOD_BP",
                                   adios.timeout.sec=timeout.sec)  
 
 adios.attr.read(adios.fp=file.ptr)
+barrier()
+adios.var.attr.read(adios.fp=file.ptr) 
+barrier()
 
+adios.read.close(file.ptr)
+barrier()
+adios.read.finalize.method("ADIOS_READ_METHOD_BP")
+
+finalize()

@@ -47,14 +47,31 @@ SEXP R_adios_get_attr(SEXP R_adios_fp,
  *       attrid   index of attribute (0..fp->nattrs-1)
  *                in fp->attr_namelist of ADIOS_FILE struct
  */
+SEXP R_adios_get_attr(SEXP R_adios_fp, 
+                      SEXP R_adios_attrname,
+                      SEXP R_adios_getattr)
+{
+    ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
+    const char *attrname = CHARPT(R_adios_attrname, 0);
+    struct ATTR *getattr = R_ExternalPtrAddr(R_adios_getattr);
+
+    adios_get_attr(fp, 
+                   attrname, 
+                   &getattr->type, 
+                   &getattr->size, 
+                   &getattr->data);
+
+    return R_NilValue;
+}
+
+
 SEXP R_adios_get_attr_byid(SEXP R_adios_fp, 
-                           SEXP R_adios_attrid)
+                           SEXP R_adios_attrid,
+                           SEXP R_adios_getattr)
 {
     ADIOS_FILE *fp = R_ExternalPtrAddr(R_adios_fp);
     int attrid = asInteger(R_adios_attrid);
-
-    /*struct ATTR *getattr;
-    SEXP R_getattr;
+    struct ATTR *getattr = R_ExternalPtrAddr(R_adios_getattr);
 
     adios_get_attr_byid(fp, 
                         attrid, 
@@ -62,10 +79,7 @@ SEXP R_adios_get_attr_byid(SEXP R_adios_fp,
                         &getattr->size, 
                         &getattr->data);
 
-    newRptr(getattr, R_getattr, finalizer);
-    UNPROTECT(1);
-
-    return R_getattr;*/
+    return R_NilValue;
 }
 
 /**
@@ -85,8 +99,7 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
     int attr_size = getattr->size;
     void *data = getattr->data;
 
-    // store attribute information into vector
-
+    //Currently print the attributes directly. May store the data into vectors later
     Rprintf ("rank %d: attr: %s %s = ", rank, adios_type_to_string(attr_type), fp->attr_namelist[attrid]);
     int type_size = adios_type_size(attr_type, data);
     int nelems = attr_size / type_size;
@@ -122,7 +135,7 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
  * print all the adios attributes
  */
 SEXP R_adios_attr_read(SEXP R_adios_rank,
-                        SEXP R_adios_fp)
+                       SEXP R_adios_fp)
 {   
     int i;
     ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
@@ -131,14 +144,55 @@ SEXP R_adios_attr_read(SEXP R_adios_rank,
     struct ATTR attrs;
     SEXP R_adios_getattr;
     newRptr(&attrs, R_adios_getattr, finalizer);
-    
 
-    for (i = 0; i < fp->nattrs; i++)
-    {       
-        R_adios_get_attr(R_adios_fp, mkString(fp->attr_namelist[i]), R_adios_getattr);
-        R_adios_print_attr(R_adios_rank, R_adios_fp, ScalarInteger(i), R_adios_getattr);
-        Free(attrs.data);
-        attrs.data = 0;
+    // Only rank 0 print the information
+    if (!rank) {
+        for (i = 0; i < fp->nattrs; i++)
+        {       
+            R_adios_get_attr(R_adios_fp, mkString(fp->attr_namelist[i]), R_adios_getattr);
+            R_adios_print_attr(R_adios_rank, R_adios_fp, ScalarInteger(i), R_adios_getattr);
+            Free(attrs.data);
+            attrs.data = 0;
+        }
+    }
+
+    UNPROTECT(1);
+    return R_NilValue;
+}
+
+/**
+ * List of variables with related attributes
+ */
+SEXP R_adios_var_attr_read(SEXP R_adios_rank,
+                           SEXP R_adios_fp)
+{   
+    int i, j;
+    ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
+    int rank = asInteger(R_adios_rank);
+
+    struct ATTR attrs;
+    SEXP R_adios_getattr;
+    newRptr(&attrs, R_adios_getattr, finalizer);
+
+    // Only rank 0 print the information
+    if (!rank) {
+        printf ("========================================================\n");
+        for (i = 0; i < fp->nvars; i++)
+        {   
+            ADIOS_VARINFO * v = adios_inq_var_byid (fp, i);
+            Rprintf("rank %d:    %-9s  %s    has %d attributes\n", rank, adios_type_to_string(v->type), fp->var_namelist[i], v->nattrs);
+            for (j=0; j < v->nattrs; j++)
+            {
+                R_adios_get_attr_byid(R_adios_fp, ScalarInteger(v->attr_ids[j]), R_adios_getattr);
+                R_adios_print_attr(R_adios_rank, R_adios_fp, ScalarInteger(v->attr_ids[j]), R_adios_getattr);
+                Free(attrs.data);
+                attrs.data = 0;
+            }
+
+            //free varinfo here
+            adios_free_varinfo(v); 
+        }
+        printf ("========================================================\n");
     }
 
     UNPROTECT(1);

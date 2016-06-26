@@ -16,6 +16,7 @@ adios.read.init.method <- function(adios.read.method,
         as.character(adios.read.method), 
         comm.c2f(comm), 
         as.character(params))
+    invisible()
 }
 
 #' @title Open an adios file/stream as a stream.

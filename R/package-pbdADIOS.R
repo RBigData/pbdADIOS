@@ -38,7 +38,8 @@
 #'  R_adios_get_attr_byid,
 #'  R_adios_print_attr,
 #'  R_adios_attr_read,
-#'  R_adios_var_attr_read
+#'  R_adios_var_attr_read,
+#'  R_bpls
 #'
 #' @import pbdMPI
 #' @docType package

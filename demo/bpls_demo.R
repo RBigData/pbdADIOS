@@ -6,6 +6,6 @@ library(pbdADIOS, quiet = TRUE)
 
 init() # pbdMPI initilization
 
-bpls("heat.bp")
+bpls("heat.bp", .pbd_env$SPMD.CT$comm, comm.rank(.pbd_env$SPMD.CT$comm))
 
 finalize() # pbdMPI final

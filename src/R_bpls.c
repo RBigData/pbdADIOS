@@ -18,11 +18,11 @@ SEXP R_bpls(SEXP R_adios_path,
     ADIOS_FILE  *fp;
     int status;
     const char *path = CHARPT(R_adios_path, 0);
-
+    MPI_Comm comm;
+    comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
     if (!rank) {
-        MPI_Comm comm;
-        comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
+        
         status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
         if (status) {
             REprintf("Error: %s\n", adios_errmsg());

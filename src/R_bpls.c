@@ -1,10 +1,6 @@
 #include <inttypes.h>
 #include "R_adios.h"
 
-FILE *outf;   // file to print to or stdout
-char commentchar;
-commentchar = ' ';
-
 /** 
  * merge vars list and attrs list
  */
@@ -29,70 +25,72 @@ void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *
         
 }
 
-int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype, bool allowformat)
+/**
+ * print data
+ */
+int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype)
 {
-    bool f = formatgiven && allowformat;
     if (data == NULL) {
-        fprintf(outf, "null ");
+        Rprintf("null ");
         return 0;
     }
     // print next data item 
     switch(adiosvartype) {
         case adios_unsigned_byte:
-            fprintf(outf,(f ? format : "%hhu"), ((unsigned char *) data)[item]);
+            Rprintf("%hhu", ((unsigned char *) data)[item]);
             break;
         case adios_byte:
-            fprintf(outf,(f ? format : "%hhd"), ((signed char *) data)[item]);
+            Rprintf("%hhd", ((signed char *) data)[item]);
             break;
 
         case adios_string:
-            fprintf(outf,(f ? format : "\"%s\""), ((char *) data)+item);
+            Rprintf("\"%s\"", ((char *) data)+item);
             break;
         case adios_string_array:
             // we expect one elemet of the array here
-            fprintf(outf,(f ? format : "\"%s\""), *((char **)data+item));
+            Rprintf("\"%s\"", *((char **)data+item));
             break;
 
         case adios_unsigned_short:  
-            fprintf(outf,(f ? format : "%hu"), ((unsigned short *) data)[item]);
+            Rprintf("%hu", ((unsigned short *) data)[item]);
             break;
         case adios_short:
-            fprintf(outf,(f ? format : "%hd"), ((signed short *) data)[item]);
+            Rprintf("%hd", ((signed short *) data)[item]);
             break;
 
         case adios_unsigned_integer:
-            fprintf(outf,(f ? format : "%u"), ((unsigned int *) data)[item]);
+            Rprintf("%u", ((unsigned int *) data)[item]);
             break;
         case adios_integer:    
-            fprintf(outf,(f ? format : "%d"), ((signed int *) data)[item]);
+            Rprintf("%d", ((signed int *) data)[item]);
             break;
 
         case adios_unsigned_long:
-            fprintf(outf,(f ? format : "%llu"), ((unsigned long long *) data)[item]);
+            Rprintf("%llu", ((unsigned long long *) data)[item]);
             break;
         case adios_long:        
-            fprintf(outf,(f ? format : "%lld"), ((signed long long *) data)[item]);
+            Rprintf("%lld", ((signed long long *) data)[item]);
             break;
 
         case adios_real:
-            fprintf(outf,(f ? format : "%g"), ((float *) data)[item]);
+            Rprintf("%g", ((float *) data)[item]);
             break;
 
         case adios_double:
-            fprintf(outf,(f ? format : "%g"), ((double *) data)[item]);
+            Rprintf("%g", ((double *) data)[item]);
             break;
 
         case adios_long_double:
-            fprintf(outf,(f ? format : "%Lg"), ((long double *) data)[item]);
-            //fprintf(outf,(f ? format : "????????"));
+            Rprintf("%Lg", ((long double *) data)[item]);
+            //Rprintf(outf,(f ? format : "????????"));
             break;
 
         case adios_complex:  
-            fprintf(outf,(f ? format : "(%g,i%g)"), ((float *) data)[2*item], ((float *) data)[2*item+1]);
+            Rprintf("(%g,i%g)", ((float *) data)[2*item], ((float *) data)[2*item+1]);
             break;
 
         case adios_double_complex:
-            fprintf(outf,(f ? format : "(%g,i%g)" ), ((double *) data)[2*item], ((double *) data)[2*item+1]);
+            Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
             break;
 
         default:
@@ -118,15 +116,13 @@ int doList_group (ADIOS_FILE *fp)
     void   *value;  // scalar value is returned by get_attr
     bool    timed;  // variable has multiple timesteps
 
-
     nNames = fp->nvars + fp->nattrs;
-
 
     names = (char **) malloc (nNames * sizeof (char*)); // store only pointers
     isVar = (bool *) malloc (nNames * sizeof (bool));
     vis   = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
     if (names == NULL || isVar == NULL || vis == NULL) {
-        fprintf(stderr, "Error: could not allocate char* and bool arrays of %d elements\n", nNames);
+        REprintf("Error: could not allocate char* and bool arrays of %d elements\n", nNames);
         return 5;
     }
     mergeLists(fp->nvars, fp->var_namelist, fp->nattrs, fp->attr_namelist, names, isVar);
@@ -144,13 +140,13 @@ int doList_group (ADIOS_FILE *fp)
         if (isVar[n])  {
             vis[n] = adios_inq_var (fp, names[n]);
             if (!vis[n]) {
-                fprintf(stderr, "Error: %s\n", adios_errmsg());
+                REprintf("Error: %s\n", adios_errmsg());
             }
             vartype = vis[n]->type;
         } else {
             retval = adios_get_attr (fp, names[n], &vartype, &attrsize, &value);
             if (retval) {
-                fprintf(stderr, "Error: %s\n", adios_errmsg());
+                REprintf("Error: %s\n", adios_errmsg());
             }
         }
         len = strlen(adios_type_to_string(vartype));
@@ -168,90 +164,89 @@ int doList_group (ADIOS_FILE *fp)
         } else {
             retval = adios_get_attr (fp, names[n], &vartype, &attrsize, &value);
             if (retval) {
-                fprintf(stderr, "Error: %s\n", adios_errmsg());
+                REprintf("Error: %s\n", adios_errmsg());
             }
         }
 
         if (matches) {
-
             // print definition of variable
-            fprintf(outf,"%c %-*s  %-*s", commentchar, maxtypelen, 
+            Rprintf("%c %-*s  %-*s", commentchar, maxtypelen, 
                     adios_type_to_string(vartype), maxlen, names[n]); 
             if (!isVar[n]) {
                 // list (and print) attribute
                 if (readattrs || dump) {
-                    fprintf(outf,"  attr   = ");
+                    Rprintf("  attr   = ");
                     int type_size = adios_type_size (vartype, value);
                     int nelems = attrsize / type_size;
                     char *p = (char*)value;
-                    if (nelems>1) fprintf(outf,"{");
+                    if (nelems>1) Rprintf("{");
                     for (i=0; i<nelems; i++) { 
-                        if (i>0) fprintf(outf,", ");
-                        print_data(p, 0, vartype, false); 
+                        if (i>0) Rprintf(", ");
+                        print_data(p, 0, vartype); 
                         p += type_size;
                     }
-                    if (nelems>1) fprintf(outf,"}");
-                    fprintf(outf,"\n");
+                    if (nelems>1) Rprintf("}");
+                    Rprintf("\n");
                     matches = false; // already printed
                 } else {
-                    fprintf(outf,"  attr\n");
+                    Rprintf("  attr\n");
                 }
             } else if (!vi) { 
                 // after error
-                fprintf(outf, "\n");
+                Rprintf("\n");
             } else if (vi->ndim > 0 || timed) {
 
-                fprintf(outf,"  ");
+                Rprintf("  ");
                 if (timed) 
-                    fprintf(outf, "%d*", vi->nsteps);
+                    Rprintf("%d*", vi->nsteps);
                 if (vi->ndim > 0) {
-                    fprintf(outf,"{%" PRId64, vi->dims[0]);
+                    Rprintf("{%" PRId64, vi->dims[0]);
                     for (j=1; j < vi->ndim; j++) {
-                        fprintf(outf,", %" PRId64, vi->dims[j]);
+                        Rprintf(", %" PRId64, vi->dims[j]);
                     }
-                    fprintf(outf,"}");
+                    Rprintf("}");
                 } else {
-                    fprintf(outf,"scalar");
+                    Rprintf("scalar");
                 }
 
-                if (longopt && vi->statistics) {
+                if (vi->statistics) {
 
                     if(timestep == false || timed == false ) {
 
-                        fprintf(outf," = ");
+                        Rprintf(" = ");
                         if(vartype == adios_complex || vartype == adios_double_complex) {
                             // force printing (double,double) here
-                            print_data(vi->statistics->min, 0, adios_double_complex, false); 
-                            fprintf(outf," / ");
-                            print_data(vi->statistics->max, 0, adios_double_complex, false); 
-                            fprintf(outf," / ");
-                            print_data(vi->statistics->avg, 0, adios_double_complex, false);
-                            fprintf(outf," / ");
-                            print_data(vi->statistics->std_dev, 0, adios_double_complex, false);
+                            print_data(vi->statistics->min, 0, adios_double_complex); 
+                            Rprintf(" / ");
+                            print_data(vi->statistics->max, 0, adios_double_complex); 
+                            Rprintf(" / ");
+                            print_data(vi->statistics->avg, 0, adios_double_complex);
+                            Rprintf(" / ");
+                            print_data(vi->statistics->std_dev, 0, adios_double_complex);
                         } else {
-                            print_data(vi->statistics->min, 0, vartype, false); 
-                            fprintf(outf," / ");
-                            print_data(vi->statistics->max, 0, vartype, false); 
-                            fprintf(outf," / ");
-                            print_data(vi->statistics->avg, 0, adios_double, false);
-                            fprintf(outf," / ");
-                            print_data(vi->statistics->std_dev, 0, adios_double, false);
+                            print_data(vi->statistics->min, 0, vartype); 
+                            Rprintf(" / ");
+                            print_data(vi->statistics->max, 0, vartype); 
+                            Rprintf(" / ");
+                            print_data(vi->statistics->avg, 0, adios_double);
+                            Rprintf(" / ");
+                            print_data(vi->statistics->std_dev, 0, adios_double);
                         }
 
-                        //fprintf(outf," {MIN / MAX / AVG / STD_DEV} ");
+                        //Rprintf(outf," {MIN / MAX / AVG / STD_DEV} ");
                     } 
                 } // longopt && vi->statistics 
-                fprintf(outf,"\n");
+                Rprintf("\n");
 
             } else {
                 // scalar
-                fprintf(outf,"  scalar");
-                if (longopt && vi->value) {
-                    fprintf(outf," = ");
-                    print_data(vi->value, 0, vartype, false); 
+                Rprintf("  scalar");
+                if (vi->value) {
+                    Rprintf(" = ");
+                    print_data(vi->value, 0, vartype); 
                     matches = false; // already printed
                 }
-                fprintf(outf,"\n");
+                Rprintf("\n");
             }
         }
 
@@ -269,33 +264,38 @@ int doList_group (ADIOS_FILE *fp)
     return 0;
 } 
 
-int doList(const char *path) 
+/**
+ * R wrapper of bpls
+ */
+SEXP R_bpls(SEXP R_adios_path)
+//int doList(const char *path) 
 {
+    char commentchar;
+    commentchar = ' ';
     ADIOS_FILE  *fp;
-    int     grpid;
-    int     status;
-    int     mpi_comm_dummy=0;
-    int     verbose=0;
-    char    init_params[128];
-    int     adios_verbose=2;
+    int status;
+    int mpi_comm_dummy=0;
+    const char *path = CHARPT(R_adios_path, 0);
   
-    sprintf (init_params, "verbose=%d", adios_verbose);
-
-    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, init_params);
+    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, "verbose=2");
     if (status) {
-        fprintf(stderr, "Error: %s\n", adios_errmsg());
-        bpexit(6, 0);
+        REprintf("Error: %s\n", adios_errmsg());
+        exit(6);
     }
 
     // open the BP file
     fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, mpi_comm_dummy); 
     if (fp == NULL) {
-        //fprintf(stderr, "Error: %s\n", adios_errmsg());
-        bpexit(7, 0);
+        exit(7);
     }
 
     doList_group (fp);
     
     adios_read_close (fp);
-    return 0;
+    adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+
+    // Free allocated memories
+    if (path) { Free(path); path=NULL; }
+
+    return R_NilValue;
 }

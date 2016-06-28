@@ -41,9 +41,6 @@ SEXP R_bpls(SEXP R_adios_path,
         adios_read_finalize_method(ADIOS_READ_METHOD_BP);
     }
 
-    // Free allocated memories
-    if (path) { Free(path); path=NULL; }
-
     return R_NilValue;
 }
 

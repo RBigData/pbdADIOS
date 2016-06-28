@@ -4,9 +4,10 @@
 \alias{bpls}
 \title{print variables and attributes}
 \usage{
-bpls(adios.filename)
+bpls(adios.filename, comm = .pbd_env$SPMD.CT$comm,
+  adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
 \arguments{
-\item{adios.filename}{}
+\item{adios.rank}{}
 }
 

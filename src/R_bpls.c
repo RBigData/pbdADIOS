@@ -1,5 +1,45 @@
 #include <inttypes.h>
+#include <stdbool.h>
 #include "R_adios.h"
+
+void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *isVar);
+int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype);
+int doList_group (ADIOS_FILE *fp);
+
+
+/**
+ * R wrapper of bpls
+ */
+SEXP R_bpls(SEXP R_adios_path)
+//int doList(const char *path) 
+{
+    ADIOS_FILE  *fp;
+    int status;
+    int mpi_comm_dummy=0;
+    const char *path = CHARPT(R_adios_path, 0);
+  
+    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, "verbose=2");
+    if (status) {
+        REprintf("Error: %s\n", adios_errmsg());
+        exit(6);
+    }
+
+    // open the BP file
+    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, mpi_comm_dummy); 
+    if (fp == NULL) {
+        exit(7);
+    }
+
+    doList_group (fp);
+    
+    adios_read_close (fp);
+    adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+
+    // Free allocated memories
+    if (path) { Free(path); path=NULL; }
+
+    return R_NilValue;
+}
 
 /** 
  * merge vars list and attrs list
@@ -102,6 +142,11 @@ int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype)
 
 int doList_group (ADIOS_FILE *fp)
 {
+    bool readattrs = true;
+    bool dump = false;
+    bool timestep = false;
+    char commentchar;
+    commentchar = ' ';
     ADIOS_VARINFO *vi; 
     ADIOS_VARINFO **vis; 
     enum ADIOS_DATATYPES vartype;
@@ -211,7 +256,7 @@ int doList_group (ADIOS_FILE *fp)
 
                 if (vi->statistics) {
 
-                    if(timestep == false || timed == false ) {
+                    if(timestep == false || timed == false) {
 
                         Rprintf(" = ");
                         if(vartype == adios_complex || vartype == adios_double_complex) {
@@ -263,39 +308,3 @@ int doList_group (ADIOS_FILE *fp)
     free(isVar);
     return 0;
 } 
-
-/**
- * R wrapper of bpls
- */
-SEXP R_bpls(SEXP R_adios_path)
-//int doList(const char *path) 
-{
-    char commentchar;
-    commentchar = ' ';
-    ADIOS_FILE  *fp;
-    int status;
-    int mpi_comm_dummy=0;
-    const char *path = CHARPT(R_adios_path, 0);
-  
-    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, "verbose=2");
-    if (status) {
-        REprintf("Error: %s\n", adios_errmsg());
-        exit(6);
-    }
-
-    // open the BP file
-    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, mpi_comm_dummy); 
-    if (fp == NULL) {
-        exit(7);
-    }
-
-    doList_group (fp);
-    
-    adios_read_close (fp);
-    adios_read_finalize_method(ADIOS_READ_METHOD_BP);
-
-    // Free allocated memories
-    if (path) { Free(path); path=NULL; }
-
-    return R_NilValue;
-}

@@ -10,30 +10,36 @@ int doList_group (ADIOS_FILE *fp);
 /**
  * R wrapper of bpls
  */
-SEXP R_bpls(SEXP R_adios_path)
+SEXP R_bpls(SEXP R_adios_path,
+            SEXP R_comm,
+            SEXP R_adios_rank)
 //int doList(const char *path) 
 {
     ADIOS_FILE  *fp;
     int status;
-    int mpi_comm_dummy=0;
     const char *path = CHARPT(R_adios_path, 0);
-  
-    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, "verbose=2");
-    if (status) {
-        REprintf("Error: %s\n", adios_errmsg());
-        exit(6);
-    }
 
-    // open the BP file
-    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, mpi_comm_dummy); 
-    if (fp == NULL) {
-        exit(7);
-    }
+    int rank = asInteger(R_adios_rank);
+    if (!rank) {
+        MPI_Comm comm;
+        comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
+        status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
+        if (status) {
+            REprintf("Error: %s\n", adios_errmsg());
+            exit(6);
+        }
 
-    doList_group (fp);
-    
-    adios_read_close (fp);
-    adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+        // open the BP file
+        fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
+        if (fp == NULL) {
+            exit(7);
+        }
+
+        doList_group (fp);
+        
+        adios_read_close (fp);
+        adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+    }
 
     // Free allocated memories
     if (path) { Free(path); path=NULL; }

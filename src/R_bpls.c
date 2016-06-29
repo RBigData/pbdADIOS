@@ -1,6 +1,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "R_adios.h"
+#include "mpidummy.h"
 
 void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *isVar);
 int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype);

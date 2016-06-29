@@ -21,6 +21,7 @@ SEXP R_bpls(SEXP R_adios_path,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
+
     /*if (!rank) {
         
         status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
@@ -41,14 +42,16 @@ SEXP R_bpls(SEXP R_adios_path,
         adios_read_finalize_method(ADIOS_READ_METHOD_BP);
     }*/
 
-    status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
+    int mpi_comm_dummy = 0;
+
+    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, "verbose=2");
     if (status) {
         REprintf("Error: %s\n", adios_errmsg());
         exit(6);
     }
 
     // open the BP file
-    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
+    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, mpi_comm_dummy); 
     if (fp == NULL) {
         exit(7);
     }

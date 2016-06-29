@@ -1,7 +1,6 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "R_adios.h"
-#include "mpidummy.h"
 
 void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *isVar);
 int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype);
@@ -43,16 +42,14 @@ SEXP R_bpls(SEXP R_adios_path,
         adios_read_finalize_method(ADIOS_READ_METHOD_BP);
     }*/
 
-    int mpi_comm_dummy = 0;
-
-    status = adios_read_init_method (ADIOS_READ_METHOD_BP, mpi_comm_dummy, "verbose=2");
+    status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
         REprintf("Error: %s\n", adios_errmsg());
         exit(6);
     }
 
     // open the BP file
-    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, mpi_comm_dummy); 
+    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
     if (fp == NULL) {
         exit(7);
     }

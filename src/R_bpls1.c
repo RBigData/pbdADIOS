@@ -22,7 +22,65 @@ SEXP R_bpls(SEXP R_adios_path,
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
 
-    status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
+    /*if (!rank) {
+        
+        status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
+        if (status) {
+            REprintf("Error: %s\n", adios_errmsg());
+            exit(6);
+        }
+
+        // open the BP file
+        fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
+        if (fp == NULL) {
+            exit(7);
+        }
+
+        doList_group (fp);
+        
+        adios_read_close (fp);
+        adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+    }*/
+
+    MPI_Comm_rank (comm, &rank);
+
+    if(!rank) {
+        MPI_Group group_world;
+        MPI_Group new_group;
+        MPI_Comm new_comm;
+
+        int process_rank[] = {0};
+
+        //get the group under MPI_COMM_WORLD
+        MPI_Comm_group(comm, &group_world);
+        // create the new group
+        MPI_Group_incl(group_world, 1, process_rank, &new_group);
+        // create the new communicator
+        MPI_Comm_create(comm, new_group, &new_comm);
+
+        status = adios_read_init_method (ADIOS_READ_METHOD_BP, new_comm, "verbose=2");
+        if (status) {
+            REprintf("Error: %s\n", adios_errmsg());
+            exit(6);
+        }
+
+        // open the BP file
+        fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, new_comm); 
+        if (fp == NULL) {
+            exit(7);
+        }
+
+        doList_group (fp);
+        
+        adios_read_close (fp);
+        adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+
+        MPI_Group_free(&group_world);
+        MPI_Group_free(&new_group);
+        MPI_Comm_free(&new_comm);
+    }
+
+    /*status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
         REprintf("Error: %s\n", adios_errmsg());
         exit(6);
@@ -37,7 +95,7 @@ SEXP R_bpls(SEXP R_adios_path,
     doList_group (fp);
     
     adios_read_close (fp);
-    adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+    adios_read_finalize_method(ADIOS_READ_METHOD_BP);*/
 
     return R_NilValue;
 }

@@ -34,7 +34,8 @@ SEXP R_bpls(SEXP R_adios_path,
         exit(7);
     }
 
-    doList_group (fp);
+    if(!rank)
+        doList_group (fp);
     
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);

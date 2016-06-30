@@ -8,7 +8,7 @@ init() # pbdMPI initilization
 
 #cat("rank ",comm.rank(.pbd_env$SPMD.CT$comm), "start\n")
 
-bpls("heat.bp", .pbd_env$SPMD.CT$comm, comm.rank(.pbd_env$SPMD.CT$comm))
+bpls("heat.bp")
 
 #cat("rank ",comm.rank(.pbd_env$SPMD.CT$comm), "finish\n")
 

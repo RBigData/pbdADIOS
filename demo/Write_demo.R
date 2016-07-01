@@ -11,7 +11,7 @@ groupname <- "restart"
 
 #type <- c(2,2,2,6)
 
-init() ##pbdMPI init
+#init() ##pbdMPI init
 
 filename <- "test_write.bp"
 
@@ -37,15 +37,15 @@ print("done with define var")
 num_timestamp <- 5
 for(j in 1:num_timestamp) {
 
-      adios_file_ptr <- pbdADIOS:::adios.open(groupname, filename, "a") ## Comm is implicit
-      groupsize <- NX * 8 + NX * 8 ## Can be done in backend
+    adios_file_ptr <- pbdADIOS:::adios.open(groupname, filename, "a") ## Comm is implicit
+    groupsize <- NX * 8 + NX * 8 ## Can be done in backend
 
-      pbdADIOS:::adios.group.size(adios_file_ptr, groupsize) ## Has return value but don't need to use
+    pbdADIOS:::adios.group.size(adios_file_ptr, groupsize) ## Has return value but don't need to use
 
-      pbdADIOS:::adios.write(adios_file_ptr, "temperature", t)
+    pbdADIOS:::adios.write(adios_file_ptr, "temperature", t)
 
-      pbdADIOS:::adios.close(adios_file_ptr)
-      barrier()
+    pbdADIOS:::adios.close(adios_file_ptr)
+    barrier()
 }
 
 pbdADIOS:::adios.finalize() # ADIOS finalize

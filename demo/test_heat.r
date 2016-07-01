@@ -1,4 +1,3 @@
-library(pbdMPI, quiet = TRUE)
 library(pbdDMAT, quiet = TRUE)
 library(pbdADIOS, quiet = TRUE)
 library(raster, quiet=TRUE)

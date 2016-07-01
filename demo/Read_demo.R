@@ -2,8 +2,7 @@
 
 library(pbdADIOS, quiet = TRUE)
 
-
-init()
+#init()
 
 adios.read.init.method("ADIOS_READ_METHOD_BP", params="verbose=3")
 timeout.sec <- 1.0
@@ -23,7 +22,7 @@ comm.cat("ndim", ndim, "dims", dims, "\n")
 ## slice_size = num rows per rank
 slice_size <- as.integer(dims[1] %/% comm.size())
 if(comm.rank() == (comm.size() - 1)) {
-  slice_size <- as.integer(slice_size + (dims[1] %% comm.size()))
+    slice_size <- as.integer(slice_size + (dims[1] %% comm.size()))
 }
 
 start <- c(as.integer(comm.rank() * slice_size), 0)

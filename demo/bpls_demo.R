@@ -2,7 +2,7 @@
 
 library(pbdADIOS, quiet = TRUE)
 
-init() # pbdMPI initilization
+#init() # pbdMPI initilization
 
 #cat("rank ",comm.rank(.pbd_env$SPMD.CT$comm), "start\n")
 

@@ -9,10 +9,10 @@
 } 
 
  
-# triggered by detach()
+# triggered by detach(2, unload=TRUE)
 .onUnload <- function(libpath)
 {
-    pbdADIOS::finalize()
+    pbdMPI::finalize()
     print("Bye!")
 } 
 

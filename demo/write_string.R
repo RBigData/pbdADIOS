@@ -1,5 +1,4 @@
 ### SHELL> mpiexec -np 4 Rscript Write_demo.R
-library(pbdMPI, quiet = TRUE)
 library(pbdDMAT, quiet = TRUE)
 library(pbdADIOS, quiet = TRUE)
 

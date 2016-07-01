@@ -1,6 +1,5 @@
 ### SHELL> mpiexec -np 4 Rscript Read_demo.R
 
-library(pbdMPI, quiet = TRUE)
 library(pbdADIOS, quiet = TRUE)
 
 adios.read.init.method("ADIOS_READ_METHOD_BP", params="verbose=3")

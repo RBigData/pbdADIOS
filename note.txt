@@ -216,3 +216,67 @@ pbdr@pbdrVM:~/pbdrtest$ bpls -a heat.bp
   string   T/description            attr
   string   dT/description           attr
 
+07/02/2016
+h5dump("myhdf5file.h5")
+
+pbdr@pbdrVM:~/pbdrtest$ more dumptest.txt 
+  integer  gndx         6*scalar
+    (0)    160 160 160 160 160 160
+
+  integer  gndy         6*scalar
+    (0)    150 150 150 150 150 150
+
+  integer  /info/nproc  6*scalar
+    (0)    12 12 12 12 12 12
+
+  integer  /info/npx    6*scalar
+    (0)    4 4 4 4 4 4
+
+  integer  /info/npy    6*scalar
+    (0)    3 3 3 3 3 3
+
+  integer  offx         6*scalar
+    (0)    0 0 0 0 0 0
+
+  integer  offy         6*scalar
+    (0)    0 0 0 0 0 0
+
+  integer  ndx          6*scalar
+    (0)    40 40 40 40 40 40
+
+  integer  ndy          6*scalar
+    (0)    50 50 50 50 50 50
+
+  integer  step         6*scalar
+    (0)    1 2 3 4 5 6
+
+  integer  iterations   6*scalar
+    (0)    500 500 500 500 500 500
+
+  double   T            6*{150, 160}
+    (0,  0,  0)    996.827 993.67 990.545 987.465 984.447 981.503
+    (0,  0,  6)    978.645 975.886 973.235 970.699 968.288 966.005
+    (0,  0, 12)    963.854 961.839 959.959 958.215 956.605 955.126
+    (0,  0, 18)    953.773 952.543 951.43 950.428 949.529 948.728
+    (0,  0, 24)    948.018 947.39 946.839 946.358 945.939 945.577
+
+
+dummy <- cfunction(body = '
+
+  int* number;
+  number = (int *)malloc(5 * sizeof(int));
+  for(int i=0; i<5; i++)
+    number[i] = i;
+
+  SEXP out = PROTECT(allocVector(INTSXP, 5));
+  for(int i=0; i<5; i++)
+    INTEGER(out)[i] = number[i];
+
+  free(number);
+  UNPROTECT(1);
+  return out;
+')
+
+a = dummy()
+a[1]
+0

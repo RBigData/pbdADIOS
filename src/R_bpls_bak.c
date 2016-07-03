@@ -297,15 +297,6 @@ int doList_group (ADIOS_FILE *fp)
             }
         }
 
-        if (matches && dump) {
-            // print variable content 
-            if (isVar[n])
-                retval = readVar(fp, vi, names[n], timed);
-            if (retval && retval != 10) // do not return after unsupported type
-                return retval;
-            fprintf(outf,"\n");
-        }
-
         if (!isVar[n])
             free(value);
     }

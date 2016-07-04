@@ -254,6 +254,8 @@ int doList_group (ADIOS_FILE *fp)
                     Rprintf("scalar");
                 }
 
+                adios_inq_var_stat (fp, vi, timestep && timed, 0);
+
                 if (vi->statistics) {
 
                     if(timestep == false || timed == false) {

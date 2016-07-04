@@ -109,10 +109,6 @@ SEXP R_adios_attr_read(SEXP R_adios_rank,
 SEXP R_adios_var_attr_read(SEXP R_adios_rank,
                            SEXP R_adios_fp);
 
-SEXP R_bpls(SEXP R_adios_path,
-            SEXP R_comm,
-            SEXP R_adios_rank);
-
 /* ADIOS write API */
 int buffer_alloc_when_hash(const char *search_str);
 int adios_flag_hash(const char *search_str);

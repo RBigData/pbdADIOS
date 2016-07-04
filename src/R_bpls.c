@@ -1,6 +1,4 @@
-#include <inttypes.h>
-#include <stdbool.h>
-#include "R_adios.h"
+#include "R_bpls.h"
 
 void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *isVar);
 int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype);
@@ -297,14 +295,14 @@ int doList_group (ADIOS_FILE *fp)
             }
         }
 
-        if (matches && dump) {
+        /*if (matches && dump) {
             // print variable content 
             if (isVar[n])
                 retval = readVar(fp, vi, names[n], timed);
             if (retval && retval != 10) // do not return after unsupported type
                 return retval;
             fprintf(outf,"\n");
-        }
+        }*/
 
         if (!isVar[n])
             free(value);

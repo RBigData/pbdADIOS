@@ -31,3 +31,5 @@
 SEXP R_bpls(SEXP R_adios_path,
             SEXP R_comm,
             SEXP R_adios_rank);
+
+#endif

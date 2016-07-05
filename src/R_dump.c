@@ -2,7 +2,7 @@
 #include "R_dump.h"
 
 static int nextcol = 0;
-int  ncols = 6; // how many values to print in one row (only for -p)
+int  ncols1 = 6; // how many values to print in one row (only for -p)
 
 static inline int ndigits (int n) 
 {
@@ -414,7 +414,7 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
 
         // increment/reset column index
         nextcol++;
-        if (nextcol == ncols) {
+        if (nextcol == ncols1) {
             Rprintf("\n");
             nextcol = 0;
         } else {

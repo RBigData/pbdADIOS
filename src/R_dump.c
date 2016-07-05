@@ -66,6 +66,13 @@ int dump_vars (ADIOS_FILE *fp)
 
     //names = fp-var_namelist
 
+    for (n=0; n<nNames; n++) {
+        vis[n] = adios_inq_var (fp, fp->var_namelist[n]);
+        if (!vis[n]) {
+            fprintf(stderr, "Error: %s\n", adios_errmsg());
+        }
+    }
+
     /* VARIABLES */
     for (n=0; n<nNames; n++) {
 
@@ -74,7 +81,7 @@ int dump_vars (ADIOS_FILE *fp)
         //timed = adios_read_bp_is_var_timed(fp, vi->varid);
         timed = (vi->nsteps > 1);
 
-        retval = readVar(fp, vi, fp-var_namelist[n], timed);
+        retval = readVar(fp, vi, fp->var_namelist[n], timed);
         if (retval && retval != 10) // do not return after unsupported type
             return retval;
         fprintf(outf,"\n");

@@ -33,6 +33,10 @@ int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype);
 int doList_group (ADIOS_FILE *fp);
 */
 
+#define MAX_DIMS 16
+#define MAX_MASKS 10
+#define MAX_BUFFERSIZE (10*1024*1024)
+
 int print_data_as_string(void * data, int maxlen, enum ADIOS_DATATYPES adiosvartype);
 void print_endline(void);
 int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype, 
@@ -42,6 +46,6 @@ int dump_vars (ADIOS_FILE *fp);
 
 SEXP R_dump(SEXP R_adios_path,
             SEXP R_comm,
-            SEXP R_adios_rank)
+            SEXP R_adios_rank);
 
 #endif

@@ -1,7 +1,18 @@
 #include "R_bpls.h"
 #include "R_dump.h"
 
-static int nextcol=0;
+static int nextcol = 0;
+int  ncols = 6; // how many values to print in one row (only for -p)
+
+static inline int ndigits (int n) 
+{
+    static char digitstr[32];
+    return snprintf (digitstr, 32, "%d", n);
+}
+
+#define PRINT_DIMS64(str, v, n, loopvar) Rprintf("%s = { ", str); \
+    for (loopvar=0; loopvar<n;loopvar++) Rprintf("%" PRId64 " ", v[loopvar]);    \
+printf("}")
 
 /**
  * R wrapper of dump
@@ -399,7 +410,7 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
 
         // print item
         Rprintf("%s", idxstr);
-        print_data(data, item, adiosvartype, true);
+        print_data(data, item, adiosvartype);
 
         // increment/reset column index
         nextcol++;

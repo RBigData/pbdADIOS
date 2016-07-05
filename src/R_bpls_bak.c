@@ -1,8 +1,118 @@
-// R_dump backup
+#include "R_bpls.h"
+#include "R_dump.h"
 
+/**
+ * R wrapper of dump
+ */
+SEXP R_dump(SEXP R_adios_path,
+            SEXP R_comm,
+            SEXP R_adios_rank)
+{
+    ADIOS_FILE  *fp;
+    int status;
+    const char *path = CHARPT(R_adios_path, 0);
+    MPI_Comm comm;
+    comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
+    int rank = asInteger(R_adios_rank);
 
+    status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
+    if (status) {
+        REprintf("Error: %s\n", adios_errmsg());
+        exit(6);
+    }
 
-/** Read data of a variable and print 
+    // open the BP file
+    fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
+    if (fp == NULL) {
+        exit(7);
+    }
+
+    if(!rank)
+        dump_vars (fp);
+    
+    adios_read_close (fp);
+    adios_read_finalize_method(ADIOS_READ_METHOD_BP);
+
+    return R_NilValue;
+}
+
+/**
+ * dump vars
+ */
+int dump_vars (ADIOS_FILE *fp)
+{
+    bool readattrs = true;
+    bool dump = false;
+    bool timestep = false;
+    char commentchar;
+    commentchar = ' ';
+    ADIOS_VARINFO *vi; 
+    ADIOS_VARINFO **vis; 
+    enum ADIOS_DATATYPES vartype;
+    int     i, j, n;             // loop vars
+    int     attrsize;                       // info about one attribute
+    bool    matches;
+
+    int     retval;
+    char  **names;  // vars and attrs together, sorted or unsorted
+    bool   *isVar;  // true for each var, false for each attr
+    int     nNames; // number of vars + attrs
+    void   *value;  // scalar value is returned by get_attr
+    bool    timed;  // variable has multiple timesteps
+
+    nNames = fp->nvars + fp->nattrs;
+
+    names = (char **) malloc (nNames * sizeof (char*)); // store only pointers
+    isVar = (bool *) malloc (nNames * sizeof (bool));
+    vis   = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
+    if (names == NULL || isVar == NULL || vis == NULL) {
+        REprintf("Error: could not allocate char* and bool arrays of %d elements\n", nNames);
+        return 5;
+    }
+    mergeLists(fp->nvars, fp->var_namelist, fp->nattrs, fp->attr_namelist, names, isVar);
+
+    /* VARIABLES */
+    for (n=0; n<nNames; n++) {
+        matches = true;
+        dump = true;
+
+        if (isVar[n])  {
+            vi = vis[n];
+            vartype = vi->type;
+            //timed = adios_read_bp_is_var_timed(fp, vi->varid);
+            timed = (vi->nsteps > 1);
+        } else {
+            retval = adios_get_attr (fp, names[n], &vartype, &attrsize, &value);
+            if (retval) {
+                REprintf("Error: %s\n", adios_errmsg());
+            }
+        }
+
+        if (matches && dump) {
+            // print variable content 
+            if (isVar[n])
+                retval = readVar(fp, vi, names[n], timed);
+            if (retval && retval != 10) // do not return after unsupported type
+                return retval;
+            fprintf(outf,"\n");
+        }
+
+        if (!isVar[n])
+            free(value);
+    }
+    /* Free ADIOS_VARINFOs */
+    for (n=0; n<nNames; n++) {
+        if (isVar[n])  {
+            adios_free_varinfo(vis[n]);
+        }
+    }
+    free(names);
+    free(isVar);
+    return 0;
+} 
+
+/** 
+ * Read data of a variable and print 
  * Return: 0: ok, != 0 on error
  */
 int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
@@ -200,7 +310,6 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
         }
     } // end while sum < nelems
     print_endline();
-
 
     free(data);
     return 0;

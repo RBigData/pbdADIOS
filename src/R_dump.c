@@ -1,17 +1,12 @@
 #include "R_bpls.h"
-
-void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *isVar);
-int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype);
-int doList_group (ADIOS_FILE *fp);
-
+#include "R_dump.h"
 
 /**
- * R wrapper of bpls
+ * R wrapper of dump
  */
-SEXP R_bpls(SEXP R_adios_path,
+SEXP R_dump(SEXP R_adios_path,
             SEXP R_comm,
             SEXP R_adios_rank)
-//int doList(const char *path) 
 {
     ADIOS_FILE  *fp;
     int status;
@@ -33,7 +28,7 @@ SEXP R_bpls(SEXP R_adios_path,
     }
 
     if(!rank)
-        doList_group (fp);
+        dump_vars (fp);
     
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);
@@ -41,286 +36,60 @@ SEXP R_bpls(SEXP R_adios_path,
     return R_NilValue;
 }
 
-/** 
- * merge vars list and attrs list
- */
-void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist, bool *isVar) 
-{
-    int v, a, idx;
-
-    // first add vars then attrs (if ask ed)
-    idx = 0;
-        
-    for (v=0; v<nV; v++) {
-        mlist[idx] = listV[v];
-        isVar[idx] = true;
-        idx++;
-    }
-
-    for (a=0; a<nA; a++) {
-        mlist[idx] = listA[a];
-        isVar[idx] = false;
-        idx++;
-    }
-        
-}
-
 /**
- * print data
+ * dump vars
  */
-int print_data(void *data, int item, enum ADIOS_DATATYPES adiosvartype)
+int dump_vars (ADIOS_FILE *fp)
 {
-    if (data == NULL) {
-        Rprintf("null ");
-        return 0;
-    }
-    // print next data item 
-    switch(adiosvartype) {
-        case adios_unsigned_byte:
-            Rprintf("%hhu", ((unsigned char *) data)[item]);
-            break;
-        case adios_byte:
-            Rprintf("%hhd", ((signed char *) data)[item]);
-            break;
-
-        case adios_string:
-            Rprintf("\"%s\"", ((char *) data)+item);
-            break;
-        case adios_string_array:
-            // we expect one elemet of the array here
-            Rprintf("\"%s\"", *((char **)data+item));
-            break;
-
-        case adios_unsigned_short:  
-            Rprintf("%hu", ((unsigned short *) data)[item]);
-            break;
-        case adios_short:
-            Rprintf("%hd", ((signed short *) data)[item]);
-            break;
-
-        case adios_unsigned_integer:
-            Rprintf("%u", ((unsigned int *) data)[item]);
-            break;
-        case adios_integer:    
-            Rprintf("%d", ((signed int *) data)[item]);
-            break;
-
-        case adios_unsigned_long:
-            Rprintf("%llu", ((unsigned long long *) data)[item]);
-            break;
-        case adios_long:        
-            Rprintf("%lld", ((signed long long *) data)[item]);
-            break;
-
-        case adios_real:
-            Rprintf("%g", ((float *) data)[item]);
-            break;
-
-        case adios_double:
-            Rprintf("%g", ((double *) data)[item]);
-            break;
-
-        case adios_long_double:
-            Rprintf("%Lg", ((long double *) data)[item]);
-            //Rprintf(outf,(f ? format : "????????"));
-            break;
-
-        case adios_complex:  
-            Rprintf("(%g,i%g)", ((float *) data)[2*item], ((float *) data)[2*item+1]);
-            break;
-
-        case adios_double_complex:
-            Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
-            break;
-
-        default:
-            break;
-    } // end switch
-    return 0;
-}
-
-
-int doList_group (ADIOS_FILE *fp)
-{
-    bool readattrs = true;
-    bool dump = false;
-    bool timestep = false;
-    char commentchar;
-    commentchar = ' ';
     ADIOS_VARINFO *vi; 
     ADIOS_VARINFO **vis; 
     enum ADIOS_DATATYPES vartype;
     int     i, j, n;             // loop vars
-    int     attrsize;                       // info about one attribute
-    bool    matches;
-    int     len, maxlen, maxtypelen;
+
     int     retval;
-    char  **names;  // vars and attrs together, sorted or unsorted
-    bool   *isVar;  // true for each var, false for each attr
     int     nNames; // number of vars + attrs
-    void   *value;  // scalar value is returned by get_attr
     bool    timed;  // variable has multiple timesteps
+    int  istart[MAX_DIMS], icount[MAX_DIMS];
+    int  verbose = 0;
+    for (i=0; i<MAX_DIMS; i++) {
+        istart[i]  = 0;
+        icount[i]  = -1;  // read full var by default
+    }
 
-    nNames = fp->nvars + fp->nattrs;
+    nNames = fp->nvars;
 
-    names = (char **) malloc (nNames * sizeof (char*)); // store only pointers
-    isVar = (bool *) malloc (nNames * sizeof (bool));
-    vis   = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
-    if (names == NULL || isVar == NULL || vis == NULL) {
-        REprintf("Error: could not allocate char* and bool arrays of %d elements\n", nNames);
+    vis = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
+    if (vis == NULL) {
+        REprintf("Error: could not allocate %d elements\n", nNames);
         return 5;
     }
-    mergeLists(fp->nvars, fp->var_namelist, fp->nattrs, fp->attr_namelist, names, isVar);
 
-    // calculate max length of variable names in the first round
-    maxlen = 4;
-    for (n=0; n<nNames; n++) {
-        len = strlen(names[n]);
-        if (len > maxlen) maxlen = len;
-    }
-
-    // Get VARINFO's and attr types and calculate max length of type names 
-    maxtypelen = 7;
-    for (n=0; n<nNames; n++) {
-        if (isVar[n])  {
-            vis[n] = adios_inq_var (fp, names[n]);
-            if (!vis[n]) {
-                REprintf("Error: %s\n", adios_errmsg());
-            }
-            vartype = vis[n]->type;
-        } else {
-            retval = adios_get_attr (fp, names[n], &vartype, &attrsize, &value);
-            if (retval) {
-                REprintf("Error: %s\n", adios_errmsg());
-            }
-        }
-        len = strlen(adios_type_to_string(vartype));
-        if (len > maxtypelen) maxtypelen = len;
-    }
+    //names = fp-var_namelist
 
     /* VARIABLES */
     for (n=0; n<nNames; n++) {
-        matches = true;
-        if (isVar[n])  {
-            vi = vis[n];
-            vartype = vi->type;
-            //timed = adios_read_bp_is_var_timed(fp, vi->varid);
-            timed = (vi->nsteps > 1);
-        } else {
-            retval = adios_get_attr (fp, names[n], &vartype, &attrsize, &value);
-            if (retval) {
-                REprintf("Error: %s\n", adios_errmsg());
-            }
-        }
 
-        if (matches) {
-            // print definition of variable
-            Rprintf("%c %-*s  %-*s", commentchar, maxtypelen, 
-                    adios_type_to_string(vartype), maxlen, names[n]); 
-            if (!isVar[n]) {
-                // list (and print) attribute
-                if (readattrs || dump) {
-                    Rprintf("  attr   = ");
-                    int type_size = adios_type_size (vartype, value);
-                    int nelems = attrsize / type_size;
-                    char *p = (char*)value;
-                    if (nelems>1) Rprintf("{");
-                    for (i=0; i<nelems; i++) { 
-                        if (i>0) Rprintf(", ");
-                        print_data(p, 0, vartype); 
-                        p += type_size;
-                    }
-                    if (nelems>1) Rprintf("}");
-                    Rprintf("\n");
-                    matches = false; // already printed
-                } else {
-                    Rprintf("  attr\n");
-                }
-            } else if (!vi) { 
-                // after error
-                Rprintf("\n");
-            } else if (vi->ndim > 0 || timed) {
+        vi = vis[n];
+        vartype = vi->type;
+        //timed = adios_read_bp_is_var_timed(fp, vi->varid);
+        timed = (vi->nsteps > 1);
 
-                Rprintf("  ");
-                if (timed) 
-                    Rprintf("%d*", vi->nsteps);
-                if (vi->ndim > 0) {
-                    Rprintf("{%" PRId64, vi->dims[0]);
-                    for (j=1; j < vi->ndim; j++) {
-                        Rprintf(", %" PRId64, vi->dims[j]);
-                    }
-                    Rprintf("}");
-                } else {
-                    Rprintf("scalar");
-                }
+        retval = readVar(fp, vi, fp-var_namelist[n], timed);
+        if (retval && retval != 10) // do not return after unsupported type
+            return retval;
+        fprintf(outf,"\n");
 
-                adios_inq_var_stat (fp, vi, timestep && timed, 0);
-
-                if (vi->statistics) {
-
-                    if(timestep == false || timed == false) {
-
-                        Rprintf(" = ");
-                        if(vartype == adios_complex || vartype == adios_double_complex) {
-                            // force printing (double,double) here
-                            print_data(vi->statistics->min, 0, adios_double_complex); 
-                            Rprintf(" / ");
-                            print_data(vi->statistics->max, 0, adios_double_complex); 
-                            Rprintf(" / ");
-                            print_data(vi->statistics->avg, 0, adios_double_complex);
-                            Rprintf(" / ");
-                            print_data(vi->statistics->std_dev, 0, adios_double_complex);
-                        } else {
-                            print_data(vi->statistics->min, 0, vartype); 
-                            Rprintf(" / ");
-                            print_data(vi->statistics->max, 0, vartype); 
-                            Rprintf(" / ");
-                            print_data(vi->statistics->avg, 0, adios_double);
-                            Rprintf(" / ");
-                            print_data(vi->statistics->std_dev, 0, adios_double);
-                        }
-
-                        //Rprintf(outf," {MIN / MAX / AVG / STD_DEV} ");
-                    } 
-                } // longopt && vi->statistics 
-                Rprintf("\n");
-
-            } else {
-                // scalar
-                Rprintf("  scalar");
-                if (vi->value) {
-                    Rprintf(" = ");
-                    print_data(vi->value, 0, vartype); 
-                    matches = false; // already printed
-                }
-                Rprintf("\n");
-            }
-        }
-
-        /*if (matches && dump) {
-            // print variable content 
-            if (isVar[n])
-                retval = readVar(fp, vi, names[n], timed);
-            if (retval && retval != 10) // do not return after unsupported type
-                return retval;
-            fprintf(outf,"\n");
-        }*/
-
-        if (!isVar[n])
-            free(value);
     }
     /* Free ADIOS_VARINFOs */
     for (n=0; n<nNames; n++) {
-        if (isVar[n])  {
-            adios_free_varinfo(vis[n]);
-        }
+        adios_free_varinfo(vis[n]);
     }
-    free(names);
-    free(isVar);
+
     return 0;
 } 
 
-/** Read data of a variable and print 
+/** 
+ * Read data of a variable and print 
  * Return: 0: ok, != 0 on error
  */
 int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
@@ -342,6 +111,7 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
     bool incdim;            // used in incremental reading in
     ADIOS_SELECTION * sel;  // boundnig box to read
     int ndigits_dims[32];        // # of digits (to print) of each dimension 
+    static int nextcol=0;
 
     if (getTypeInfo(vi->type, &elemsize)) {
         fprintf(stderr, "Adios type %d (%s) not supported in bpls. var=%s\n", 
@@ -490,8 +260,6 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
             return 11;
         }
 
-        //if (verbose>2) printf("  read %" PRId64 " bytes\n", bytes_read);
-
         // print slice
         print_dataset(data, vi->type, s, c, tdims, ndigits_dims); 
 
@@ -518,7 +286,6 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
         }
     } // end while sum < nelems
     print_endline();
-
 
     free(data);
     return 0;
@@ -602,6 +369,35 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
                 }
             }
         }
+    }
+    return 0;
+}
+
+int print_data_as_string(void * data, int maxlen, enum ADIOS_DATATYPES adiosvartype)
+{
+    char *str = (char *)data;
+    int len = maxlen;
+    switch(adiosvartype) {
+        case adios_unsigned_byte:
+        case adios_byte:
+        case adios_string:
+            while ( str[len-1] == 0) { len--; }   // go backwards on ascii 0s
+            if (len < maxlen) {
+                // it's a C string with terminating \0
+                fprintf(outf,"\"%s\"", str);
+            } else {
+                // fortran VARCHAR, lets trim from right padded zeros
+                while ( str[len-1] == ' ') {len--;}
+                fprintf(outf,"\"%*.*s\"", len, len, (char *) data);
+                if (len < maxlen)
+                    fprintf(outf," + %d spaces", maxlen-len);
+            }
+            break;
+        default:
+            fprintf(stderr, "Error in bpls code: cannot use print_data_as_string() for type \"%s\"\n", 
+                    adios_type_to_string(adiosvartype));
+            return -1;
+            break;
     }
     return 0;
 }

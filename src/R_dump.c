@@ -69,7 +69,7 @@ int dump_vars (ADIOS_FILE *fp)
     for (n=0; n<nNames; n++) {
         vis[n] = adios_inq_var (fp, fp->var_namelist[n]);
         if (!vis[n]) {
-            fprintf(stderr, "Error: %s\n", adios_errmsg());
+            REprintf("Error: %s\n", adios_errmsg());
         }
     }
 
@@ -84,7 +84,7 @@ int dump_vars (ADIOS_FILE *fp)
         retval = readVar(fp, vi, fp->var_namelist[n], timed);
         if (retval && retval != 10) // do not return after unsupported type
             return retval;
-        fprintf(outf,"\n");
+        Rprintf("\n");
 
     }
     /* Free ADIOS_VARINFOs */
@@ -94,6 +94,64 @@ int dump_vars (ADIOS_FILE *fp)
 
     return 0;
 } 
+
+int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize)
+{
+    switch(adiosvartype) {
+        case adios_unsigned_byte:
+            *elemsize = 1;
+            break;
+        case adios_byte:
+            *elemsize = 1;
+            break;
+        case adios_string:
+            *elemsize = 1;
+            break;
+
+        case adios_unsigned_short:  
+            *elemsize = 2;
+            break;
+        case adios_short:
+            *elemsize = 2;
+            break;
+
+        case adios_unsigned_integer:
+            *elemsize = 4;
+            break;
+        case adios_integer:    
+            *elemsize = 4;
+            break;
+
+        case adios_unsigned_long:
+            *elemsize = 8;
+            break;
+        case adios_long:        
+            *elemsize = 8;
+            break;
+
+        case adios_real:
+            *elemsize = 4;
+            break;
+
+        case adios_double:
+            *elemsize = 8;
+            break;
+
+        case adios_complex:  
+            *elemsize = 8;
+            break;
+
+        case adios_double_complex:
+            *elemsize = 16;
+            break;
+
+        case adios_long_double: // do not know how to print
+            //*elemsize = 16;
+        default:
+            return 1;
+    }
+    return 0;
+}
 
 /** 
  * Read data of a variable and print 
@@ -121,7 +179,7 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
     static int nextcol=0;
 
     if (getTypeInfo(vi->type, &elemsize)) {
-        fprintf(stderr, "Adios type %d (%s) not supported in bpls. var=%s\n", 
+        REprintf("Adios type %d (%s) not supported in bpls. var=%s\n", 
                 vi->type, adios_type_to_string(vi->type), name);
         return 10;
     }
@@ -255,14 +313,14 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
         }
 
         if (status < 0) {
-            fprintf(stderr, "Error when scheduling variable %s for reading. errno=%d : %s \n", name, adios_errno, adios_errmsg());
+            REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", name, adios_errno, adios_errmsg());
             free(data);
             return 11;
         }
 
         status = adios_perform_reads (fp, 1); // blocking read performed here
         if (status < 0) {
-            fprintf(stderr, "Error when reading variable %s. errno=%d : %s \n", name, adios_errno, adios_errmsg());
+            REprintf("Error when reading variable %s. errno=%d : %s \n", name, adios_errno, adios_errmsg());
             free(data);
             return 11;
         }
@@ -301,7 +359,7 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
 void print_endline(void) 
 {
     if (nextcol != 0)
-        fprintf(outf,"\n");
+        Rprintf("\n");
     nextcol = 0;
 }
 
@@ -338,28 +396,16 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
         }
 
         // print item
-        fprintf(outf, "%s", idxstr);
-        if (printByteAsChar && (adiosvartype == adios_byte || adiosvartype == adios_unsigned_byte)) {
-            /* special case: k-D byte array printed as (k-1)D array of strings */
-            if (tdims == 0) {
-                print_data_as_string(data, steps, adiosvartype);
-            } else {
-                print_data_as_string(data+item, c[tdims-1], adiosvartype); // print data of last dim as string
-                item += c[tdims-1]-1; // will be ++-ed once below
-                ids[tdims-1] = s[tdims-1]+c[tdims-1]-1; // will be rolled below
-            }
-            nextcol = ncols-1; // force new line, will be ++-ed once below
-        } else {
-            print_data(data, item, adiosvartype, true);
-        }
+        Rprintf("%s", idxstr);
+        print_data(data, item, adiosvartype, true);
 
         // increment/reset column index
         nextcol++;
         if (nextcol == ncols) {
-            fprintf(outf,"\n");
+            Rprintf("\n");
             nextcol = 0;
         } else {
-            fprintf(outf," ");
+            Rprintf(" ");
         }
 
         // increment indices
@@ -376,35 +422,6 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
                 }
             }
         }
-    }
-    return 0;
-}
-
-int print_data_as_string(void * data, int maxlen, enum ADIOS_DATATYPES adiosvartype)
-{
-    char *str = (char *)data;
-    int len = maxlen;
-    switch(adiosvartype) {
-        case adios_unsigned_byte:
-        case adios_byte:
-        case adios_string:
-            while ( str[len-1] == 0) { len--; }   // go backwards on ascii 0s
-            if (len < maxlen) {
-                // it's a C string with terminating \0
-                fprintf(outf,"\"%s\"", str);
-            } else {
-                // fortran VARCHAR, lets trim from right padded zeros
-                while ( str[len-1] == ' ') {len--;}
-                fprintf(outf,"\"%*.*s\"", len, len, (char *) data);
-                if (len < maxlen)
-                    fprintf(outf," + %d spaces", maxlen-len);
-            }
-            break;
-        default:
-            fprintf(stderr, "Error in bpls code: cannot use print_data_as_string() for type \"%s\"\n", 
-                    adios_type_to_string(adiosvartype));
-            return -1;
-            break;
     }
     return 0;
 }

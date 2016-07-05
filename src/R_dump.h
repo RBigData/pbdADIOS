@@ -37,7 +37,8 @@ int doList_group (ADIOS_FILE *fp);
 #define MAX_MASKS 10
 #define MAX_BUFFERSIZE (10*1024*1024)
 
-int print_data_as_string(void * data, int maxlen, enum ADIOS_DATATYPES adiosvartype);
+int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize);
+
 void print_endline(void);
 int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype, 
         uint64_t *s, uint64_t *c, int tdims, int *ndigits);

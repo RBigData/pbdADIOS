@@ -1,6 +1,8 @@
 #include "R_bpls.h"
 #include "R_dump.h"
 
+static int nextcol=0;
+
 /**
  * R wrapper of dump
  */
@@ -49,12 +51,6 @@ int dump_vars (ADIOS_FILE *fp)
     int     retval;
     int     nNames; // number of vars + attrs
     bool    timed;  // variable has multiple timesteps
-    int  istart[MAX_DIMS], icount[MAX_DIMS];
-    int  verbose = 0;
-    for (i=0; i<MAX_DIMS; i++) {
-        istart[i]  = 0;
-        icount[i]  = -1;  // read full var by default
-    }
 
     nNames = fp->nvars;
 
@@ -176,7 +172,13 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
     bool incdim;            // used in incremental reading in
     ADIOS_SELECTION * sel;  // boundnig box to read
     int ndigits_dims[32];        // # of digits (to print) of each dimension 
-    static int nextcol=0;
+    
+    int  istart[MAX_DIMS], icount[MAX_DIMS];
+    int  verbose = 0;
+    for (i=0; i<MAX_DIMS; i++) {
+        istart[i]  = 0;
+        icount[i]  = -1;  // read full var by default
+    }
 
     if (getTypeInfo(vi->type, &elemsize)) {
         REprintf("Adios type %d (%s) not supported in bpls. var=%s\n", 
@@ -385,7 +387,7 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
         // print indices if needed into idxstr;
         idxstr[0] = '\0'; // empty idx string
         if (nextcol == 0) {
-            if (!noindex && tdims > 0) {
+            if (tdims > 0) {
                 sprintf(idxstr,"    (%*" PRId64,ndigits[0], ids[0]);
                 for (i=1; i<tdims; i++) {
                     sprintf(buf,",%*" PRId64,ndigits[i],ids[i]);

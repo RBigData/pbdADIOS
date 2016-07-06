@@ -325,4 +325,21 @@ adios_read_var name=T   start = { 0 0 0 }  count = { 6 150 160 }  read 144000 el
     (0,  0, 24)    948.018 947.39 946.839 946.358 945.939 945.577
 
 
+07/06/2016
+1. dump version 1 read 10MB per loop
+   dump version 2 read all at once
+2. include complex later
+
+SEXP vec = PROTECT(allocVector(VECSXP, 3));
+SET_VECTOR_ELT(vec, 0, dbls);
+SET_VECTOR_ELT(vec, 1, lgls);
+SET_VECTOR_ELT(vec, 2, ints);
+
+
+
+
+
+
+
+
 

@@ -1,21 +1,8 @@
 #include "R_bpls.h"
 #include "R_dump.h"
 
-static int nextcol = 0;
-int  ncols1 = 6; // how many values to print in one row (only for -p)
-
-static inline int ndigits (int n) 
-{
-    static char digitstr[32];
-    return snprintf (digitstr, 32, "%d", n);
-}
-
-#define PRINT_DIMS64(str, v, n, loopvar) Rprintf("%s = { ", str); \
-    for (loopvar=0; loopvar<n;loopvar++) Rprintf("%" PRId64 " ", v[loopvar]);    \
-printf("}")
-
 /**
- * R wrapper of dump
+ * R wrapper of dump. Return lists of variables
  */
 SEXP R_dump(SEXP R_adios_path,
             SEXP R_comm,
@@ -27,6 +14,7 @@ SEXP R_dump(SEXP R_adios_path,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
+    SEXP var_vec;
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
@@ -41,19 +29,22 @@ SEXP R_dump(SEXP R_adios_path,
     }
 
     if(!rank)
-        dump_vars (fp);
+        var_vec = dump_vars (fp);
     
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);
 
-    return R_NilValue;
+    return var_vec;
 }
 
 /**
  * dump vars
  */
-int dump_vars (ADIOS_FILE *fp)
+//int dump_vars (ADIOS_FILE *fp)
+SEXP dump_vars (SEXP R_adios_fp)
 {
+    ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
+
     ADIOS_VARINFO *vi; 
     ADIOS_VARINFO **vis; 
     enum ADIOS_DATATYPES vartype;
@@ -64,6 +55,8 @@ int dump_vars (ADIOS_FILE *fp)
     bool    timed;  // variable has multiple timesteps
 
     nNames = fp->nvars;
+
+    SEXP vec = PROTECT(allocVector(VECSXP, nNames));
 
     vis = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
     if (vis == NULL) {
@@ -82,17 +75,18 @@ int dump_vars (ADIOS_FILE *fp)
 
     /* VARIABLES */
     for (n=0; n<nNames; n++) {
-
+        SEXP temp_var;
         vi = vis[n];
         vartype = vi->type;
         //timed = adios_read_bp_is_var_timed(fp, vi->varid);
         timed = (vi->nsteps > 1);
 
-        retval = readVar(fp, vi, fp->var_namelist[n], timed);
+        /*retval = readVar(fp, vi, fp->var_namelist[n], timed);
         if (retval && retval != 10) // do not return after unsupported type
             return retval;
-        Rprintf("\n");
-
+        Rprintf("\n");*/
+        temp_var = readVar(fp, vi, fp->var_namelist[n], timed);
+        SET_VECTOR_ELT(vec, n, temp_var);
     }
     /* Free ADIOS_VARINFOs */
     for (n=0; n<nNames; n++) {
@@ -102,70 +96,21 @@ int dump_vars (ADIOS_FILE *fp)
     return 0;
 } 
 
-int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize)
-{
-    switch(adiosvartype) {
-        case adios_unsigned_byte:
-            *elemsize = 1;
-            break;
-        case adios_byte:
-            *elemsize = 1;
-            break;
-        case adios_string:
-            *elemsize = 1;
-            break;
-
-        case adios_unsigned_short:  
-            *elemsize = 2;
-            break;
-        case adios_short:
-            *elemsize = 2;
-            break;
-
-        case adios_unsigned_integer:
-            *elemsize = 4;
-            break;
-        case adios_integer:    
-            *elemsize = 4;
-            break;
-
-        case adios_unsigned_long:
-            *elemsize = 8;
-            break;
-        case adios_long:        
-            *elemsize = 8;
-            break;
-
-        case adios_real:
-            *elemsize = 4;
-            break;
-
-        case adios_double:
-            *elemsize = 8;
-            break;
-
-        case adios_complex:  
-            *elemsize = 8;
-            break;
-
-        case adios_double_complex:
-            *elemsize = 16;
-            break;
-
-        case adios_long_double: // do not know how to print
-            //*elemsize = 16;
-        default:
-            return 1;
-    }
-    return 0;
-}
-
 /** 
  * Read data of a variable and print 
  * Return: 0: ok, != 0 on error
  */
-int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
+//int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
+SEXP readVar(SEXP R_adios_fp, 
+             SEXP R_adios_var_info, 
+             SEXP R_name, 
+             SEXP R_timed)
 {
+    ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
+    ADIOS_VARINFO *vi = R_ExternalPtrAddr(R_adios_var_info);
+    const char *name = CHARPT(R_name, 0);
+    bool timed = asInteger(R_timed);
+
     int i,j;
     uint64_t start_t[MAX_DIMS], count_t[MAX_DIMS]; // processed <0 values in start/count
     uint64_t s[MAX_DIMS], c[MAX_DIMS]; // for block reading of smaller chunks
@@ -182,7 +127,8 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
     int  status;            
     bool incdim;            // used in incremental reading in
     ADIOS_SELECTION * sel;  // boundnig box to read
-    int ndigits_dims[32];        // # of digits (to print) of each dimension 
+
+    int pos = 0;   //index for copy data to R memory
     
     int  istart[MAX_DIMS], icount[MAX_DIMS];
     int  verbose = 0;
@@ -252,6 +198,36 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
         printf(" total size of data to read = %" PRIu64 "\n", nelems*elemsize);
     }
 
+    // Allocate R memory for the variable values
+    switch(vi->type) {
+        case adios_unsigned_byte:
+        case adios_byte:
+        case adios_string:
+            SEXP out = PROTECT(allocVector(STRSXP, nelems));
+            break;
+
+        case adios_unsigned_short:  
+        case adios_short:
+        case adios_unsigned_integer:
+        case adios_integer:    
+            SEXP out = PROTECT(allocVector(INTSXP, nelems));
+            break;
+
+        case adios_unsigned_long:
+        case adios_long:        
+        case adios_real:
+        case adios_double:
+            SEXP out = PROTECT(allocVector(REALSXP, nelems));
+            break;
+
+        //case adios_complex:           
+        //case adios_double_complex:
+        //case adios_long_double: // do not know how to print
+           
+        default:
+            break;
+    }
+
     //print_slice_info(vi->ndim, vi->dims, timed, vi->nsteps, start_t, count_t);
 
     maxreadn = MAX_BUFFERSIZE/elemsize;
@@ -293,12 +269,9 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
 
 
     // init s and c
-    // and calculate ndigits_dims
     for (j=0; j<tdims; j++) {
         s[j]=start_t[j];
         c[j]=readn[j];
-
-        ndigits_dims[j] = ndigits (start_t[j]+count_t[j]-1); // -1: dim=100 results in 2 digits (0..99)
     }
 
     // read until read all 'nelems' elements
@@ -338,8 +311,58 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
             return 11;
         }
 
-        // print slice
-        print_dataset(data, vi->type, s, c, tdims, ndigits_dims); 
+        /**
+         * start copying data to R memory
+         */
+        //print_dataset(data, vi->type, s, c, tdims, ndigits_dims); 
+        int pi, item, steps;
+
+        // init current indices
+        steps = 1;
+        for (pi=0; pi<tdims; pi++) {
+            steps *= c[pi];
+        }
+
+        item = 0; // index to *data 
+        // loop through each data item and print value
+
+        switch(vi->type) {
+            case adios_unsigned_byte:
+            case adios_byte:
+            case adios_string:
+                while (item < steps) {
+                    SET_STRING_ELT(out, pos++, mkChar(data[item++]));
+                }
+                break;
+
+            case adios_unsigned_short:  
+            case adios_short:
+            case adios_unsigned_integer:
+            case adios_integer:    
+                while (item < steps) {
+                    INTEGER(out)[pos++] = data[item++];
+                }
+                break;
+
+            case adios_unsigned_long:
+            case adios_long:        
+            case adios_real:
+            case adios_double:
+                while (item < steps) {
+                    REAL(out)[pos++] = data[item++];
+                }
+                break;
+
+            //case adios_complex:           
+            //case adios_double_complex:
+            //case adios_long_double: // do not know how to print
+               
+            default:
+                break;
+        }
+        /**
+         * end copying data to R memory
+         */
 
         // prepare for next read
         sum += actualreadn;
@@ -363,36 +386,66 @@ int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
             }
         }
     } // end while sum < nelems
-    print_endline();
 
-    free(data);
-    return 0;
+    Free(data);
+    UNPROTECT(1);
+    return out;
 }
 
-void print_endline(void) 
+int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize)
 {
-    if (nextcol != 0)
-        Rprintf("\n");
-    nextcol = 0;
-}
+    switch(adiosvartype) {
+        case adios_unsigned_byte:
+            *elemsize = 1;
+            break;
+        case adios_byte:
+            *elemsize = 1;
+            break;
+        case adios_string:
+            *elemsize = 1;
+            break;
 
-int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype, 
-        uint64_t *s, uint64_t *c, int tdims, int *ndigits)
-{
-    int i,item, steps;
+        case adios_unsigned_short:  
+            *elemsize = 2;
+            break;
+        case adios_short:
+            *elemsize = 2;
+            break;
 
-    // init current indices
-    steps = 1;
-    for (i=0; i<tdims; i++) {
-        steps *= c[i];
-    }
+        case adios_unsigned_integer:
+            *elemsize = 4;
+            break;
+        case adios_integer:    
+            *elemsize = 4;
+            break;
 
-    item = 0; // index to *data 
-    // loop through each data item and print value
-    while (item < steps) {
-        print_data(data, item, adiosvartype);
-        Rprintf("\n");
-        item++;
+        case adios_unsigned_long:
+            *elemsize = 8;
+            break;
+        case adios_long:        
+            *elemsize = 8;
+            break;
+
+        case adios_real:
+            *elemsize = 4;
+            break;
+
+        case adios_double:
+            *elemsize = 8;
+            break;
+
+        case adios_complex:  
+            *elemsize = 8;
+            break;
+
+        case adios_double_complex:
+            *elemsize = 16;
+            break;
+
+        case adios_long_double: // do not know how to print
+            //*elemsize = 16;
+        default:
+            return 1;
     }
     return 0;
 }

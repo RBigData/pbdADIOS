@@ -7,11 +7,12 @@
 
 int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize);
 
-void print_endline(void);
-int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype, 
-        uint64_t *s, uint64_t *c, int tdims, int *ndigits);
-int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed);
-int dump_vars (ADIOS_FILE *fp);
+SEXP readVar(SEXP R_adios_fp, 
+             SEXP R_adios_var_info, 
+             SEXP R_name, 
+             SEXP R_timed)
+
+SEXP dump_vars (SEXP R_adios_fp);
 
 SEXP R_dump(SEXP R_adios_path,
             SEXP R_comm,

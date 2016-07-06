@@ -380,61 +380,18 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
         uint64_t *s, uint64_t *c, int tdims, int *ndigits)
 {
     int i,item, steps;
-    char idxstr[128], buf[16];
-    uint64_t ids[MAX_DIMS];  // current indices
-    bool roll;
 
     // init current indices
     steps = 1;
     for (i=0; i<tdims; i++) {
-        ids[i] = s[i];
         steps *= c[i];
     }
 
     item = 0; // index to *data 
     // loop through each data item and print value
     while (item < steps) {
-
-        // print indices if needed into idxstr;
-        idxstr[0] = '\0'; // empty idx string
-        if (nextcol == 0) {
-            if (tdims > 0) {
-                sprintf(idxstr,"    (%*" PRId64,ndigits[0], ids[0]);
-                for (i=1; i<tdims; i++) {
-                    sprintf(buf,",%*" PRId64,ndigits[i],ids[i]);
-                    strcat(idxstr, buf);
-                }
-                strcat(idxstr,")    ");
-            }
-        }
-
-        // print item
-        Rprintf("%s", idxstr);
         print_data(data, item, adiosvartype);
-
-        // increment/reset column index
-        nextcol++;
-        if (nextcol == ncols1) {
-            Rprintf("\n");
-            nextcol = 0;
-        } else {
-            Rprintf(" ");
-        }
-
-        // increment indices
-        item++;
-        roll = true;
-        for (i=tdims-1; i>=0; i--) {
-            if (roll) {
-                if (ids[i] == s[i]+c[i]-1 ) {
-                    // last index in this dimension, roll upward
-                    ids[i] = s[i];
-                } else {
-                    ids[i]++;
-                    roll = false;
-                }
-            }
-        }
+        Rprintf("\n");
     }
     return 0;
 }

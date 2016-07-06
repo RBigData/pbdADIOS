@@ -392,6 +392,7 @@ int print_dataset(void *data, enum ADIOS_DATATYPES adiosvartype,
     while (item < steps) {
         print_data(data, item, adiosvartype);
         Rprintf("\n");
+        item++;
     }
     return 0;
 }

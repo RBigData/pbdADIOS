@@ -175,13 +175,13 @@ SEXP readVar(SEXP R_adios_fp,
             ct = icount[0];
 
         if (verbose>2) 
-            Rprintf("    j=0, st=%" PRIu64 " ct=%" PRIu64 "\n", st, ct);
+            printf("    j=0, st=%" PRIu64 " ct=%" PRIu64 "\n", st, ct);
 
         start_t[0] = st;
         count_t[0] = ct;
         nelems *= ct;
         if (verbose>1) 
-            Rprintf("    s[0]=%" PRIu64 ", c[0]=%" PRIu64 ", n=%" PRIu64 "\n",
+            printf("    s[0]=%" PRIu64 ", c[0]=%" PRIu64 ", n=%" PRIu64 "\n",
                     start_t[0], count_t[0], nelems);
         
         tidx = 1;
@@ -199,18 +199,18 @@ SEXP readVar(SEXP R_adios_fp,
             ct = icount[j+tidx];
 
         if (verbose>2) 
-            Rprintf("    j=%d, st=%" PRIu64 " ct=%" PRIu64 "\n", j+tidx, st, ct);
+            printf("    j=%d, st=%" PRIu64 " ct=%" PRIu64 "\n", j+tidx, st, ct);
 
         start_t[j+tidx] = st;
         count_t[j+tidx] = ct;
         nelems *= ct;
         if (verbose>1) 
-            Rprintf("    s[%d]=%" PRIu64 ", c[%d]=%" PRIu64 ", n=%" PRIu64 "\n",
+            printf("    s[%d]=%" PRIu64 ", c[%d]=%" PRIu64 ", n=%" PRIu64 "\n",
                     j+tidx, start_t[j+tidx], j+tidx, count_t[j+tidx], nelems);
     }
 
     if (verbose>1) {
-        Rprintf(" total size of data to read = %" PRIu64 "\n", nelems*elemsize);
+        printf(" total size of data to read = %" PRIu64 "\n", nelems*elemsize);
     }
 
     // Allocate R memory for the variable values
@@ -262,7 +262,7 @@ SEXP readVar(SEXP R_adios_fp,
     //  - loop over 1st dimension
     //  - loop over 1st & 2nd dimension
     //  - etc
-    if (verbose>1) Rprintf("Read size strategy:\n");
+    if (verbose>1) printf("Read size strategy:\n");
     sum = (uint64_t) 1;
     actualreadn = (uint64_t) 1;
     for (i=tdims-1; i>=0; i--) {
@@ -274,11 +274,11 @@ SEXP readVar(SEXP R_adios_fp,
             if (readn[i] > count_t[i]) 
                 readn[i] = count_t[i];
         }
-        if (verbose>1) Rprintf("    dim %d: read %d elements\n", i, readn[i]);
+        if (verbose>1) printf("    dim %d: read %d elements\n", i, readn[i]);
         sum = sum * (uint64_t) count_t[i];
         actualreadn = actualreadn * readn[i];
     }
-    if (verbose>1) Rprintf("    read %d elements at once, %" PRId64 " in total (nelems=%" PRId64 ")\n", actualreadn, sum, nelems);
+    if (verbose>1) printf("    read %d elements at once, %" PRId64 " in total (nelems=%" PRId64 ")\n", actualreadn, sum, nelems);
 
 
     // init s and c

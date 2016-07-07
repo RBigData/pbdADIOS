@@ -335,8 +335,8 @@ SET_VECTOR_ELT(vec, 0, dbls);
 SET_VECTOR_ELT(vec, 1, lgls);
 SET_VECTOR_ELT(vec, 2, ints);
 
-
-
+save list to file
+lapply(mylist, write, "test.txt", append=TRUE)
 
 
 

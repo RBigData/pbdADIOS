@@ -47,12 +47,16 @@ bp.dump <- function(adios.filename,
 #' @export
 bp.read <- function(adios.filename,
                     varname,
+                    start = -1,
+                    count = -2,
                     comm = .pbd_env$SPMD.CT$comm,
                     adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 {
     .Call("R_read", 
           as.character(adios.filename),
           as.character(varname),
+          as.integer(start),
+          as.integer(count),
           comm.c2f(comm),
           as.integer(adios.rank))
 }

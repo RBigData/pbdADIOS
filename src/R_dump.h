@@ -1,7 +1,7 @@
 #ifndef __R_DUMP__
 #define __R_DUMP__
 
-#define MAX_DIMS 16
+#define MAX_DIMS 16    //the default maximum dim is 16
 #define MAX_MASKS 10
 #define MAX_BUFFERSIZE (10*1024*1024)
 

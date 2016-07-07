@@ -161,21 +161,21 @@ SEXP read_var(SEXP R_adios_fp,
     }
 
     // Check start and count. If they are not null, use them.
-    if(Integer(R_start)[0] != -1) {
+    if(INTEGER(R_start)[0] != -1) {
         if(timed) {
             // check if the length of start matches ndim
-            if(vi->ndim != (sizeof(Integer(R_start))/sizeof(int) - 1)) {
+            if(vi->ndim != (sizeof(INTEGER(R_start))/sizeof(int) - 1)) {
                 REprintf("Error: wrong start. \n");
                 return R_NilValue;
             }
             // check if the step value is out of range.
-            if((Integer(R_start)[0] < 0) || (Integer(R_start)[0] >= vi->nsteps)) {
+            if((INTEGER(R_start)[0] < 0) || (INTEGER(R_start)[0] >= vi->nsteps)) {
                 REprintf("Error: wrong start. \n");
                 return R_NilValue;
             }
             // check if the start value is out of range.
             for(i = 0; i < vi->ndim; i++) {
-                if((Integer(R_start)[i+1] < 0) || (Integer(R_start)[i+1] >= vi->dims[i])) {
+                if((INTEGER(R_start)[i+1] < 0) || (INTEGER(R_start)[i+1] >= vi->dims[i])) {
                     REprintf("Error: wrong start. \n");
                     return R_NilValue;
                 }
@@ -183,18 +183,18 @@ SEXP read_var(SEXP R_adios_fp,
 
             // assign start to istart
             for (i=0; i<vi->ndim+1; i++) {
-                istart[i] = Integer(R_start)[i];
+                istart[i] = INTEGER(R_start)[i];
             }
 
         } else {
              // check if the length of start matches ndim
-            if(vi->ndim != (sizeof(Integer(R_start))/sizeof(int))) {
+            if(vi->ndim != (sizeof(INTEGER(R_start))/sizeof(int))) {
                 REprintf("Error: wrong start. \n");
                 return R_NilValue;
             }
             // check if the start value is out of range.
             for(i = 0; i < vi->ndim; i++) {
-                if((Integer(R_start)[i] < 0) || (Integer(R_start)[i] >= vi->dims[i])) {
+                if((INTEGER(R_start)[i] < 0) || (INTEGER(R_start)[i] >= vi->dims[i])) {
                     REprintf("Error: wrong start. \n");
                     return R_NilValue;
                 }
@@ -202,26 +202,26 @@ SEXP read_var(SEXP R_adios_fp,
 
             // assign start to istart
             for (i=0; i<vi->ndim; i++) {
-                istart[i] = Integer(R_start)[i];
+                istart[i] = INTEGER(R_start)[i];
             }
         }
     }
 
-    if(Integer(R_count)[0] != -2) {
+    if(INTEGER(R_count)[0] != -2) {
         if(timed) {
             // check if the length of count matches ndim
-            if(vi->ndim != (sizeof(Integer(R_count))/sizeof(int) - 1)) {
+            if(vi->ndim != (sizeof(INTEGER(R_count))/sizeof(int) - 1)) {
                 REprintf("Error: wrong count. \n");
                 return R_NilValue;
             }
             // check if the step value is out of range.
-            if((Integer(R_start)[0] + Integer(R_count)[0]) > vi->nsteps) {
+            if((INTEGER(R_start)[0] + INTEGER(R_count)[0]) > vi->nsteps) {
                 REprintf("Error: wrong count. \n");
                 return R_NilValue;
             }
             // check if the count value is out of range.
             for(i = 0; i < vi->ndim; i++) {
-                if((Integer(R_start)[i+1] + Integer(R_count)[i+1]) > vi->dims[i]) {
+                if((INTEGER(R_start)[i+1] + INTEGER(R_count)[i+1]) > vi->dims[i]) {
                     REprintf("Error: wrong count. \n");
                     return R_NilValue;
                 }
@@ -229,18 +229,18 @@ SEXP read_var(SEXP R_adios_fp,
 
             // assign count to icount
             for (i=0; i<vi->ndim+1; i++) {
-                icount[i] = Integer(R_count)[i];
+                icount[i] = INTEGER(R_count)[i];
             }
 
         } else {
              // check if the length of count matches ndim
-            if(vi->ndim != (sizeof(Integer(R_count))/sizeof(int))) {
+            if(vi->ndim != (sizeof(INTEGER(R_count))/sizeof(int))) {
                 REprintf("Error: wrong count. \n");
                 return R_NilValue;
             }
             // check if the count value is out of range.
             for(i = 0; i < vi->ndim; i++) {
-                if((Integer(R_start)[i] + Integer(R_count)[i]) > vi->dims[i]) {
+                if((INTEGER(R_start)[i] + INTEGER(R_count)[i]) > vi->dims[i]) {
                     REprintf("Error: wrong count. \n");
                     return R_NilValue;
                 }
@@ -248,7 +248,7 @@ SEXP read_var(SEXP R_adios_fp,
 
             // assign count to icount
             for (i=0; i<vi->ndim; i++) {
-                icount[i] = Integer(R_count)[i];
+                icount[i] = INTEGER(R_count)[i];
             }
         }
     }

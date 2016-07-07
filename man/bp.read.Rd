@@ -4,7 +4,8 @@
 \alias{bp.read}
 \title{read variable}
 \usage{
-bp.read(adios.filename, varname, comm = .pbd_env$SPMD.CT$comm,
+bp.read(adios.filename, varname, start = -1, count = -2,
+  comm = .pbd_env$SPMD.CT$comm,
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
 \arguments{

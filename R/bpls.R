@@ -31,5 +31,4 @@ bp.dump <- function(adios.filename,
           as.character(adios.filename),
           comm.c2f(comm),
           as.integer(adios.rank))
-    invisible()
 }

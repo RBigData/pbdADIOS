@@ -8,12 +8,9 @@ static void finalizer0(SEXP Rptr)
 {
     void *ptr = (void *) R_ExternalPtrAddr(Rptr);
     if (NULL == ptr) {
-        R_debug_print("finalizer0: Nothing to finalize\n");
         return;
     } else {
-        R_debug_print("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
         R_ClearExternalPtr(Rptr);
-        R_debug_print("finalizer0: %p Cleared Rptr.\n", ptr);
     }
 }
 
@@ -81,7 +78,7 @@ SEXP dump_vars (SEXP R_adios_fp)
     vis = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
     if (vis == NULL) {
         REprintf("Error: could not allocate %d elements\n", nNames);
-        return 5;
+        return R_NilValue;
     }
 
     //names = fp-var_namelist
@@ -145,7 +142,8 @@ SEXP readVar(SEXP R_adios_fp,
     int  status;            
     bool incdim;            // used in incremental reading in
     ADIOS_SELECTION * sel;  // boundnig box to read
-    int pos;                //index for copy data to R memory
+    int pos;                // index for copy data to R memory
+    SEXP out;               // store the variable values
     
     int  istart[MAX_DIMS], icount[MAX_DIMS];
     int  verbose = 0;
@@ -157,7 +155,7 @@ SEXP readVar(SEXP R_adios_fp,
     if (getTypeInfo(vi->type, &elemsize)) {
         REprintf("Adios type %d (%s) not supported in bpls. var=%s\n", 
                 vi->type, adios_type_to_string(vi->type), name);
-        return 10;
+        return R_NilValue;
     }
 
     // create the counter arrays with the appropriate lengths
@@ -220,21 +218,21 @@ SEXP readVar(SEXP R_adios_fp,
         case adios_unsigned_byte:
         case adios_byte:
         case adios_string:
-            SEXP out = PROTECT(allocVector(STRSXP, nelems));
+            out = PROTECT(allocVector(STRSXP, nelems));
             break;
 
         case adios_unsigned_short:  
         case adios_short:
         case adios_unsigned_integer:
         case adios_integer:    
-            SEXP out = PROTECT(allocVector(INTSXP, nelems));
+            out = PROTECT(allocVector(INTSXP, nelems));
             break;
 
         case adios_unsigned_long:
         case adios_long:        
         case adios_real:
         case adios_double:
-            SEXP out = PROTECT(allocVector(REALSXP, nelems));
+            out = PROTECT(allocVector(REALSXP, nelems));
             break;
 
         //case adios_complex:           
@@ -298,13 +296,6 @@ SEXP readVar(SEXP R_adios_fp,
         for (j=0; j<tdims; j++) 
             actualreadn *= c[j];
 
-        if (verbose>2) {
-            printf("adios_read_var name=%s ", name);
-            PRINT_DIMS64("  start", s, tdims, j); 
-            PRINT_DIMS64("  count", c, tdims, j); 
-            printf("  read %d elems\n", actualreadn);
-        }
-
         // read a slice finally
         sel = adios_selection_boundingbox (vi->ndim, s+tidx, c+tidx);
         if (timed) {
@@ -315,15 +306,15 @@ SEXP readVar(SEXP R_adios_fp,
 
         if (status < 0) {
             REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", name, adios_errno, adios_errmsg());
-            free(data);
-            return 11;
+            Free(data);
+            return R_NilValue;
         }
 
         status = adios_perform_reads (fp, 1); // blocking read performed here
         if (status < 0) {
             REprintf("Error when reading variable %s. errno=%d : %s \n", name, adios_errno, adios_errmsg());
-            free(data);
-            return 11;
+            Free(data);
+            return R_NilValue;
         }
 
         /**
@@ -346,7 +337,8 @@ SEXP readVar(SEXP R_adios_fp,
             case adios_byte:
             case adios_string:
                 while (item < steps) {
-                    SET_STRING_ELT(out, pos++, mkChar(data[item++]));
+                    SET_STRING_ELT(out, pos++, mkChar((char *)data + item));
+                    item++;
                 }
                 break;
 
@@ -355,7 +347,7 @@ SEXP readVar(SEXP R_adios_fp,
             case adios_unsigned_integer:
             case adios_integer:    
                 while (item < steps) {
-                    INTEGER(out)[pos++] = data[item++];
+                    INTEGER(out)[pos++] = ((int *)data)[item++];
                 }
                 break;
 
@@ -364,7 +356,7 @@ SEXP readVar(SEXP R_adios_fp,
             case adios_real:
             case adios_double:
                 while (item < steps) {
-                    REAL(out)[pos++] = data[item++];
+                    REAL(out)[pos++] = ((double *)data)[item++];
                 }
                 break;
 

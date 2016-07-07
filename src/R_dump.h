@@ -10,7 +10,7 @@ int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize);
 SEXP readVar(SEXP R_adios_fp, 
              SEXP R_adios_var_info, 
              SEXP R_name, 
-             SEXP R_timed)
+             SEXP R_timed);
 
 SEXP dump_vars (SEXP R_adios_fp);
 

@@ -1,6 +1,10 @@
 #include "R_bpls.h"
 #include "R_dump.h"
 
+/**
+ *  This version prints all variable values directly.
+ */ 
+
 static int nextcol = 0;
 int  ncols1 = 6; // how many values to print in one row (only for -p)
 

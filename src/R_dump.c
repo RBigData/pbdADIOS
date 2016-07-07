@@ -1,8 +1,25 @@
 #include "R_bpls.h"
 #include "R_dump.h"
 
+/** 
+ *  Finalizer that only clears R pointer
+ */
+static void finalizer0(SEXP Rptr)
+{
+    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
+    if (NULL == ptr) {
+        R_debug_print("finalizer0: Nothing to finalize\n");
+        return;
+    } else {
+        R_debug_print("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
+        R_ClearExternalPtr(Rptr);
+        R_debug_print("finalizer0: %p Cleared Rptr.\n", ptr);
+    }
+}
+
 /**
- * R wrapper of dump. Return lists of variables
+ * R wrapper of dump. 
+ * A list of variable values is returned.
  */
 SEXP R_dump(SEXP R_adios_path,
             SEXP R_comm,
@@ -14,7 +31,7 @@ SEXP R_dump(SEXP R_adios_path,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
-    SEXP var_vec;
+    SEXP R_vec;
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
@@ -28,19 +45,22 @@ SEXP R_dump(SEXP R_adios_path,
         exit(7);
     }
 
+    SEXP R_adios_fp;
+    newRptr(fp, R_adios_fp, finalizer0);
+
     if(!rank)
-        var_vec = dump_vars (fp);
+        R_vec = dump_vars (R_adios_fp);
     
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);
 
-    return var_vec;
+    UNPROTECT(1);
+    return R_vec;
 }
 
 /**
  * dump vars
  */
-//int dump_vars (ADIOS_FILE *fp)
 SEXP dump_vars (SEXP R_adios_fp)
 {
     ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
@@ -65,7 +85,6 @@ SEXP dump_vars (SEXP R_adios_fp)
     }
 
     //names = fp-var_namelist
-
     for (n=0; n<nNames; n++) {
         vis[n] = adios_inq_var (fp, fp->var_namelist[n]);
         if (!vis[n]) {
@@ -75,25 +94,25 @@ SEXP dump_vars (SEXP R_adios_fp)
 
     /* VARIABLES */
     for (n=0; n<nNames; n++) {
-        SEXP temp_var;
+        SEXP R_temp_var;
+        SEXP R_adios_var_info;
+
         vi = vis[n];
         vartype = vi->type;
-        //timed = adios_read_bp_is_var_timed(fp, vi->varid);
         timed = (vi->nsteps > 1);
+        newRptr(vi, R_adios_var_info, finalizer0);
 
-        /*retval = readVar(fp, vi, fp->var_namelist[n], timed);
-        if (retval && retval != 10) // do not return after unsupported type
-            return retval;
-        Rprintf("\n");*/
-        temp_var = readVar(fp, vi, fp->var_namelist[n], timed);
-        SET_VECTOR_ELT(vec, n, temp_var);
+        R_temp_var = readVar(R_adios_fp, R_adios_var_info, mkString(fp->var_namelist[n]), ScalarInteger(timed));
+        SET_VECTOR_ELT(vec, n, R_temp_var);
+        UNPROTECT(1);
     }
     /* Free ADIOS_VARINFOs */
     for (n=0; n<nNames; n++) {
         adios_free_varinfo(vis[n]);
     }
 
-    return 0;
+    UNPROTECT(1);
+    return vec;
 } 
 
 /** 
@@ -127,8 +146,7 @@ SEXP readVar(SEXP R_adios_fp,
     int  status;            
     bool incdim;            // used in incremental reading in
     ADIOS_SELECTION * sel;  // boundnig box to read
-
-    int pos = 0;   //index for copy data to R memory
+    int pos;                //index for copy data to R memory
     
     int  istart[MAX_DIMS], icount[MAX_DIMS];
     int  verbose = 0;
@@ -228,8 +246,6 @@ SEXP readVar(SEXP R_adios_fp,
             break;
     }
 
-    //print_slice_info(vi->ndim, vi->dims, timed, vi->nsteps, start_t, count_t);
-
     maxreadn = MAX_BUFFERSIZE/elemsize;
     if (nelems < maxreadn)
         maxreadn = nelems;
@@ -276,8 +292,8 @@ SEXP readVar(SEXP R_adios_fp,
 
     // read until read all 'nelems' elements
     sum = 0;
+    pos = 0;
     while (sum < nelems) {
-
         // how many elements do we read in next?
         actualreadn = 1;
         for (j=0; j<tdims; j++) 
@@ -392,6 +408,9 @@ SEXP readVar(SEXP R_adios_fp,
     return out;
 }
 
+/**
+ * Get datatype size
+ */
 int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize)
 {
     switch(adiosvartype) {

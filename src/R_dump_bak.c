@@ -15,11 +15,10 @@ static void finalizer0(SEXP Rptr)
 }
 
 /**
- * Read a variable. 
- * If start and count is not specified, a whole list is returned.
+ * R wrapper of dump. 
+ * A list of variable values is returned.
  */
-SEXP R_read(SEXP R_adios_path,
-            SEXP R_varname,
+SEXP R_dump(SEXP R_adios_path,
             SEXP R_comm,
             SEXP R_adios_rank)
 {

@@ -116,10 +116,9 @@ SEXP dump_vars (SEXP R_adios_fp)
 } 
 
 /** 
- * Read data of a variable and print 
- * Return: 0: ok, != 0 on error
+ * Read data of a variable
+ * Return: 0: vector of variable values
  */
-//int readVar(ADIOS_FILE *fp, ADIOS_VARINFO *vi, const char * name, bool timed)
 SEXP readVar(SEXP R_adios_fp, 
              SEXP R_adios_var_info, 
              SEXP R_name, 

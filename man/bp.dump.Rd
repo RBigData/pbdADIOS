@@ -10,4 +10,7 @@ bp.dump(adios.filename, comm = .pbd_env$SPMD.CT$comm,
 \arguments{
 \item{adios.rank}{}
 }
+\value{
+a list of variables
+}
 

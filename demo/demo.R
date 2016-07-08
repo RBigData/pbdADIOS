@@ -32,10 +32,13 @@ bp.read("attributes.bp", "temperature", count=c(0, 10))
 bp.read("attributes.bp", "NX", c(0))
 
 # bp data with multiple steps
-# read only 1 data from the 1st step
-bp.read("attributes.bp", "T", c(0, 0, 0), c(1, 1, 1))
-# read only 2 data from the first two step
-bp.read("attributes.bp", "T", c(0, 0, 0), c(2, 1, 1))
+heat = bp.dump("heat.bp")
+str(heat)
+
+# read only 1st data from the 1st step
+bp.read("heat.bp", "T", c(0, 0, 0), c(1, 1, 1))
+# read only 1st data from the first two steps
+bp.read("heat.bp", "T", c(0, 0, 0), c(2, 1, 1))
 
 finalize() # pbdMPI final
 

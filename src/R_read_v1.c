@@ -2,6 +2,10 @@
 #include "R_dump.h"
 #include "R_read.h"
 
+/**
+ *  This version performs one read each time
+ */ 
+
 /** 
  *  Finalizer that only clears R pointer
  */
@@ -60,8 +64,7 @@ SEXP R_read(SEXP R_adios_path,
 }
 
 /**
- * Dump a variable or multiple variables. 
- * If the start and count is not specified, read all values by default.
+ * Dump a variable. If the start and count is not specified, read all values by default.
  */
 SEXP dump_var (SEXP R_adios_fp,
                SEXP R_varname,
@@ -136,21 +139,30 @@ SEXP read_var(SEXP R_adios_fp,
     bool timed = asInteger(R_timed);
 
     int i,j;
-
+    uint64_t start_t[MAX_DIMS], count_t[MAX_DIMS]; // processed <0 values in start/count
+    uint64_t s[MAX_DIMS], c[MAX_DIMS]; // for block reading of smaller chunks
     int tdims;               // number of dimensions including time
     int tidx;                // 0 or 1 to account for time dimension
     uint64_t nelems;         // number of elements to read
     int elemsize;            // size in bytes of one element
-
+    uint64_t st, ct;
     void *data;
     uint64_t sum;           // working var to sum up things
-
+    int  maxreadn;          // max number of elements to read once up to a limit (10MB of data)
+    int  actualreadn;       // our decision how much to read at once
+    int  readn[MAX_DIMS];   // how big chunk to read in in each dimension?
     int  status;            
-
+    bool incdim;            // used in incremental reading in
     ADIOS_SELECTION * sel;  // boundnig box to read
     int pos;                // index for copy data to R memory
     SEXP out;               // store the variable values
     
+    int  istart[MAX_DIMS], icount[MAX_DIMS];
+    int  verbose = 0;
+    for (i=0; i<MAX_DIMS; i++) {
+        istart[i]  = 0;
+        icount[i]  = -1;  // read full var by default
+    }
 
     // Check start and count. If they are not null, use them.
     if(INTEGER(R_start)[0] != -1) {
@@ -180,9 +192,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign start to istart
-            /*for (i=0; i<vi->ndim+1; i++) {
+            for (i=0; i<vi->ndim+1; i++) {
                 istart[i] = INTEGER(R_start)[i];
-            }*/
+            }
 
         } else {
              // check if the length of start matches ndim
@@ -199,9 +211,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign start to istart
-            /*for (i=0; i<vi->ndim; i++) {
+            for (i=0; i<vi->ndim; i++) {
                 istart[i] = INTEGER(R_start)[i];
-            }*/
+            }
         }
     }
 
@@ -232,9 +244,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign count to icount
-            /*for (i=0; i<vi->ndim+1; i++) {
+            for (i=0; i<vi->ndim+1; i++) {
                 icount[i] = INTEGER(R_count)[i];
-            }*/
+            }
 
         } else {
              // check if the length of count matches ndim
@@ -251,9 +263,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign count to icount
-            /*for (i=0; i<vi->ndim; i++) {
+            for (i=0; i<vi->ndim; i++) {
                 icount[i] = INTEGER(R_count)[i];
-            }*/
+            }
         }
     }
 
@@ -268,12 +280,31 @@ SEXP read_var(SEXP R_adios_fp,
 
     nelems = 1;
     tidx = 0;
+
     if (timed) {
+        if (istart[0] < 0)  // negative index means last-|index|
+            st = vi->nsteps+istart[0];
+        else
+            st = istart[0];
+        if (icount[0] < 0)  // negative index means last-|index|+1-start
+            ct = vi->nsteps+icount[0]+1-st;
+        else
+            ct = icount[0];
+
+        if (verbose>2) 
+            Rprintf("    j=0, st=%" PRIu64 " ct=%" PRIu64 "\n", st, ct);
+
+        start_t[0] = st;
+        count_t[0] = ct;
+        nelems *= ct;
+        if (verbose>1) 
+            Rprintf("    s[0]=%" PRIu64 ", c[0]=%" PRIu64 ", n=%" PRIu64 "\n",
+                    start_t[0], count_t[0], nelems);
+        
         tidx = 1;
-        nelems *= INTEGER(R_count)[0];
-       
     }
-    
+    tdims = vi->ndim + tidx;
+
     for (j=0; j<vi->ndim; j++) {
         if (istart[j+tidx] < 0)  // negative index means last-|index|
             st = vi->dims[j]+istart[j+tidx];
@@ -329,14 +360,19 @@ SEXP read_var(SEXP R_adios_fp,
             break;
     }
 
+    maxreadn = MAX_BUFFERSIZE/elemsize;
+    if (nelems < maxreadn)
+        maxreadn = nelems;
+
     // special case: string. Need to use different elemsize
     if (vi->type == adios_string) {
         if (vi->value)
             elemsize = strlen(vi->value)+1;
+        maxreadn = elemsize;
     }
 
     // allocate data array
-    data = (void *) malloc (nelems*elemsize+8); // +8 for just to be sure
+    data = (void *) malloc (maxreadn*elemsize+8); // +8 for just to be sure
 
     // determine strategy how to read in:
     //  - at once

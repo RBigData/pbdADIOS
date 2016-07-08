@@ -36,3 +36,6 @@ bp.read("attributes.bp", "NX", c(0))
 bp.read("attributes.bp", "T", c(0, 0, 0), c(1, 1, 1))
 # read only 2 data from the first two step
 bp.read("attributes.bp", "T", c(0, 0, 0), c(2, 1, 1))
+
+finalize() # pbdMPI final
+

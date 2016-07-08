@@ -162,6 +162,12 @@ SEXP read_var(SEXP R_adios_fp,
 
     // Check start and count. If they are not null, use them.
     if(INTEGER(R_start)[0] != -1) {
+        // If the var is scalar, you don't need to specify start and count.
+        if(vi->ndim == 0) {
+            REprintf("The variable is scalar. You don't need to specify start and count.\n");
+            return R_NilValue;
+        }
+
         if(timed) {
             // check if the length of start matches ndim
             if(vi->ndim != (length(R_start) - 1)) {
@@ -208,6 +214,12 @@ SEXP read_var(SEXP R_adios_fp,
     }
 
     if(INTEGER(R_count)[0] != -2) {
+        // If the var is scalar, you don't need to specify start and count.
+        if(vi->ndim == 0) {
+            REprintf("The variable is scalar. You don't need to specify start and count.\n");
+            return R_NilValue;
+        }
+        
         if(timed) {
             // check if the length of count matches ndim
             if(vi->ndim != (length(R_count) - 1)) {

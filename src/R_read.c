@@ -188,7 +188,19 @@ SEXP read_var(SEXP R_adios_fp,
 
         } else {
              // check if the length of start matches ndim
-            if(vi->ndim != (sizeof(INTEGER(R_start))/sizeof(int))) {
+            /*if(vi->ndim != (sizeof(INTEGER(R_start))/sizeof(int))) {
+                REprintf("Error: wrong start. \n");
+                return R_NilValue;
+            }
+            // check if the start value is out of range.
+            for(i = 0; i < vi->ndim; i++) {
+                if((INTEGER(R_start)[i] < 0) || (INTEGER(R_start)[i] >= vi->dims[i])) {
+                    REprintf("Error: wrong start. \n");
+                    return R_NilValue;
+                }
+            }*/
+            
+            if(vi->ndim != length(R_start)) {
                 REprintf("Error: wrong start. \n");
                 return R_NilValue;
             }

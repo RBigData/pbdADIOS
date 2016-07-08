@@ -379,6 +379,7 @@ dummy <- cfunction(body = '
 ')
 
 dummy <- cfunction(body = '
+  int i;
   char *names[] = {"result_numeric", "a", "result_numeric_vector"};
 
   SEXP dbls = PROTECT(allocVector(REALSXP, 4));
@@ -390,9 +391,13 @@ dummy <- cfunction(body = '
   SET_VECTOR_ELT(vec, 1, lgls);
   SET_VECTOR_ELT(vec, 2, ints);
 
-  setAttrib(list, R_NamesSymbol, list_names);
+  SEXP list_names = PROTECT(allocVector(STRSXP, 3));
+  for(i = 0; i < 3; i++)
+      SET_STRING_ELT(list_names, i,  mkChar(names[i]));
 
-  UNPROTECT(4);
+  setAttrib(vec, R_NamesSymbol, list_names);
+
+  UNPROTECT(5);
   return vec;
 ')
 

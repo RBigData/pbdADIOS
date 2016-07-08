@@ -359,4 +359,48 @@ pbdr@pbdrVM:~/pbdrtest$ bpls -l heat.bp -d dT -s "0,0,0" -c "6,2,2"
 
 bp.read("filename", "varname", start=c(0,0), count=c(1,1))
 
+07/08/2016
+Test returning named list
+
+dummy <- cfunction(body = '
+  const char *names[] = {"result_numeric", "a", "result_numeric_vector", ""};  
+
+  SEXP dbls = PROTECT(allocVector(REALSXP, 4));
+  SEXP lgls = PROTECT(allocVector(LGLSXP, 4));
+  SEXP ints = PROTECT(allocVector(INTSXP, 4));
+
+  SEXP vec = PROTECT(mkNamed(VECSXP, names)); 
+  SET_VECTOR_ELT(vec, 0, dbls);
+  SET_VECTOR_ELT(vec, 1, lgls);
+  SET_VECTOR_ELT(vec, 2, ints);
+
+  UNPROTECT(4);
+  return vec;
+')
+
+dummy <- cfunction(body = '
+  char *names[] = {"result_numeric", "a", "result_numeric_vector"};
+
+  SEXP dbls = PROTECT(allocVector(REALSXP, 4));
+  SEXP lgls = PROTECT(allocVector(LGLSXP, 4));
+  SEXP ints = PROTECT(allocVector(INTSXP, 4));
+
+  SEXP vec = PROTECT(allocVector(VECSXP, 3));
+  SET_VECTOR_ELT(vec, 0, dbls);
+  SET_VECTOR_ELT(vec, 1, lgls);
+  SET_VECTOR_ELT(vec, 2, ints);
+
+  setAttrib(list, R_NamesSymbol, list_names);
+
+  UNPROTECT(4);
+  return vec;
+')
+
+
+
+
+
+
+
+
 

@@ -74,6 +74,7 @@ SEXP dump_vars (SEXP R_adios_fp)
     nNames = fp->nvars;
 
     SEXP vec = PROTECT(allocVector(VECSXP, nNames));
+    SEXP list_names = PROTECT(allocVector(STRSXP, nNames));
 
     vis = (ADIOS_VARINFO **) malloc (nNames * sizeof (ADIOS_VARINFO*));
     if (vis == NULL) {
@@ -101,14 +102,19 @@ SEXP dump_vars (SEXP R_adios_fp)
 
         R_temp_var = readVar(R_adios_fp, R_adios_var_info, mkString(fp->var_namelist[n]), ScalarInteger(timed));
         SET_VECTOR_ELT(vec, n, R_temp_var);
+        SET_STRING_ELT(list_names, n,  mkChar(fp->var_namelist[n]));
         UNPROTECT(1);
     }
+
+    // set list attributes
+    setAttrib(vec, R_NamesSymbol, list_names);
+
     /* Free ADIOS_VARINFOs */
     for (n=0; n<nNames; n++) {
         adios_free_varinfo(vis[n]);
     }
 
-    UNPROTECT(1);
+    UNPROTECT(2);
     return vec;
 } 
 

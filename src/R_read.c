@@ -2,6 +2,10 @@
 #include "R_dump.h"
 #include "R_read.h"
 
+/**
+ *  This version performs one read each time
+ */ 
+
 /** 
  *  Finalizer that only clears R pointer
  */
@@ -60,8 +64,7 @@ SEXP R_read(SEXP R_adios_path,
 }
 
 /**
- * Dump a variable or multiple variables. 
- * If the start and count is not specified, read all values by default.
+ * Dump a variable. If the start and count is not specified, read all values by default.
  */
 SEXP dump_var (SEXP R_adios_fp,
                SEXP R_varname,
@@ -136,21 +139,22 @@ SEXP read_var(SEXP R_adios_fp,
     bool timed = asInteger(R_timed);
 
     int i,j;
-
-    int tdims;               // number of dimensions including time
     int tidx;                // 0 or 1 to account for time dimension
     uint64_t nelems;         // number of elements to read
     int elemsize;            // size in bytes of one element
-
+    int item;
     void *data;
-    uint64_t sum;           // working var to sum up things
-
     int  status;            
-
     ADIOS_SELECTION * sel;  // boundnig box to read
     int pos;                // index for copy data to R memory
     SEXP out;               // store the variable values
     
+    int  istart[MAX_DIMS], icount[MAX_DIMS];
+    int  verbose = 0;
+    for (i=0; i<MAX_DIMS; i++) {
+        istart[i]  = 0;
+        icount[i]  = -1;  // read full var by default
+    }
 
     // Check start and count. If they are not null, use them.
     if(INTEGER(R_start)[0] != -1) {
@@ -180,9 +184,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign start to istart
-            /*for (i=0; i<vi->ndim+1; i++) {
+            for (i=0; i<vi->ndim+1; i++) {
                 istart[i] = INTEGER(R_start)[i];
-            }*/
+            }
 
         } else {
              // check if the length of start matches ndim
@@ -199,9 +203,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign start to istart
-            /*for (i=0; i<vi->ndim; i++) {
+            for (i=0; i<vi->ndim; i++) {
                 istart[i] = INTEGER(R_start)[i];
-            }*/
+            }
         }
     }
 
@@ -232,9 +236,9 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign count to icount
-            /*for (i=0; i<vi->ndim+1; i++) {
+            for (i=0; i<vi->ndim+1; i++) {
                 icount[i] = INTEGER(R_count)[i];
-            }*/
+            }
 
         } else {
              // check if the length of count matches ndim
@@ -251,9 +255,19 @@ SEXP read_var(SEXP R_adios_fp,
             }
 
             // assign count to icount
-            /*for (i=0; i<vi->ndim; i++) {
+            for (i=0; i<vi->ndim; i++) {
                 icount[i] = INTEGER(R_count)[i];
-            }*/
+            }
+        }
+    }else {
+        // if the count is not specified, read all values
+        if(timed) {
+            icount[0] = vi->nsteps - istart[0];
+            for (i=0; i<vi->ndim; i++)
+                icount[i+1] = vi->dims[i+1] - istart[i+1];
+        }else {
+            for (i=0; i<vi->ndim;; i++)
+                icount[i] = vi->dims[i] - istart[i];
         }
     }
 
@@ -263,36 +277,16 @@ SEXP read_var(SEXP R_adios_fp,
         return R_NilValue;
     }
 
-    // create the counter arrays with the appropriate lengths
-    // transfer start and count arrays to format dependent arrays
-
+    // count the total number of elements
     nelems = 1;
     tidx = 0;
     if (timed) {
+        nelems *= icount[0];
         tidx = 1;
-        nelems *= INTEGER(R_count)[0];
-       
     }
-    
+
     for (j=0; j<vi->ndim; j++) {
-        if (istart[j+tidx] < 0)  // negative index means last-|index|
-            st = vi->dims[j]+istart[j+tidx];
-        else
-            st = istart[j+tidx];
-        if (icount[j+tidx] < 0)  // negative index means last-|index|+1-start
-            ct = vi->dims[j]+icount[j+tidx]+1-st;
-        else
-            ct = icount[j+tidx];
-
-        if (verbose>2) 
-            Rprintf("    j=%d, st=%" PRIu64 " ct=%" PRIu64 "\n", j+tidx, st, ct);
-
-        start_t[j+tidx] = st;
-        count_t[j+tidx] = ct;
-        nelems *= ct;
-        if (verbose>1) 
-            Rprintf("    s[%d]=%" PRIu64 ", c[%d]=%" PRIu64 ", n=%" PRIu64 "\n",
-                    j+tidx, start_t[j+tidx], j+tidx, count_t[j+tidx], nelems);
+        nelems *= icount[j+tidx];
     }
 
     if (verbose>1) {
@@ -320,10 +314,6 @@ SEXP read_var(SEXP R_adios_fp,
         case adios_double:
             out = PROTECT(allocVector(REALSXP, nelems));
             break;
-
-        //case adios_complex:           
-        //case adios_double_complex:
-        //case adios_long_double: // do not know how to print
            
         default:
             break;
@@ -338,143 +328,70 @@ SEXP read_var(SEXP R_adios_fp,
     // allocate data array
     data = (void *) malloc (nelems*elemsize+8); // +8 for just to be sure
 
-    // determine strategy how to read in:
-    //  - at once
-    //  - loop over 1st dimension
-    //  - loop over 1st & 2nd dimension
-    //  - etc
-    if (verbose>1) Rprintf("Read size strategy:\n");
-    sum = (uint64_t) 1;
-    actualreadn = (uint64_t) 1;
-    for (i=tdims-1; i>=0; i--) {
-        if (sum >= (uint64_t) maxreadn) {
-            readn[i] = 1;
-        } else {
-            readn[i] = maxreadn / (int)sum; // sum is small for 4 bytes here
-            // this may be over the max count for this dimension
-            if (readn[i] > count_t[i]) 
-                readn[i] = count_t[i];
-        }
-        if (verbose>1) Rprintf("    dim %d: read %d elements\n", i, readn[i]);
-        sum = sum * (uint64_t) count_t[i];
-        actualreadn = actualreadn * readn[i];
-    }
-    if (verbose>1) Rprintf("    read %d elements at once, %" PRId64 " in total (nelems=%" PRId64 ")\n", actualreadn, sum, nelems);
-
-
-    // init s and c
-    for (j=0; j<tdims; j++) {
-        s[j]=start_t[j];
-        c[j]=readn[j];
+    // read a slice finally
+    sel = adios_selection_boundingbox (vi->ndim, istart+tidx, icount+tidx);
+    if (timed) {
+        status = adios_schedule_read_byid (fp, sel, vi->varid, istart[0], icount[0], data); 
+    } else {
+        status = adios_schedule_read_byid (fp, sel, vi->varid, 0, 1, data); 
     }
 
-    // read until read all 'nelems' elements
-    sum = 0;
+    if (status < 0) {
+        REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", name, adios_errno, adios_errmsg());
+        Free(sel);
+        Free(data);
+        return R_NilValue;
+    }
+
+    status = adios_perform_reads (fp, 1); // blocking read performed here
+    if (status < 0) {
+        REprintf("Error when reading variable %s. errno=%d : %s \n", name, adios_errno, adios_errmsg());
+        Free(sel);
+        Free(data);
+        return R_NilValue;
+    }
+
+    /**
+     * start copying data to R memory
+     */
     pos = 0;
-    while (sum < nelems) {
-        // how many elements do we read in next?
-        actualreadn = 1;
-        for (j=0; j<tdims; j++) 
-            actualreadn *= c[j];
-
-        // read a slice finally
-        sel = adios_selection_boundingbox (vi->ndim, s+tidx, c+tidx);
-        if (timed) {
-            status = adios_schedule_read_byid (fp, sel, vi->varid, s[0], c[0], data); 
-        } else {
-            status = adios_schedule_read_byid (fp, sel, vi->varid, 0, 1, data); 
-        }
-
-        if (status < 0) {
-            REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", name, adios_errno, adios_errmsg());
-            Free(data);
-            return R_NilValue;
-        }
-
-        status = adios_perform_reads (fp, 1); // blocking read performed here
-        if (status < 0) {
-            REprintf("Error when reading variable %s. errno=%d : %s \n", name, adios_errno, adios_errmsg());
-            Free(data);
-            return R_NilValue;
-        }
-
-        /**
-         * start copying data to R memory
-         */
-        //print_dataset(data, vi->type, s, c, tdims, ndigits_dims); 
-        int pi, item, steps;
-
-        // init current indices
-        steps = 1;
-        for (pi=0; pi<tdims; pi++) {
-            steps *= c[pi];
-        }
-
-        item = 0; // index to *data 
-        // loop through each data item and print value
-
-        switch(vi->type) {
-            case adios_unsigned_byte:
-            case adios_byte:
-            case adios_string:
-                while (item < steps) {
-                    SET_STRING_ELT(out, pos++, mkChar((char *)data + item));
-                    item++;
-                }
-                break;
-
-            case adios_unsigned_short:  
-            case adios_short:
-            case adios_unsigned_integer:
-            case adios_integer:    
-                while (item < steps) {
-                    INTEGER(out)[pos++] = ((int *)data)[item++];
-                }
-                break;
-
-            case adios_unsigned_long:
-            case adios_long:        
-            case adios_real:
-            case adios_double:
-                while (item < steps) {
-                    REAL(out)[pos++] = ((double *)data)[item++];
-                }
-                break;
-
-            //case adios_complex:           
-            //case adios_double_complex:
-            //case adios_long_double: // do not know how to print
-               
-            default:
-                break;
-        }
-        /**
-         * end copying data to R memory
-         */
-
-        // prepare for next read
-        sum += actualreadn;
-        incdim=true; // largest dim should be increased 
-        for (j=tdims-1; j>=0; j--) {
-            if (incdim) {
-                if (s[j]+c[j] == start_t[j]+count_t[j]) {
-                    // reached the end of this dimension
-                    s[j] = start_t[j];
-                    c[j] = readn[j];
-                    incdim = true; // next smaller dim can increase too
-                } else {
-                    // move up in this dimension up to total count
-                    s[j] += readn[j];
-                    if (s[j]+c[j] > start_t[j]+count_t[j]) {
-                        // do not reach over the limit
-                        c[j] = start_t[j]+count_t[j]-s[j];
-                    }
-                    incdim = false;
-                }
+    item = 0; // index to *data 
+    switch(vi->type) {
+        case adios_unsigned_byte:
+        case adios_byte:
+        case adios_string:
+            while (item < nelems) {
+                SET_STRING_ELT(out, pos++, mkChar((char *)data + item));
+                item++;
             }
-        }
-    } // end while sum < nelems
+            break;
 
+        case adios_unsigned_short:  
+        case adios_short:
+        case adios_unsigned_integer:
+        case adios_integer:    
+            while (item < nelems) {
+                INTEGER(out)[pos++] = ((int *)data)[item++];
+            }
+            break;
+
+        case adios_unsigned_long:
+        case adios_long:        
+        case adios_real:
+        case adios_double:
+            while (item < nelems) {
+                REAL(out)[pos++] = ((double *)data)[item++];
+            }
+            break;
+           
+        default:
+            break;
+    }
+    /**
+     * end copying data to R memory
+     */
+        
+    Free(sel);
     Free(data);
     UNPROTECT(1);
     return out;

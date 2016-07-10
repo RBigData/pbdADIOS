@@ -3,7 +3,7 @@
 #include "R_read.h"
 
 /**
- *  This version performs one read each time
+ *  This version read a variable at onece
  */ 
 
 /** 
@@ -149,7 +149,7 @@ SEXP read_var(SEXP R_adios_fp,
     int pos;                // index for copy data to R memory
     SEXP out;               // store the variable values
     
-    int  istart[MAX_DIMS], icount[MAX_DIMS];
+    uint64_t istart[MAX_DIMS], icount[MAX_DIMS];
     int  verbose = 0;
     for (i=0; i<MAX_DIMS; i++) {
         istart[i]  = 0;
@@ -266,7 +266,7 @@ SEXP read_var(SEXP R_adios_fp,
             for (i=0; i<vi->ndim; i++)
                 icount[i+1] = vi->dims[i+1] - istart[i+1];
         }else {
-            for (i=0; i<vi->ndim;; i++)
+            for (i=0; i<vi->ndim; i++)
                 icount[i] = vi->dims[i] - istart[i];
         }
     }

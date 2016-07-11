@@ -60,3 +60,58 @@ bp.read <- function(adios.filename,
           comm.c2f(comm),
           as.integer(adios.rank))
 }
+
+
+bp.read <- function(adios.filename,
+                    varname,
+                    start = -1,
+                    count = -2,
+                    comm = .pbd_env$SPMD.CT$comm,
+                    adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
+{ 
+  # check if nvars is null
+  if(is.null(nvars)) {
+    cat("The varname can't be empty")
+  }else {
+    # calculate the number of vars
+    nvars = length(varname)
+   
+    # check the length of start
+    if((start != -1) && (length(start) != l)) {
+      cat("The length of start is not correct")
+    }
+    # check the length of count
+    else if((count != -1) && (length(start) != l)){
+      cat("The length of count is not correct")
+    }
+    # If the length is greater than 1, the parameters should be lists.
+    else if(nvars > 1) {
+      if((start != -1) && !is.list(start)) {
+        cat("The start should be a list")
+      }else if((count != -2) && !is.list(count)) {
+        cat("The count should be a list")
+      }else {
+        #call
+        .Call("R_read", 
+          as.character(adios.filename),
+          as.list(varname),
+          as.list(start),
+          as.list(count),
+          as.integer(nvars),
+          comm.c2f(comm),
+          as.integer(adios.rank))
+      }
+    }else {
+      #call
+        .Call("R_read", 
+          as.character(adios.filename),
+          as.list(varname),
+          as.list(start),
+          as.list(count),
+          as.integer(nvars),
+          comm.c2f(comm),
+          as.integer(adios.rank))
+    }
+  }
+}
+

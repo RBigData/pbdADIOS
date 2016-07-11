@@ -3,7 +3,7 @@
 #include "R_read.h"
 
 /**
- *  This version performs one read each time
+ *  This version reads a variable with fixed chunk size.
  */ 
 
 /** 

@@ -27,7 +27,6 @@ SEXP R_read(SEXP R_adios_path,
             SEXP R_varname,
             SEXP R_start,
             SEXP R_count,
-            SEXP R_nvar,
             SEXP R_comm,
             SEXP R_adios_rank)
 {
@@ -37,10 +36,7 @@ SEXP R_read(SEXP R_adios_path,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
-    int nvars = asInteger(R_nvars);   //number of variables to read
-    int i;
-    SEXP vec = PROTECT(allocVector(VECSXP, nvars));
-    SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
+    SEXP R_vec;
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
@@ -57,14 +53,8 @@ SEXP R_read(SEXP R_adios_path,
     SEXP R_adios_fp;
     newRptr(fp, R_adios_fp, finalizer0);
 
-    if(!rank) {
-        for(i=0; i<nvars; i++) {
-            R_vec = schedule_read (R_adios_fp, 
-                                  VECTOR_ELT(R_varname, i), 
-                                  VECTOR_ELT(R_start, i), 
-                                  VECTOR_ELT(R_count, i));
-        }
-    }
+    if(!rank)
+        R_vec = dump_var (R_adios_fp, R_varname, R_start, R_count);
     
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);
@@ -74,12 +64,12 @@ SEXP R_read(SEXP R_adios_path,
 }
 
 /**
- * Schedule read. If the start and count is not specified, read all values by default.
+ * Dump a variable. If the start and count is not specified, read all values by default.
  */
-SEXP schedule_read (SEXP R_adios_fp,
-                    SEXP R_varname,
-                    SEXP R_start,
-                    SEXP R_count)
+SEXP dump_var (SEXP R_adios_fp,
+               SEXP R_varname,
+               SEXP R_start,
+               SEXP R_count)
 {
     ADIOS_FILE * fp = R_ExternalPtrAddr(R_adios_fp);
     const char *varname = CHARPT(R_varname, 0);

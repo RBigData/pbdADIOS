@@ -402,6 +402,19 @@ dummy <- cfunction(body = '
 ')
 
 
+07/10/2016
+add <- cfunction(c(a = "numeric", b = "numeric"), "
+  SEXP result = PROTECT(allocVector(INTSXP, 1));
+  INTEGER(result)[0] = (int) REAL(VECTOR_ELT(a, 1))[1] + (int) REAL(VECTOR_ELT(b, 0))[0];
+  UNPROTECT(1);
+
+  return result;
+")
+
+add(list(as.integer(c(1,2)), as.integer(c(3,4))), list(as.integer(c(1,2)), as.integer(c(3,4))))
+[1] 5
+
+add(list(c(1,2), c(3,4)), list(c(1,2), c(3,4)))
 
 
 

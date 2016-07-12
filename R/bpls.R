@@ -60,21 +60,25 @@ bp.read <- function(adios.filename,
     nvars = length(varname)
 
     # check the length of start
-    if((start != -1) {
+    if(start != -1) {
         if(!is.list(start) && (nvars != 1))
            stop("Start should be a list!")
 
         if(is.list(start) && (length(start) != nvars))
             stop("The length of start is not correct!")    
+    }else {
+        start = rep(-1, nvars)
     }
 
     # check the length of count
-    if((count != -2) {
+    if(count != -2) {
         if(!is.list(count) && (nvars != 1))
            stop("Start should be a list!")
 
         if(is.list(count) && (length(count) != nvars))
             stop("The length of start is not correct!")    
+    }else {
+        count = rep(-2, nvars)
     }
 
     .Call("R_read", 

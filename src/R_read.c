@@ -93,28 +93,29 @@ SEXP R_read(SEXP R_adios_path,
     }
     REprintf("end perform read\n");
 
-    SEXP R_adios_fp;
-    newRptr(fp, R_adios_fp, finalizer0);
+    
     // Copy data into R memory
     for(i=0; i<nvars; i++) {
         SEXP R_temp_var;
+        SEXP R_vi;
         SEXP R_data;
+
+        newRptr(vi_vec[i], R_vi, finalizer0);
         newRptr(data_vec[i], R_data, finalizer0);
 
-        R_temp_var = copy_read(R_adios_fp, 
+        R_temp_var = copy_read(R_vi, 
                                ScalarInteger(nelems_vec[i]),
                                R_data);
 
         SET_VECTOR_ELT(R_vec, i, R_temp_var);
         SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
 
-        UNPROTECT(1);
+        UNPROTECT(2);
         // free memory
         adios_free_varinfo(vi_vec[i]);
         Free(sel_vec[i]);
         Free(data_vec[i]);
     }
-    UNPROTECT(1);
 
     // set list attributes
     setAttrib(R_vec, R_NamesSymbol, list_names);

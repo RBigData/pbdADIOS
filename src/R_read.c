@@ -82,9 +82,9 @@ SEXP R_read(SEXP R_adios_path,
                                            length(VECTOR_ELT(R_start, i)),
                                            INTEGER(VECTOR_ELT(R_count, i)),
                                            length(VECTOR_ELT(R_count, i)),
-                                           data,
-                                           sel,
-                                           vi);
+                                           &data,
+                                           &sel,
+                                           &vi);
 
             if(nelems_vec[i] < 0){
                 return R_NilValue;

@@ -47,8 +47,8 @@ bp.dump <- function(adios.filename,
 #' @export
 bp.read <- function(adios.filename,
                     varname,
-                    start = -1,
-                    count = -2,
+                    start = NULL,
+                    count = NULL,
                     comm = .pbd_env$SPMD.CT$comm,
                     adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 { 
@@ -58,27 +58,34 @@ bp.read <- function(adios.filename,
 
     # calculate the number of vars
     nvars = length(varname)
+    
+    if(nvars != 1) {
+        # check the length of start
+        if(!is.null(start)) {
+            if(!is.list(start))
+               stop("Start should be a list!")
 
-    # check the length of start
-    if(start != -1) {
-        if(!is.list(start) && (nvars != 1))
-           stop("Start should be a list!")
+            if(length(start) != nvars)
+                stop("The length of start is not correct!")    
+        }else {
+            start = rep(-1, nvars)
+        }
 
-        if(is.list(start) && (length(start) != nvars))
-            stop("The length of start is not correct!")    
+        # check the length of count
+        if(!is.null(count)) {
+            if(!is.list(count))
+               stop("Count should be a list!")
+
+            if(length(count) != nvars)
+                stop("The length of count is not correct!")    
+        }else {
+            count = rep(-2, nvars)
+        }
     }else {
-        start = rep(-1, nvars)
-    }
-
-    # check the length of count
-    if(count != -2) {
-        if(!is.list(count) && (nvars != 1))
-           stop("Start should be a list!")
-
-        if(is.list(count) && (length(count) != nvars))
-            stop("The length of start is not correct!")    
-    }else {
-        count = rep(-2, nvars)
+        if(is.null(start))
+            start = -1;
+        if(is.null(count))
+            count = -2
     }
 
     .Call("R_read", 

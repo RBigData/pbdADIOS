@@ -59,16 +59,19 @@ SEXP R_read(SEXP R_adios_path,
 
     // schedule read
     if(!rank) {
+        double *start = REAL(VECTOR_ELT(R_start, 0));
+        REprintf("The 1st value of start is %f\n", start[0]);
+
         for(i=0; i<nvars; i++) {
-            nelems_vec[i] = schedule_read (R_adios_fp, 
-                                          (char*)CHAR(VECTOR_ELT(R_varname,i)),
-                                          (int*)REAL(VECTOR_ELT(R_start, i)), 
-                                          length(REAL(VECTOR_ELT(R_start, i))),
-                                          (int*)REAL(VECTOR_ELT(R_count, i)),
-                                          length(REAL(VECTOR_ELT(R_count, i))),
-                                          data_vec[i],
-                                          sel_vec[i],
-                                          vi_vec[i]);
+            nelems_vec[i] = schedule_read (fp, 
+                                           CHAR(asChar(VECTOR_ELT(R_varname,i))),
+                                           (int*)REAL(VECTOR_ELT(R_start, i)), 
+                                           length(VECTOR_ELT(R_start, i)),
+                                           (int*)REAL(VECTOR_ELT(R_count, i)),
+                                           length(VECTOR_ELT(R_count, i)),
+                                           data_vec[i],
+                                           sel_vec[i],
+                                           vi_vec[i]);
             if(nelems_vec[i] < 0){
                 return R_NilValue;
             }
@@ -78,7 +81,7 @@ SEXP R_read(SEXP R_adios_path,
     // perform read
     status = adios_perform_reads (fp, 1); // blocking read performed here
     if (status < 0) {
-        REprintf("Error when reading variable %s. errno=%d : %s \n", name, adios_errno, adios_errmsg());
+        REprintf("Error when reading variable. errno=%d : %s \n", adios_errno, adios_errmsg());
 
         for(i=0; i<nvars; i++) {
             adios_free_varinfo(vi_vec[i]);
@@ -174,6 +177,8 @@ int schedule_read (ADIOS_FILE * fp,
 
     timed = (vi->nsteps > 1);
     
+    REprintf("start[0] is %d. \n", start[0]);
+
     // Check start and count. If they are not null, use them.
     if(start[0] != -1) {
         // If the var is scalar, you don't need to specify start and count.
@@ -186,6 +191,7 @@ int schedule_read (ADIOS_FILE * fp,
             // check if the length of start matches ndim
             if(vi->ndim != (s_length - 1)) {
                 REprintf("Error: wrong start dims. \n");
+                REprintf("s_length is %d. \n", s_length);
                 return -1;
             }
             // check if the step value is out of range.
@@ -210,6 +216,8 @@ int schedule_read (ADIOS_FILE * fp,
              // check if the length of start matches ndim
             if(vi->ndim != s_length) {
                 REprintf("Error: wrong start dims. \n");
+                REprintf("s_length is %d. \n", s_length);
+                REprintf("vi ndim is %d. \n", vi->ndim);
                 return -1;
             }
             // check if the start value is out of range.
@@ -227,7 +235,7 @@ int schedule_read (ADIOS_FILE * fp,
         }
     }
 
-    if(INTEGER(R_count)[0] != -2) {
+    if(count[0] != -2) {
         // If the var is scalar, you don't need to specify start and count.
         if(vi->ndim == 0) {
             REprintf("The variable is scalar. You don't need to specify start and count.\n");
@@ -291,7 +299,7 @@ int schedule_read (ADIOS_FILE * fp,
 
     if (getTypeInfo(vi->type, &elemsize)) {
         REprintf("Adios type %d (%s) not supported in bpls. var=%s\n", 
-                vi->type, adios_type_to_string(vi->type), name);
+                vi->type, adios_type_to_string(vi->type), varname);
         return -1;
     }
 
@@ -325,7 +333,7 @@ int schedule_read (ADIOS_FILE * fp,
     }
 
     if (status < 0) {
-        REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", name, adios_errno, adios_errmsg());
+        REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", varname, adios_errno, adios_errmsg());
         adios_free_varinfo(vi);
         Free(sel);
         Free(data);

@@ -76,6 +76,7 @@ SEXP R_read(SEXP R_adios_path,
                 return R_NilValue;
             }
         }
+        REprintf("end schedule read\n");
     }
 
     // perform read
@@ -90,6 +91,7 @@ SEXP R_read(SEXP R_adios_path,
         }
         return R_NilValue;
     }
+    REprintf("end perform read\n");
 
     SEXP R_adios_fp;
     newRptr(fp, R_adios_fp, finalizer0);

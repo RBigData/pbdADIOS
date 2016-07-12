@@ -40,10 +40,14 @@ SEXP R_read(SEXP R_adios_path,
     int i;
     SEXP R_vec = PROTECT(allocVector(VECSXP, nvars));
     SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
-    void *data_vec[nvars];   // store data pointers
-    ADIOS_SELECTION *sel_vec[nvars];  // store selection pointers
-    ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
+    //void *data_vec[nvars];   // store data pointers
+    //ADIOS_SELECTION *sel_vec[nvars];  // store selection pointers
+    //ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
     int nelems_vec[nvars];     // store the number of elements in each variable
+
+    void *data,
+    ADIOS_SELECTION *sel,
+    ADIOS_VARINFO *vi
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
@@ -63,7 +67,7 @@ SEXP R_read(SEXP R_adios_path,
         REprintf("The 1st value of start is %d\n", start[0]);
 
         for(i=0; i<nvars; i++) {
-            nelems_vec[i] = schedule_read (fp, 
+            /*nelems_vec[i] = schedule_read (fp, 
                                            CHAR(asChar(VECTOR_ELT(R_varname,i))),
                                            INTEGER(VECTOR_ELT(R_start, i)), 
                                            length(VECTOR_ELT(R_start, i)),
@@ -71,7 +75,17 @@ SEXP R_read(SEXP R_adios_path,
                                            length(VECTOR_ELT(R_count, i)),
                                            data_vec[i],
                                            sel_vec[i],
-                                           vi_vec[i]);
+                                           vi_vec[i]);*/
+            nelems_vec[i] = schedule_read (fp, 
+                                           CHAR(asChar(VECTOR_ELT(R_varname,i))),
+                                           INTEGER(VECTOR_ELT(R_start, i)), 
+                                           length(VECTOR_ELT(R_start, i)),
+                                           INTEGER(VECTOR_ELT(R_count, i)),
+                                           length(VECTOR_ELT(R_count, i)),
+                                           data,
+                                           sel,
+                                           vi);
+
             if(nelems_vec[i] < 0){
                 return R_NilValue;
             }
@@ -85,11 +99,11 @@ SEXP R_read(SEXP R_adios_path,
     if (status < 0) {
         REprintf("Error when reading variable. errno=%d : %s \n", adios_errno, adios_errmsg());
 
-        for(i=0; i<nvars; i++) {
+        /*for(i=0; i<nvars; i++) {
             adios_free_varinfo(vi_vec[i]);
             Free(sel_vec[i]);
             Free(data_vec[i]);
-        }
+        }*/
         return R_NilValue;
     }
     REprintf("end perform read\n");
@@ -101,10 +115,13 @@ SEXP R_read(SEXP R_adios_path,
         SEXP R_vi;
         SEXP R_data;
 
-        newRptr(vi_vec[i], R_vi, finalizer0);
-        newRptr(data_vec[i], R_data, finalizer0);
+        //newRptr(vi_vec[i], R_vi, finalizer0);
+        //newRptr(data_vec[i], R_data, finalizer0);
 
-        REprintf("Test read, %d \n", *((int *)data_vec[i]+8));
+        newRptr(vi, R_vi, finalizer0);
+        newRptr(data, R_data, finalizer0);
+
+        //REprintf("Test read, %d \n", *((int *)data_vec[i]+8));
 
         R_temp_var = copy_read(R_vi, 
                                ScalarInteger(nelems_vec[i]),
@@ -117,9 +134,9 @@ SEXP R_read(SEXP R_adios_path,
 
         UNPROTECT(2);
         // free memory
-        adios_free_varinfo(vi_vec[i]);
-        Free(sel_vec[i]);
-        Free(data_vec[i]);
+        //adios_free_varinfo(vi_vec[i]);
+        //Free(sel_vec[i]);
+        //Free(data_vec[i]);
     }
 
     // set list attributes

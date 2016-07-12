@@ -77,6 +77,7 @@ SEXP R_read(SEXP R_adios_path,
             }
         }
         REprintf("end schedule read\n");
+        REprintf("1st nelems is, %d \n", nelems_vec[0]);
     }
 
     // perform read
@@ -103,9 +104,13 @@ SEXP R_read(SEXP R_adios_path,
         newRptr(vi_vec[i], R_vi, finalizer0);
         newRptr(data_vec[i], R_data, finalizer0);
 
+        REprintf("Test read, %d \n", *((int *)data_vec[i]+8));
+
         R_temp_var = copy_read(R_vi, 
                                ScalarInteger(nelems_vec[i]),
                                R_data);
+
+        REprintf("end copy read\n");
 
         SET_VECTOR_ELT(R_vec, i, R_temp_var);
         SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));

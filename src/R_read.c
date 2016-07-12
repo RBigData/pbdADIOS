@@ -45,9 +45,9 @@ SEXP R_read(SEXP R_adios_path,
     //ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
     int nelems_vec[nvars];     // store the number of elements in each variable
 
-    void *data,
-    ADIOS_SELECTION *sel,
-    ADIOS_VARINFO *vi
+    void *data;
+    ADIOS_SELECTION *sel;
+    ADIOS_VARINFO *vi;
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
@@ -107,6 +107,7 @@ SEXP R_read(SEXP R_adios_path,
         return R_NilValue;
     }
     REprintf("end perform read\n");
+    REprintf("8th data is, %d \n", ((int *)data)[8]);
 
     
     // Copy data into R memory

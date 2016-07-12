@@ -88,11 +88,19 @@ bp.read <- function(adios.filename,
             count = -2
     }
 
+    # convert start and count to integer list
+    start = as.list(start)
+    count = as.list(count)
+    for (i in 1:nvars){
+        start[[i]] = as.integer(start[[i]])
+        count[[i]] = as.integer(count[[i]])
+    }
+
     .Call("R_read", 
           as.character(adios.filename),
           as.list(varname),
-          as.list(start),
-          as.list(count),
+          start,
+          count,
           as.integer(nvars),
           comm.c2f(comm),
           as.integer(adios.rank))

@@ -59,15 +59,15 @@ SEXP R_read(SEXP R_adios_path,
 
     // schedule read
     if(!rank) {
-        double *start = REAL(VECTOR_ELT(R_start, 0));
-        REprintf("The 1st value of start is %f\n", start[0]);
+        int *start = INTEGER(VECTOR_ELT(R_start, 0));
+        REprintf("The 1st value of start is %d\n", start[0]);
 
         for(i=0; i<nvars; i++) {
             nelems_vec[i] = schedule_read (fp, 
                                            CHAR(asChar(VECTOR_ELT(R_varname,i))),
-                                           (int*)REAL(VECTOR_ELT(R_start, i)), 
+                                           INTEGER(VECTOR_ELT(R_start, i)), 
                                            length(VECTOR_ELT(R_start, i)),
-                                           (int*)REAL(VECTOR_ELT(R_count, i)),
+                                           INTEGER(VECTOR_ELT(R_count, i)),
                                            length(VECTOR_ELT(R_count, i)),
                                            data_vec[i],
                                            sel_vec[i],

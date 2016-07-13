@@ -40,14 +40,10 @@ SEXP R_read(SEXP R_adios_path,
     int i;
     SEXP R_vec = PROTECT(allocVector(VECSXP, nvars));
     //SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
-    //void *data_vec[nvars];   // store data pointers
-    //ADIOS_SELECTION *sel_vec[nvars];  // store selection pointers
-    //ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
+    void *data_vec[nvars];   // store data pointers
+    ADIOS_SELECTION *sel_vec[nvars];  // store selection pointers
+    ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
     int nelems_vec[nvars];     // store the number of elements in each variable
-
-    void *data;
-    ADIOS_SELECTION *sel;
-    ADIOS_VARINFO *vi;
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
@@ -65,72 +61,58 @@ SEXP R_read(SEXP R_adios_path,
     if(!rank) {
 
         for(i=0; i<nvars; i++) {
-            /*nelems_vec[i] = schedule_read (fp, 
-                                           CHAR(asChar(VECTOR_ELT(R_varname,i))),
-                                           INTEGER(VECTOR_ELT(R_start, i)), 
+            nelems_vec[i] = schedule_read (fp, 
+                                           (VECTOR_ELT(R_varname,i)),
+                                           VECTOR_ELT(R_start, i), 
                                            length(VECTOR_ELT(R_start, i)),
                                            INTEGER(VECTOR_ELT(R_count, i)),
                                            length(VECTOR_ELT(R_count, i)),
                                            data_vec[i],
                                            sel_vec[i],
-                                           vi_vec[i]);*/
-            nelems_vec[i] = schedule_read (&fp, 
-                                           CHAR(asChar(VECTOR_ELT(R_varname,i))),
-                                           INTEGER(VECTOR_ELT(R_start, i)), 
-                                           length(VECTOR_ELT(R_start, i)),
-                                           INTEGER(VECTOR_ELT(R_count, i)),
-                                           length(VECTOR_ELT(R_count, i)),
-                                           &data,
-                                           &sel,
-                                           &vi);
-
+                                           vi_vec[i]);
             if(nelems_vec[i] < 0){
                 return R_NilValue;
             }
         }
-    }
 
-    // perform read
-    status = adios_perform_reads (fp, 1); // blocking read performed here
-    if (status < 0) {
-        REprintf("Error when reading variable. errno=%d : %s \n", adios_errno, adios_errmsg());
+        // perform read
+        status = adios_perform_reads (fp, 1); // blocking read performed here
+        if (status < 0) {
+            REprintf("Error when reading variable. errno=%d : %s \n", adios_errno, adios_errmsg());
 
-        /*for(i=0; i<nvars; i++) {
+            for(i=0; i<nvars; i++) {
+                adios_free_varinfo(vi_vec[i]);
+                Free(sel_vec[i]);
+                Free(data_vec[i]);
+            }
+            return R_NilValue;
+        }
+        
+        // Copy data into R memory
+        for(i=0; i<nvars; i++) {
+            SEXP R_temp_var;
+            SEXP R_vi;
+            SEXP R_data;
+
+            newRptr(vi_vec[i], R_vi, finalizer0);
+            newRptr(data_vec[i], R_data, finalizer0);
+
+            R_temp_var = copy_read(R_vi, 
+                                   ScalarInteger(nelems_vec[i]),
+                                   R_data);
+
+            SET_VECTOR_ELT(R_vec, i, R_temp_var);
+            //SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
+
+            UNPROTECT(2);
+            // free memory
             adios_free_varinfo(vi_vec[i]);
             Free(sel_vec[i]);
             Free(data_vec[i]);
-        }*/
-        return R_NilValue;
+
+        }
     }
     
-    // Copy data into R memory
-    for(i=0; i<nvars; i++) {
-        SEXP R_temp_var;
-        SEXP R_vi;
-        SEXP R_data;
-
-        REprintf("number of steps: %d", vi->nsteps);
-
-        //newRptr(vi_vec[i], R_vi, finalizer0);
-        //newRptr(data_vec[i], R_data, finalizer0);
-
-        newRptr(vi, R_vi, finalizer0);
-        newRptr(data, R_data, finalizer0);
-
-        R_temp_var = copy_read(R_vi, 
-                               ScalarInteger(nelems_vec[i]),
-                               R_data);
-
-        SET_VECTOR_ELT(R_vec, i, R_temp_var);
-        //SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
-
-        UNPROTECT(2);
-        // free memory
-        //adios_free_varinfo(vi_vec[i]);
-        //Free(sel_vec[i]);
-        //Free(data_vec[i]);
-    }
-
     // set list attributes
     //setAttrib(R_vec, R_NamesSymbol, list_names);
     
@@ -145,15 +127,15 @@ SEXP R_read(SEXP R_adios_path,
 /**
  * Schedule read. If the start and count is not specified, read all values by default.
  */
-int schedule_read (ADIOS_FILE ** fps, 
+int schedule_read (ADIOS_FILE * fp, 
                   const char *varname,
                   int* start, 
                   int s_length,
                   int* count,
                   int c_length,
-                  void **data,
-                  ADIOS_SELECTION **sels,
-                  ADIOS_VARINFO **vis)
+                  void ** data,
+                  ADIOS_SELECTION ** sel,
+                  ADIOS_VARINFO ** vi)
 {
     int     i, j, n;             // loop vars
     int     retval;
@@ -163,9 +145,7 @@ int schedule_read (ADIOS_FILE ** fps,
     uint64_t nelems;         // number of elements to read
     int elemsize;            // size in bytes of one element
     int  status;     
-    ADIOS_VARINFO *vi;  
-    ADIOS_SELECTION *sel;
-    ADIOS_FILE * fp = *fps;    
+  
 
     // compute start and count
     uint64_t istart[MAX_DIMS], icount[MAX_DIMS];
@@ -190,65 +170,65 @@ int schedule_read (ADIOS_FILE ** fps,
     }
 
     // Inquiry about a variable. 
-    vi = adios_inq_var (fp, fp->var_namelist[retval]);
+    *vi = adios_inq_var (fp, fp->var_namelist[retval]);
     if (!vi) {
         REprintf("Error: %s\n", adios_errmsg());
         return -1;
     }
 
-    timed = (vi->nsteps > 1);
+    timed = ((*vi)->nsteps > 1);
 
     // Check start and count. If they are not null, use them.
     if(start[0] != -1) {
         // If the var is scalar, you don't need to specify start and count.
-        if(vi->ndim == 0) {
+        if((*vi)->ndim == 0) {
             REprintf("The variable is scalar. You don't need to specify start and count.\n");
             return -1;
         }
 
         if(timed) {
             // check if the length of start matches ndim
-            if(vi->ndim != (s_length - 1)) {
+            if((*vi)->ndim != (s_length - 1)) {
                 REprintf("Error: wrong start dims. \n");
                 REprintf("s_length is %d. \n", s_length);
                 return -1;
             }
             // check if the step value is out of range.
-            if((start[0] < 0) || (start[0] >= vi->nsteps)) {
+            if((start[0] < 0) || (start[0] >= (*vi)->nsteps)) {
                 REprintf("Error: start %d out of bound. \n", start[0]);
                 return -1;
             }
             // check if the start value is out of range.
-            for(i = 0; i < vi->ndim; i++) {
-                if((start[i+1] < 0) || (start[i+1] >= vi->dims[i])) {
+            for(i = 0; i < (*vi)->ndim; i++) {
+                if((start[i+1] < 0) || (start[i+1] >= (*vi)->dims[i])) {
                     REprintf("Error: start %d out of bound. \n", start[i+1]);
                     return -1;
                 }
             }
 
             // assign start to istart
-            for (i=0; i<vi->ndim+1; i++) {
+            for (i=0; i<(*vi)->ndim+1; i++) {
                 istart[i] = start[i];
             }
 
         } else {
              // check if the length of start matches ndim
-            if(vi->ndim != s_length) {
+            if((*vi)->ndim != s_length) {
                 REprintf("Error: wrong start dims. \n");
                 REprintf("s_length is %d. \n", s_length);
-                REprintf("vi ndim is %d. \n", vi->ndim);
+                REprintf("vi ndim is %d. \n", (*vi)->ndim);
                 return -1;
             }
             // check if the start value is out of range.
-            for(i = 0; i < vi->ndim; i++) {
-                if((start[i] < 0) || (start[i] >= vi->dims[i])) {
+            for(i = 0; i < (*vi)->ndim; i++) {
+                if((start[i] < 0) || (start[i] >= (*vi)->dims[i])) {
                     REprintf("Error: start %d out of bound. \n", start[i]);
                     return -1;
                 }
             }
 
             // assign start to istart
-            for (i=0; i<vi->ndim; i++) {
+            for (i=0; i<(*vi)->ndim; i++) {
                 istart[i] = start[i];
             }
         }
@@ -256,69 +236,69 @@ int schedule_read (ADIOS_FILE ** fps,
 
     if(count[0] != -2) {
         // If the var is scalar, you don't need to specify start and count.
-        if(vi->ndim == 0) {
+        if((*vi)->ndim == 0) {
             REprintf("The variable is scalar. You don't need to specify start and count.\n");
             return -1;
         }
         
         if(timed) {
             // check if the length of count matches ndim
-            if(vi->ndim != (c_length - 1)) {
+            if((*vi)->ndim != (c_length - 1)) {
                 REprintf("Error: wrong count dims. \n");
                 return -1;
             }
             // check if the step value is out of range.
-            if((istart[0] + count[0]) > vi->nsteps) {
+            if((istart[0] + count[0]) > (*vi)->nsteps) {
                 REprintf("Error: count %d out of bound. \n", count[0]);
                 return -1;
             }
             // check if the count value is out of range.
-            for(i = 0; i < vi->ndim; i++) {
-                if((istart[i+1] + count[i+1]) > vi->dims[i]) {
+            for(i = 0; i < (*vi)->ndim; i++) {
+                if((istart[i+1] + count[i+1]) > (*vi)->dims[i]) {
                     REprintf("Error: count %d out of bound. \n", count[i+1]);
                     return -1;
                 }
             }
 
             // assign count to icount
-            for (i=0; i<vi->ndim+1; i++) {
+            for (i=0; i<(*vi)->ndim+1; i++) {
                 icount[i] = count[i];
             }
 
         } else {
              // check if the length of count matches ndim
-            if(vi->ndim != c_length) {
+            if((*vi)->ndim != c_length) {
                 REprintf("Error: wrong count dims. \n");
                 return -1;
             }
             // check if the count value is out of range.
-            for(i = 0; i < vi->ndim; i++) {
-                if((istart[i] + count[i]) > vi->dims[i]) {
+            for(i = 0; i < (*vi)->ndim; i++) {
+                if((istart[i] + count[i]) > (*vi)->dims[i]) {
                     REprintf("Error: count %d out of bound. \n", count[i]);
                     return -1;
                 }
             }
 
             // assign count to icount
-            for (i=0; i<vi->ndim; i++) {
+            for (i=0; i<(*vi)->ndim; i++) {
                 icount[i] = count[i];
             }
         }
     }else {
         // if the count is not specified, read all values
         if(timed) {
-            icount[0] = vi->nsteps - istart[0];
+            icount[0] = (*vi)->nsteps - istart[0];
             for (i=0; i<vi->ndim; i++)
-                icount[i+1] = vi->dims[i+1] - istart[i+1];
+                icount[i+1] = (*vi)->dims[i+1] - istart[i+1];
         }else {
-            for (i=0; i<vi->ndim; i++)
-                icount[i] = vi->dims[i] - istart[i];
+            for (i=0; i<(*vi)->ndim; i++)
+                icount[i] = (*vi)->dims[i] - istart[i];
         }
     }
 
-    if (getTypeInfo(vi->type, &elemsize)) {
+    if (getTypeInfo((*vi)->type, &elemsize)) {
         REprintf("Adios type %d (%s) not supported in bpls. var=%s\n", 
-                vi->type, adios_type_to_string(vi->type), varname);
+                (*vi)->type, adios_type_to_string((*vi)->type), varname);
         return -1;
     }
 
@@ -330,36 +310,36 @@ int schedule_read (ADIOS_FILE ** fps,
         tidx = 1;
     }
 
-    for (j=0; j<vi->ndim; j++) {
+    for (j=0; j<(*vi)->ndim; j++) {
         nelems *= icount[j+tidx];
     }
 
     // special case: string. Need to use different elemsize
-    if (vi->type == adios_string) {
-        if (vi->value)
-            elemsize = strlen(vi->value)+1;
+    if ((*vi)->type == adios_string) {
+        if ((*vi)->value)
+            elemsize = strlen((*vi)->value)+1;
     }
 
     // allocate data array
     *data = (void *) malloc (nelems*elemsize+8); // +8 for just to be sure
 
     // read a slice finally
-    sel = adios_selection_boundingbox (vi->ndim, istart+tidx, icount+tidx);
+    *sel = adios_selection_boundingbox ((*vi)->ndim, istart+tidx, icount+tidx);
     if (timed) {
-        status = adios_schedule_read_byid (fp, sel, vi->varid, istart[0], icount[0], *data); 
+        status = adios_schedule_read_byid (fp, *sel, (*vi)->varid, istart[0], icount[0], *data); 
     } else {
-        status = adios_schedule_read_byid (fp, sel, vi->varid, 0, 1, *data); 
+        status = adios_schedule_read_byid (fp, *sel, (*vi)->varid, 0, 1, *data); 
     }
 
     if (status < 0) {
         REprintf("Error when scheduling variable %s for reading. errno=%d : %s \n", varname, adios_errno, adios_errmsg());
-        adios_free_varinfo(vi);
-        Free(sel);
-        Free(data);
+        adios_free_varinfo(*vi);
+        Free(*sel);
+        Free(*data);
         return -1;
     }
 
-    REprintf("IN number of steps: %d", vi->nsteps);
+    REprintf("IN number of steps: %d", (*vi)->nsteps);
 
     return nelems;
 } 

@@ -109,6 +109,8 @@ SEXP R_read(SEXP R_adios_path,
         SEXP R_vi;
         SEXP R_data;
 
+        REprintf("number of steps: %d", vi->nsteps);
+
         //newRptr(vi_vec[i], R_vi, finalizer0);
         //newRptr(data_vec[i], R_data, finalizer0);
 
@@ -161,8 +163,8 @@ int schedule_read (ADIOS_FILE ** fps,
     uint64_t nelems;         // number of elements to read
     int elemsize;            // size in bytes of one element
     int  status;     
-    ADIOS_VARINFO *vi = *vis;  
-    ADIOS_SELECTION *sel = *sels;
+    ADIOS_VARINFO *vi;  
+    ADIOS_SELECTION *sel;
     ADIOS_FILE * fp = *fps;    
 
     // compute start and count
@@ -357,6 +359,8 @@ int schedule_read (ADIOS_FILE ** fps,
         return -1;
     }
 
+    REprintf("IN number of steps: %d", vi->nsteps);
+
     return nelems;
 } 
 
@@ -404,6 +408,7 @@ SEXP copy_read (SEXP R_adios_var_info,
         case adios_long:        
         case adios_real:
         case adios_double:
+            REprintf("I'm here \n");
             out = PROTECT(allocVector(REALSXP, nelems));
             while (item < nelems) {
                 REAL(out)[pos++] = ((double *)data)[item++];
@@ -411,6 +416,7 @@ SEXP copy_read (SEXP R_adios_var_info,
             break;
            
         default:
+            REprintf("command not executed \n");
             break;
     }
     UNPROTECT(1);

@@ -63,6 +63,8 @@ SEXP R_read(SEXP R_adios_path,
 
     // schedule read
     if(!rank) {
+        int *start = INTEGER(VECTOR_ELT(R_start, 0));
+        REprintf("The 1st value of start is %d\n", start[0]);
 
         for(i=0; i<nvars; i++) {
             /*nelems_vec[i] = schedule_read (fp, 
@@ -88,7 +90,11 @@ SEXP R_read(SEXP R_adios_path,
                 return R_NilValue;
             }
         }
+        REprintf("end schedule read\n");
+        REprintf("1st nelems is, %d \n", nelems_vec[0]);
     }
+
+    REprintf("Before perform read 8th data is, %d \n", ((int *)data)[8]);
 
     // perform read
     status = adios_perform_reads (fp, 1); // blocking read performed here
@@ -102,6 +108,9 @@ SEXP R_read(SEXP R_adios_path,
         }*/
         return R_NilValue;
     }
+    REprintf("end perform read\n");
+    REprintf("8th data is, %f \n", ((double *)data)[8]);
+
     
     // Copy data into R memory
     for(i=0; i<nvars; i++) {
@@ -115,9 +124,13 @@ SEXP R_read(SEXP R_adios_path,
         newRptr(vi, R_vi, finalizer0);
         newRptr(data, R_data, finalizer0);
 
+        //REprintf("Test read, %d \n", *((int *)data_vec[i]+8));
+
         R_temp_var = copy_read(R_vi, 
                                ScalarInteger(nelems_vec[i]),
                                R_data);
+
+        REprintf("end copy read\n");
 
         SET_VECTOR_ELT(R_vec, i, R_temp_var);
         //SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
@@ -195,6 +208,8 @@ int schedule_read (ADIOS_FILE ** fps,
     }
 
     timed = (vi->nsteps > 1);
+    
+    REprintf("start[0] is %d. \n", start[0]);
 
     // Check start and count. If they are not null, use them.
     if(start[0] != -1) {
@@ -357,6 +372,9 @@ int schedule_read (ADIOS_FILE ** fps,
         return -1;
     }
 
+    REprintf("Inside function 8th data is, %d \n", ((int *)data)[8]);
+
+
     return nelems;
 } 
 
@@ -414,9 +432,6 @@ SEXP copy_read (SEXP R_adios_var_info,
             break;
     }
     UNPROTECT(1);
-
-    REprintf("Before perform read 8th data is, %f \n", REAL(out)[8]);
-
     return out;
 }
 

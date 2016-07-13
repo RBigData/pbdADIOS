@@ -82,9 +82,9 @@ SEXP R_read(SEXP R_adios_path,
                                            length(VECTOR_ELT(R_start, i)),
                                            INTEGER(VECTOR_ELT(R_count, i)),
                                            length(VECTOR_ELT(R_count, i)),
-                                           &data,
-                                           &sel,
-                                           &vi);
+                                           data,
+                                           sel,
+                                           vi);
 
             if(nelems_vec[i] < 0){
                 return R_NilValue;
@@ -93,6 +93,8 @@ SEXP R_read(SEXP R_adios_path,
         REprintf("end schedule read\n");
         REprintf("1st nelems is, %d \n", nelems_vec[0]);
     }
+
+    REprintf("Before perform read 8th data is, %d \n", ((int *)data)[8]);
 
     // perform read
     status = adios_perform_reads (fp, 1); // blocking read performed here
@@ -350,6 +352,8 @@ int schedule_read (ADIOS_FILE * fp,
     // allocate data array
     data = (void *) malloc (nelems*elemsize+8); // +8 for just to be sure
 
+    (int)data[0] = -1;
+
     // read a slice finally
     sel = adios_selection_boundingbox (vi->ndim, istart+tidx, icount+tidx);
     if (timed) {
@@ -365,6 +369,8 @@ int schedule_read (ADIOS_FILE * fp,
         Free(data);
         return -1;
     }
+
+    REprintf("Inside function 8th data is, %d \n", ((int *)data)[8]);
 
     return nelems;
 } 

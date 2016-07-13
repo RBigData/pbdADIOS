@@ -39,7 +39,7 @@ SEXP R_read(SEXP R_adios_path,
     int nvars = asInteger(R_nvars);   //number of variables to read
     int i;
     SEXP R_vec = PROTECT(allocVector(VECSXP, nvars));
-    SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
+    //SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
     //void *data_vec[nvars];   // store data pointers
     //ADIOS_SELECTION *sel_vec[nvars];  // store selection pointers
     //ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
@@ -76,15 +76,15 @@ SEXP R_read(SEXP R_adios_path,
                                            data_vec[i],
                                            sel_vec[i],
                                            vi_vec[i]);*/
-            nelems_vec[i] = schedule_read (fp, 
+            nelems_vec[i] = schedule_read (&fp, 
                                            CHAR(asChar(VECTOR_ELT(R_varname,i))),
                                            INTEGER(VECTOR_ELT(R_start, i)), 
                                            length(VECTOR_ELT(R_start, i)),
                                            INTEGER(VECTOR_ELT(R_count, i)),
                                            length(VECTOR_ELT(R_count, i)),
-                                           data,
-                                           sel,
-                                           vi);
+                                           &data,
+                                           &sel,
+                                           &vi);
 
             if(nelems_vec[i] < 0){
                 return R_NilValue;
@@ -109,7 +109,7 @@ SEXP R_read(SEXP R_adios_path,
         return R_NilValue;
     }
     REprintf("end perform read\n");
-    REprintf("8th data is, %d \n", ((int *)data)[8]);
+    REprintf("8th data is, %f \n", ((double *)data)[8]);
 
     
     // Copy data into R memory
@@ -133,7 +133,7 @@ SEXP R_read(SEXP R_adios_path,
         REprintf("end copy read\n");
 
         SET_VECTOR_ELT(R_vec, i, R_temp_var);
-        SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
+        //SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
 
         UNPROTECT(2);
         // free memory
@@ -143,9 +143,10 @@ SEXP R_read(SEXP R_adios_path,
     }
 
     // set list attributes
-    setAttrib(R_vec, R_NamesSymbol, list_names);
+    //setAttrib(R_vec, R_NamesSymbol, list_names);
     
     // free memory
+    UNPROTECT(1);
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);
 
@@ -155,15 +156,15 @@ SEXP R_read(SEXP R_adios_path,
 /**
  * Schedule read. If the start and count is not specified, read all values by default.
  */
-int schedule_read (ADIOS_FILE * fp, 
+int schedule_read (ADIOS_FILE ** fps, 
                   const char *varname,
                   int* start, 
                   int s_length,
                   int* count,
                   int c_length,
-                  void *data,
-                  ADIOS_SELECTION *sel,
-                  ADIOS_VARINFO *vi)
+                  void **data,
+                  ADIOS_SELECTION **sels,
+                  ADIOS_VARINFO **vis)
 {
     int     i, j, n;             // loop vars
     int     retval;
@@ -172,7 +173,10 @@ int schedule_read (ADIOS_FILE * fp,
     int tidx;                // 0 or 1 to account for time dimension
     uint64_t nelems;         // number of elements to read
     int elemsize;            // size in bytes of one element
-    int  status;            
+    int  status;     
+    ADIOS_VARINFO *vi = *vis;  
+    ADIOS_SELECTION *sel = *sels;
+    ADIOS_FILE * fp = *fps;    
 
     // compute start and count
     uint64_t istart[MAX_DIMS], icount[MAX_DIMS];
@@ -350,16 +354,14 @@ int schedule_read (ADIOS_FILE * fp,
     }
 
     // allocate data array
-    data = (void *) malloc (nelems*elemsize+8); // +8 for just to be sure
-
-    (int)data[0] = -1;
+    *data = (void *) malloc (nelems*elemsize+8); // +8 for just to be sure
 
     // read a slice finally
     sel = adios_selection_boundingbox (vi->ndim, istart+tidx, icount+tidx);
     if (timed) {
-        status = adios_schedule_read_byid (fp, sel, vi->varid, istart[0], icount[0], data); 
+        status = adios_schedule_read_byid (fp, sel, vi->varid, istart[0], icount[0], *data); 
     } else {
-        status = adios_schedule_read_byid (fp, sel, vi->varid, 0, 1, data); 
+        status = adios_schedule_read_byid (fp, sel, vi->varid, 0, 1, *data); 
     }
 
     if (status < 0) {
@@ -371,6 +373,7 @@ int schedule_read (ADIOS_FILE * fp,
     }
 
     REprintf("Inside function 8th data is, %d \n", ((int *)data)[8]);
+
 
     return nelems;
 } 
@@ -428,7 +431,7 @@ SEXP copy_read (SEXP R_adios_var_info,
         default:
             break;
     }
-
+    UNPROTECT(1);
     return out;
 }
 

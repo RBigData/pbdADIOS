@@ -1,15 +1,15 @@
 #ifndef __R_READ__
 #define __R_READ__
 
-int schedule_read (ADIOS_FILE * fp, 
+int schedule_read (ADIOS_FILE ** fps, 
                   const char *varname,
                   int* start, 
                   int s_length,
                   int* count,
                   int c_length,
-                  void *data,
-                  ADIOS_SELECTION *sel,
-                  ADIOS_VARINFO *vi);
+                  void **data,
+                  ADIOS_SELECTION **sels,
+                  ADIOS_VARINFO **vis);
 
 SEXP copy_read (SEXP R_adios_var_info, 
                 SEXP R_nelems, 

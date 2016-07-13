@@ -62,14 +62,15 @@ SEXP R_read(SEXP R_adios_path,
 
         for(i=0; i<nvars; i++) {
             nelems_vec[i] = schedule_read (fp, 
-                                           (VECTOR_ELT(R_varname,i)),
-                                           VECTOR_ELT(R_start, i), 
+                                           CHAR(asChar(VECTOR_ELT(R_varname,i))),
+                                           INTEGER(VECTOR_ELT(R_start, i)), 
                                            length(VECTOR_ELT(R_start, i)),
                                            INTEGER(VECTOR_ELT(R_count, i)),
                                            length(VECTOR_ELT(R_count, i)),
-                                           data_vec[i],
-                                           sel_vec[i],
-                                           vi_vec[i]);
+                                           &data_vec[i],
+                                           &sel_vec[i],
+                                           &vi_vec[i]);
+
             if(nelems_vec[i] < 0){
                 return R_NilValue;
             }
@@ -190,7 +191,6 @@ int schedule_read (ADIOS_FILE * fp,
             // check if the length of start matches ndim
             if((*vi)->ndim != (s_length - 1)) {
                 REprintf("Error: wrong start dims. \n");
-                REprintf("s_length is %d. \n", s_length);
                 return -1;
             }
             // check if the step value is out of range.
@@ -215,8 +215,6 @@ int schedule_read (ADIOS_FILE * fp,
              // check if the length of start matches ndim
             if((*vi)->ndim != s_length) {
                 REprintf("Error: wrong start dims. \n");
-                REprintf("s_length is %d. \n", s_length);
-                REprintf("vi ndim is %d. \n", (*vi)->ndim);
                 return -1;
             }
             // check if the start value is out of range.
@@ -288,7 +286,7 @@ int schedule_read (ADIOS_FILE * fp,
         // if the count is not specified, read all values
         if(timed) {
             icount[0] = (*vi)->nsteps - istart[0];
-            for (i=0; i<vi->ndim; i++)
+            for (i=0; i<(*vi)->ndim; i++)
                 icount[i+1] = (*vi)->dims[i+1] - istart[i+1];
         }else {
             for (i=0; i<(*vi)->ndim; i++)
@@ -339,8 +337,6 @@ int schedule_read (ADIOS_FILE * fp,
         return -1;
     }
 
-    REprintf("IN number of steps: %d", (*vi)->nsteps);
-
     return nelems;
 } 
 
@@ -388,7 +384,6 @@ SEXP copy_read (SEXP R_adios_var_info,
         case adios_long:        
         case adios_real:
         case adios_double:
-            REprintf("I'm here \n");
             out = PROTECT(allocVector(REALSXP, nelems));
             while (item < nelems) {
                 REAL(out)[pos++] = ((double *)data)[item++];
@@ -396,12 +391,9 @@ SEXP copy_read (SEXP R_adios_var_info,
             break;
            
         default:
-            REprintf("command not executed \n");
             break;
     }
     UNPROTECT(1);
-
-    REprintf("Before perform read 8th data is, %f \n", REAL(out)[8]);
 
     return out;
 }

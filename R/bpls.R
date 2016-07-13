@@ -81,16 +81,21 @@ bp.read <- function(adios.filename,
         }else {
             count = rep(-2, nvars)
         }
+
+        start = as.list(start)
+        count = as.list(count)
+
     }else {
         if(is.null(start))
-            start = -1;
+            start = -1
         if(is.null(count))
             count = -2
+
+        start = list(start)
+        count = list(count)
     }
 
     # convert start and count to integer list
-    start = as.list(start)
-    count = as.list(count)
     for (i in 1:nvars){
         start[[i]] = as.integer(start[[i]])
         count[[i]] = as.integer(count[[i]])

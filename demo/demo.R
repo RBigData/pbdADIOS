@@ -40,5 +40,23 @@ bp.read("heat.bp", "T", c(0, 0, 0), c(1, 1, 1))
 # read only 1st data from the first two steps
 bp.read("heat.bp", "T", c(0, 0, 0), c(2, 1, 1))
 
+#read multiple variables or multiple ranges
+bp.read("attributes.bp", list("NX", "temperature", "temperature"))
+
+bp.read("attributes.bp", 
+	list("temperature", "temperature"),
+	list(c(0,1), c(0, 9)))
+
+bp.read("attributes.bp", 
+	list("temperature", "temperature"),
+	list(c(0,1), c(0, 9)),
+	list(c(1,1), c(1,1)))
+
+bp.read("attributes.bp", 
+	list("temperature", "temperature"),
+	list(c(0,1), c(0, 9)),
+	list(c(1,1)))
+
+
 finalize() # pbdMPI final
 

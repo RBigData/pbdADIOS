@@ -103,7 +103,7 @@ SEXP R_read(SEXP R_adios_path,
                                    R_data);
 
             SET_VECTOR_ELT(R_vec, i, R_temp_var);
-            SET_STRING_ELT(list_names, i, VECTOR_ELT(R_varname,i));
+            SET_STRING_ELT(list_names, i, asChar(VECTOR_ELT(R_varname,i)));
 
             UNPROTECT(2);
             // free memory
@@ -183,6 +183,7 @@ int schedule_read (ADIOS_FILE * fp,
     if(start[0] != -1) {
         // If the var is scalar, you don't need to specify start and count.
         if((*vi)->ndim == 0) {
+
             if(timed) {
                 if(s_length != 1) {
                     REprintf("Error: wrong start dims. \n");
@@ -194,7 +195,7 @@ int schedule_read (ADIOS_FILE * fp,
                     return -1;
                 }
 
-                istart[0] = start[0]
+                istart[0] = start[0];
 
             }else {
                 if(s_length != 1) {
@@ -207,51 +208,52 @@ int schedule_read (ADIOS_FILE * fp,
                     return -1;
                 }
 
-                istart[0] = start[0]
+                istart[0] = start[0];
             }
-        }
+        }else {
 
-        if(timed) {
-            // check if the length of start matches ndim
-            if((*vi)->ndim != (s_length - 1)) {
-                REprintf("Error: wrong start dims. \n");
-                return -1;
-            }
-            // check if the step value is out of range.
-            if((start[0] < 0) || (start[0] >= (*vi)->nsteps)) {
-                REprintf("Error: start %d out of bound. \n", start[0]);
-                return -1;
-            }
-            // check if the start value is out of range.
-            for(i = 0; i < (*vi)->ndim; i++) {
-                if((start[i+1] < 0) || (start[i+1] >= (*vi)->dims[i])) {
-                    REprintf("Error: start %d out of bound. \n", start[i+1]);
+            if(timed) {
+                // check if the length of start matches ndim
+                if((*vi)->ndim != (s_length - 1)) {
+                    REprintf("Error: wrong start dims. \n");
                     return -1;
                 }
-            }
-
-            // assign start to istart
-            for (i=0; i<(*vi)->ndim+1; i++) {
-                istart[i] = start[i];
-            }
-
-        } else {
-             // check if the length of start matches ndim
-            if((*vi)->ndim != s_length) {
-                REprintf("Error: wrong start dims. \n");
-                return -1;
-            }
-            // check if the start value is out of range.
-            for(i = 0; i < (*vi)->ndim; i++) {
-                if((start[i] < 0) || (start[i] >= (*vi)->dims[i])) {
-                    REprintf("Error: start %d out of bound. \n", start[i]);
+                // check if the step value is out of range.
+                if((start[0] < 0) || (start[0] >= (*vi)->nsteps)) {
+                    REprintf("Error: start %d out of bound. \n", start[0]);
                     return -1;
                 }
-            }
+                // check if the start value is out of range.
+                for(i = 0; i < (*vi)->ndim; i++) {
+                    if((start[i+1] < 0) || (start[i+1] >= (*vi)->dims[i])) {
+                        REprintf("Error: start %d out of bound. \n", start[i+1]);
+                        return -1;
+                    }
+                }
 
-            // assign start to istart
-            for (i=0; i<(*vi)->ndim; i++) {
-                istart[i] = start[i];
+                // assign start to istart
+                for (i=0; i<(*vi)->ndim+1; i++) {
+                    istart[i] = start[i];
+                }
+
+            } else {
+                 // check if the length of start matches ndim
+                if((*vi)->ndim != s_length) {
+                    REprintf("Error: wrong start dims. \n");
+                    return -1;
+                }
+                // check if the start value is out of range.
+                for(i = 0; i < (*vi)->ndim; i++) {
+                    if((start[i] < 0) || (start[i] >= (*vi)->dims[i])) {
+                        REprintf("Error: start %d out of bound. \n", start[i]);
+                        return -1;
+                    }
+                }
+
+                // assign start to istart
+                for (i=0; i<(*vi)->ndim; i++) {
+                    istart[i] = start[i];
+                }
             }
         }
     }
@@ -270,7 +272,7 @@ int schedule_read (ADIOS_FILE * fp,
                     return -1;
                 }
 
-                icount[0] = count[0]
+                icount[0] = count[0];
 
             }else {
                 if(c_length != 1) {
@@ -283,51 +285,51 @@ int schedule_read (ADIOS_FILE * fp,
                     return -1;
                 }
 
-                icount[0] = count[0]
+                icount[0] = count[0];
             }
-        }
-        
-        if(timed) {
-            // check if the length of count matches ndim
-            if((*vi)->ndim != (c_length - 1)) {
-                REprintf("Error: wrong count dims. \n");
-                return -1;
-            }
-            // check if the step value is out of range.
-            if((istart[0] + count[0]) > (*vi)->nsteps) {
-                REprintf("Error: count %d out of bound. \n", count[0]);
-                return -1;
-            }
-            // check if the count value is out of range.
-            for(i = 0; i < (*vi)->ndim; i++) {
-                if((istart[i+1] + count[i+1]) > (*vi)->dims[i]) {
-                    REprintf("Error: count %d out of bound. \n", count[i+1]);
+        }else {
+            if(timed) {
+                // check if the length of count matches ndim
+                if((*vi)->ndim != (c_length - 1)) {
+                    REprintf("Error: wrong count dims. \n");
                     return -1;
                 }
-            }
-
-            // assign count to icount
-            for (i=0; i<(*vi)->ndim+1; i++) {
-                icount[i] = count[i];
-            }
-
-        } else {
-             // check if the length of count matches ndim
-            if((*vi)->ndim != c_length) {
-                REprintf("Error: wrong count dims. \n");
-                return -1;
-            }
-            // check if the count value is out of range.
-            for(i = 0; i < (*vi)->ndim; i++) {
-                if((istart[i] + count[i]) > (*vi)->dims[i]) {
-                    REprintf("Error: count %d out of bound. \n", count[i]);
+                // check if the step value is out of range.
+                if((istart[0] + count[0]) > (*vi)->nsteps) {
+                    REprintf("Error: count %d out of bound. \n", count[0]);
                     return -1;
                 }
-            }
+                // check if the count value is out of range.
+                for(i = 0; i < (*vi)->ndim; i++) {
+                    if((istart[i+1] + count[i+1]) > (*vi)->dims[i]) {
+                        REprintf("Error: count %d out of bound. \n", count[i+1]);
+                        return -1;
+                    }
+                }
 
-            // assign count to icount
-            for (i=0; i<(*vi)->ndim; i++) {
-                icount[i] = count[i];
+                // assign count to icount
+                for (i=0; i<(*vi)->ndim+1; i++) {
+                    icount[i] = count[i];
+                }
+
+            } else {
+                 // check if the length of count matches ndim
+                if((*vi)->ndim != c_length) {
+                    REprintf("Error: wrong count dims. \n");
+                    return -1;
+                }
+                // check if the count value is out of range.
+                for(i = 0; i < (*vi)->ndim; i++) {
+                    if((istart[i] + count[i]) > (*vi)->dims[i]) {
+                        REprintf("Error: count %d out of bound. \n", count[i]);
+                        return -1;
+                    }
+                }
+
+                // assign count to icount
+                for (i=0; i<(*vi)->ndim; i++) {
+                    icount[i] = count[i];
+                }
             }
         }
     }else {

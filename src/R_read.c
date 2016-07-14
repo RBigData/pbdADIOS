@@ -39,7 +39,7 @@ SEXP R_read(SEXP R_adios_path,
     int nvars = asInteger(R_nvars);   //number of variables to read
     int i;
     SEXP R_vec = PROTECT(allocVector(VECSXP, nvars));
-    //SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
+    SEXP list_names = PROTECT(allocVector(STRSXP, nvars));
     void *data_vec[nvars];   // store data pointers
     ADIOS_SELECTION *sel_vec[nvars];  // store selection pointers
     ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
@@ -103,7 +103,7 @@ SEXP R_read(SEXP R_adios_path,
                                    R_data);
 
             SET_VECTOR_ELT(R_vec, i, R_temp_var);
-            //SET_STRING_ELT(list_names, i,  mkChar(fp->var_namelist[i]));
+            SET_STRING_ELT(list_names, i, VECTOR_ELT(R_varname,i));
 
             UNPROTECT(2);
             // free memory
@@ -115,10 +115,10 @@ SEXP R_read(SEXP R_adios_path,
     }
     
     // set list attributes
-    //setAttrib(R_vec, R_NamesSymbol, list_names);
+    setAttrib(R_vec, R_NamesSymbol, list_names);
     
     // free memory
-    UNPROTECT(1);
+    UNPROTECT(2);
     adios_read_close (fp);
     adios_read_finalize_method(ADIOS_READ_METHOD_BP);
 
@@ -183,8 +183,32 @@ int schedule_read (ADIOS_FILE * fp,
     if(start[0] != -1) {
         // If the var is scalar, you don't need to specify start and count.
         if((*vi)->ndim == 0) {
-            REprintf("The variable is scalar. You don't need to specify start and count.\n");
-            return -1;
+            if(timed) {
+                if(s_length != 1) {
+                    REprintf("Error: wrong start dims. \n");
+                    return -1;
+                }
+
+                if((start[0] < 0) || (start[0] >= (*vi)->nsteps)) {
+                    REprintf("Error: start %d out of bound. \n", start[0]);
+                    return -1;
+                }
+
+                istart[0] = start[0]
+
+            }else {
+                if(s_length != 1) {
+                    REprintf("Error: wrong start dims. \n");
+                    return -1;
+                }
+
+                if(start[0] != 0) {
+                    REprintf("Error: start %d out of bound. \n", start[0]);
+                    return -1;
+                }
+
+                istart[0] = start[0]
+            }
         }
 
         if(timed) {
@@ -235,8 +259,32 @@ int schedule_read (ADIOS_FILE * fp,
     if(count[0] != -2) {
         // If the var is scalar, you don't need to specify start and count.
         if((*vi)->ndim == 0) {
-            REprintf("The variable is scalar. You don't need to specify start and count.\n");
-            return -1;
+            if(timed) {
+                if(c_length != 1) {
+                    REprintf("Error: wrong start dims. \n");
+                    return -1;
+                }
+
+                if((istart[0] + count[0]) > (*vi)->nsteps) {
+                    REprintf("Error: count %d out of bound. \n", count[0]);
+                    return -1;
+                }
+
+                icount[0] = count[0]
+
+            }else {
+                if(c_length != 1) {
+                    REprintf("Error: wrong start dims. \n");
+                    return -1;
+                }
+
+                if(count[0] != 1) {
+                    REprintf("Error: start %d out of bound. \n", count[0]);
+                    return -1;
+                }
+
+                icount[0] = count[0]
+            }
         }
         
         if(timed) {

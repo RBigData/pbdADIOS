@@ -9,3 +9,4 @@ src/*_v*.c
 pbdADIOS.Rproj
 .Rbuildignore
 autom4te.cache
+note.txt

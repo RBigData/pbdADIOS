@@ -58,60 +58,58 @@ SEXP R_read(SEXP R_adios_path,
     }
 
     // schedule read
-    if(!rank) {
 
-        for(i=0; i<nvars; i++) {
-            nelems_vec[i] = schedule_read (fp, 
-                                           CHAR(asChar(VECTOR_ELT(R_varname,i))),
-                                           INTEGER(VECTOR_ELT(R_start, i)), 
-                                           length(VECTOR_ELT(R_start, i)),
-                                           INTEGER(VECTOR_ELT(R_count, i)),
-                                           length(VECTOR_ELT(R_count, i)),
-                                           &data_vec[i],
-                                           &sel_vec[i],
-                                           &vi_vec[i]);
+    for(i=0; i<nvars; i++) {
+        nelems_vec[i] = schedule_read (fp, 
+                                       CHAR(asChar(VECTOR_ELT(R_varname,i))),
+                                       INTEGER(VECTOR_ELT(R_start, i)), 
+                                       length(VECTOR_ELT(R_start, i)),
+                                       INTEGER(VECTOR_ELT(R_count, i)),
+                                       length(VECTOR_ELT(R_count, i)),
+                                       &data_vec[i],
+                                       &sel_vec[i],
+                                       &vi_vec[i]);
 
-            if(nelems_vec[i] < 0){
-                return R_NilValue;
-            }
-        }
-
-        // perform read
-        status = adios_perform_reads (fp, 1); // blocking read performed here
-        if (status < 0) {
-            REprintf("Error when reading variable. errno=%d : %s \n", adios_errno, adios_errmsg());
-
-            for(i=0; i<nvars; i++) {
-                adios_free_varinfo(vi_vec[i]);
-                Free(sel_vec[i]);
-                Free(data_vec[i]);
-            }
+        if(nelems_vec[i] < 0){
             return R_NilValue;
         }
-        
-        // Copy data into R memory
+    }
+
+    // perform read
+    status = adios_perform_reads (fp, 1); // blocking read performed here
+    if (status < 0) {
+        REprintf("Error when reading variable. errno=%d : %s \n", adios_errno, adios_errmsg());
+
         for(i=0; i<nvars; i++) {
-            SEXP R_temp_var;
-            SEXP R_vi;
-            SEXP R_data;
-
-            newRptr(vi_vec[i], R_vi, finalizer0);
-            newRptr(data_vec[i], R_data, finalizer0);
-
-            R_temp_var = copy_read(R_vi, 
-                                   ScalarInteger(nelems_vec[i]),
-                                   R_data);
-
-            SET_VECTOR_ELT(R_vec, i, R_temp_var);
-            SET_STRING_ELT(list_names, i, asChar(VECTOR_ELT(R_varname,i)));
-
-            UNPROTECT(2);
-            // free memory
             adios_free_varinfo(vi_vec[i]);
             Free(sel_vec[i]);
             Free(data_vec[i]);
-
         }
+        return R_NilValue;
+    }
+    
+    // Copy data into R memory
+    for(i=0; i<nvars; i++) {
+        SEXP R_temp_var;
+        SEXP R_vi;
+        SEXP R_data;
+
+        newRptr(vi_vec[i], R_vi, finalizer0);
+        newRptr(data_vec[i], R_data, finalizer0);
+
+        R_temp_var = copy_read(R_vi, 
+                               ScalarInteger(nelems_vec[i]),
+                               R_data);
+
+        SET_VECTOR_ELT(R_vec, i, R_temp_var);
+        SET_STRING_ELT(list_names, i, asChar(VECTOR_ELT(R_varname,i)));
+
+        UNPROTECT(2);
+        // free memory
+        adios_free_varinfo(vi_vec[i]);
+        Free(sel_vec[i]);
+        Free(data_vec[i]);
+
     }
     
     // set list attributes

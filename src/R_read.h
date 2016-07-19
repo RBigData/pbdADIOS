@@ -10,8 +10,8 @@ int schedule_read (ADIOS_FILE * fp,
                   void ** data,
                   ADIOS_SELECTION ** sel,
                   ADIOS_VARINFO ** vi,
-                  int p,   //number of ranks
-                  int rank);
+                  uint64_t p,   //number of ranks
+                  uint64_t rank);
 
 SEXP copy_read (SEXP R_adios_var_info, 
                 SEXP R_nelems, 

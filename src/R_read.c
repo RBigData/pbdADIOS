@@ -36,8 +36,8 @@ SEXP R_read(SEXP R_adios_path,
     int status;
     const char *path = CHARPT(R_adios_path, 0);
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
-    int rank = asInteger(R_adios_rank);
-    int p = asInteger(R_p);
+    uint64_t rank = (uint64_t) asInteger(R_adios_rank);
+    uint64_t p = (uint64_t) asInteger(R_p);
     int nvars = asInteger(R_nvars);   //number of variables to read
     int i;
     SEXP R_vec = PROTECT(allocVector(VECSXP, nvars));
@@ -139,8 +139,8 @@ int schedule_read (ADIOS_FILE * fp,
                   void ** data,
                   ADIOS_SELECTION ** sel,
                   ADIOS_VARINFO ** vi,
-                  int p,   //number of ranks
-                  int rank)
+                  uint64_t p,   //number of ranks
+                  uint64_t rank)
 {
     int     i, j, n;             // loop vars
     int     retval;
@@ -371,12 +371,11 @@ int schedule_read (ADIOS_FILE * fp,
     }
 
     // the load each process should handle
-    ps = (uint64_t)p;
-    base = N / ps;
+    base = N / p;
     // assume each process can handle 1 numbers
     if(base > 3) {
         load = base;
-        rem = N % ps;
+        rem = N % p;
 
         if(rank < rem) {
             chunk = load + 1; 
@@ -394,7 +393,7 @@ int schedule_read (ADIOS_FILE * fp,
     }else {
         load = 3;
         ps = N / load;
-        rem = N % ps;
+        rem = N % p;
 
         if(rank < rem) {
             chunk = load + 1; 
@@ -402,7 +401,7 @@ int schedule_read (ADIOS_FILE * fp,
 
             istart[pos] += begin;
             icount[pos] = chunk;
-        }else if(rank < ps) {
+        }else if(rank < p) {
             chunk = load;
             begin = rem * (chunk+1) + (rank-rem) * chunk;
 

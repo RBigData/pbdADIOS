@@ -361,7 +361,7 @@ int schedule_read (ADIOS_FILE * fp,
     // get local istart and icount values
     uint64_t N = icount[tidx];   // total number to read in the largest dim
     uint64_t pos = 0;   // the largest dim index
-    uint64_t load, base, rem, chunk, begin, p;
+    uint64_t load, base, rem, chunk, begin;
 
     for (j=1; j<(*vi)->ndim; j++) {
         if(N < icount[j+tidx]) {

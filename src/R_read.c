@@ -29,6 +29,7 @@ SEXP R_read(SEXP R_adios_path,
             SEXP R_count,
             SEXP R_nvars,
             SEXP R_comm,
+            SEXP R_p,
             SEXP R_adios_rank)
 {
     ADIOS_FILE  *fp;
@@ -36,6 +37,7 @@ SEXP R_read(SEXP R_adios_path,
     const char *path = CHARPT(R_adios_path, 0);
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
+    int p = asInteger(R_p);
     int nvars = asInteger(R_nvars);   //number of variables to read
     int i;
     SEXP R_vec = PROTECT(allocVector(VECSXP, nvars));
@@ -68,7 +70,9 @@ SEXP R_read(SEXP R_adios_path,
                                        length(VECTOR_ELT(R_count, i)),
                                        &data_vec[i],
                                        &sel_vec[i],
-                                       &vi_vec[i]);
+                                       &vi_vec[i],
+                                       p,
+                                       rank);
 
         if(nelems_vec[i] < 0){
             return R_NilValue;
@@ -134,7 +138,9 @@ int schedule_read (ADIOS_FILE * fp,
                   int c_length,
                   void ** data,
                   ADIOS_SELECTION ** sel,
-                  ADIOS_VARINFO ** vi)
+                  ADIOS_VARINFO ** vi,
+                  int p,   //number of ranks
+                  int rank)
 {
     int     i, j, n;             // loop vars
     int     retval;
@@ -176,6 +182,10 @@ int schedule_read (ADIOS_FILE * fp,
     }
 
     timed = ((*vi)->nsteps > 1);
+    tidx = 0;
+    if (timed) {
+        tidx = 1;
+    }
 
     // Check start and count. If they are not null, use them.
     if(start[0] != -1) {
@@ -348,12 +358,68 @@ int schedule_read (ADIOS_FILE * fp,
         return -1;
     }
 
+    // get local istart and icount values
+    uint64_t N = icount[tidx];   // total number to read in the largest dim
+    uint64_t pos = 0;   // the largest dim index
+    uint64_t load, base, rem, chunk, begin;
+
+    for (j=1; j<(*vi)->ndim; j++) {
+        if(N < icount[j+tidx]) {
+            N = icount[j+tidx];
+            pos = j+tidx;
+        }
+    }
+
+    // the load each process should handle
+    base = N / p;
+    // assume each process can handle 1 numbers
+    if(base > 3) {
+        load = base;
+        rem = N % p;
+
+        if(rank < rem) {
+            chunk = load + 1; 
+            begin = rank * chunk;
+
+            istart[pos] += begin;
+            icount[pos] = chunk;
+        }else {
+            chunk = load;
+            begin = rem * (chunk+1) + (rank-rem) * chunk;
+
+            istart[pos] += begin;
+            icount[pos] = chunk;
+        }
+    }else {
+        load = 3;
+        p = N / load;
+        rem = N % p;
+
+        if(rank < rem) {
+            chunk = load + 1; 
+            begin = rank * chunk;
+
+            istart[pos] += begin;
+            icount[pos] = chunk;
+        }else if(rank < p) {
+            chunk = load;
+            begin = rem * (chunk+1) + (rank-rem) * chunk;
+
+            istart[pos] += begin;
+            icount[pos] = chunk;
+        }else {
+            // do nothing, set icount to 0
+            icount[tidx] = 0;
+            for (j=0; j<(*vi)->ndim; j++) {
+                icount[j+tidx] = 0;
+            }
+        }
+    }
+    
     // count the total number of elements
     nelems = 1;
-    tidx = 0;
     if (timed) {
         nelems *= icount[0];
-        tidx = 1;
     }
 
     for (j=0; j<(*vi)->ndim; j++) {

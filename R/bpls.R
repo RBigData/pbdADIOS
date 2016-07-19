@@ -50,7 +50,7 @@ bp.read <- function(adios.filename,
                     start = NULL,
                     count = NULL,
                     comm = .pbd_env$SPMD.CT$comm,
-                    p = comm.rank(.pbd_env$SPMD.CT$comm),
+                    p = comm.size(.pbd_env$SPMD.CT$comm),
                     adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 { 
     # check if varnmae is null

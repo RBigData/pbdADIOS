@@ -360,7 +360,7 @@ int schedule_read (ADIOS_FILE * fp,
 
     // get local istart and icount values
     uint64_t N = icount[tidx];   // total number to read in the largest dim
-    uint64_t pos = 0;   // the largest dim index
+    uint64_t pos = tidx;   // the largest dim index
     uint64_t load, base, rem, chunk, begin;
 
     for (j=1; j<(*vi)->ndim; j++) {
@@ -370,18 +370,12 @@ int schedule_read (ADIOS_FILE * fp,
         }
     }
 
-    REprintf("OK 1 \n");
     // the load each process should handle
-    int temp = 4;
-    REprintf("test %d \n", N+4);
-
     base = N / p;
-    REprintf("OK 2 \n");
     // assume each process can handle 1 numbers
     if(base > 3) {
         load = base;
         rem = N % p;
-        REprintf("OK 3 \n");
 
         if(rank < rem) {
             chunk = load + 1; 
@@ -399,25 +393,36 @@ int schedule_read (ADIOS_FILE * fp,
     }else {
         load = 3;
         p = N / load;
-        rem = N % p;
-
-        if(rank < rem) {
-            chunk = load + 1; 
-            begin = rank * chunk;
-
-            istart[pos] += begin;
-            icount[pos] = chunk;
-        }else if(rank < p) {
-            chunk = load;
-            begin = rem * (chunk+1) + (rank-rem) * chunk;
-
-            istart[pos] += begin;
-            icount[pos] = chunk;
+        if(p == 0) {
+            // the load is small, one process is enough.
+            if(rank != 0) {
+                // do nothing, set icount to 0
+                icount[tidx] = 0;
+                for (j=0; j<(*vi)->ndim; j++) {
+                    icount[j+tidx] = 0;
+                }
+            }
         }else {
-            // do nothing, set icount to 0
-            icount[tidx] = 0;
-            for (j=0; j<(*vi)->ndim; j++) {
-                icount[j+tidx] = 0;
+            rem = N % p;
+
+            if(rank < rem) {
+                chunk = load + 1; 
+                begin = rank * chunk;
+
+                istart[pos] += begin;
+                icount[pos] = chunk;
+            }else if(rank < p) {
+                chunk = load;
+                begin = rem * (chunk+1) + (rank-rem) * chunk;
+
+                istart[pos] += begin;
+                icount[pos] = chunk;
+            }else {
+                // do nothing, set icount to 0
+                icount[tidx] = 0;
+                for (j=0; j<(*vi)->ndim; j++) {
+                    icount[j+tidx] = 0;
+                }
             }
         }
     }

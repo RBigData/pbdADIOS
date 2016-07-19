@@ -370,12 +370,15 @@ int schedule_read (ADIOS_FILE * fp,
         }
     }
 
+    REprintf("OK 1 \n");
     // the load each process should handle
     base = N / p;
+    REprintf("OK 2 \n");
     // assume each process can handle 1 numbers
     if(base > 3) {
         load = base;
         rem = N % p;
+        REprintf("OK 3 \n");
 
         if(rank < rem) {
             chunk = load + 1; 

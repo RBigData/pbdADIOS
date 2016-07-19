@@ -361,7 +361,7 @@ int schedule_read (ADIOS_FILE * fp,
     // get local istart and icount values
     uint64_t N = icount[tidx];   // total number to read in the largest dim
     uint64_t pos = 0;   // the largest dim index
-    uint64_t load, base, rem, chunk, begin;
+    uint64_t load, base, rem, chunk, begin, ps;
 
     for (j=1; j<(*vi)->ndim; j++) {
         if(N < icount[j+tidx]) {
@@ -371,11 +371,12 @@ int schedule_read (ADIOS_FILE * fp,
     }
 
     // the load each process should handle
-    base = N / p;
+    ps = (uint64_t)p;
+    base = N / ps;
     // assume each process can handle 1 numbers
     if(base > 3) {
         load = base;
-        rem = N % p;
+        rem = N % ps;
 
         if(rank < rem) {
             chunk = load + 1; 
@@ -392,8 +393,8 @@ int schedule_read (ADIOS_FILE * fp,
         }
     }else {
         load = 3;
-        p = N / load;
-        rem = N % p;
+        ps = N / load;
+        rem = N % ps;
 
         if(rank < rem) {
             chunk = load + 1; 
@@ -401,7 +402,7 @@ int schedule_read (ADIOS_FILE * fp,
 
             istart[pos] += begin;
             icount[pos] = chunk;
-        }else if(rank < p) {
+        }else if(rank < ps) {
             chunk = load;
             begin = rem * (chunk+1) + (rank-rem) * chunk;
 

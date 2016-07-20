@@ -113,3 +113,25 @@ bp.read <- function(adios.filename,
           as.integer(adios.rank))
 }
 
+
+# bp.create  assign related variables to global environment
+
+# bp.var assign related variables to global environment
+
+# bp.append  (write the next timestep)
+# consider attributes later, also append
+
+# bp.write   
+
+# bp.flush  clear global environment
+
+
+
+
+
+
+
+
+
+
+

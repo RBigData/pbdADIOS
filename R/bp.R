@@ -136,10 +136,10 @@ bp.create <- function(adios.filename,
     var_list <<- list()
     varlength_list <<- c()
 
-    adios.group <<- .Call("R_create", 
-                          as.character(adios.groupname), 
-                          as.integer(buffer.size),
-                          comm.c2f(comm))
+    adios.group <<- as.numeric(.Call("R_create", 
+                                     as.character(adios.groupname), 
+                                     as.integer(buffer.size),
+                                     comm.c2f(comm)))
 
     invisible()
 }
@@ -153,8 +153,8 @@ bp.create <- function(adios.filename,
 bp.var <- function(adios.varname, data)
 {
     nvars <<- nvars + 1
-    varname_list[nvars] <<- as.character(adios.varname)
-    var_list[nvars] <<- data
+    varname_list[[nvars]] <<- as.character(adios.varname)
+    var_list[[nvars]] <<- as.numeric(data)
     varlength_list[nvars] <<- length(data)
 
     invisible()
@@ -171,7 +171,7 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
                      p = comm.size(.pbd_env$SPMD.CT$comm),
                      adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 {
-    .Call("R_create", 
+    .Call("R_write", 
           as.character(adios.filename),
           adios.group,
           as.character(adios.groupname),

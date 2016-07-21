@@ -157,6 +157,10 @@ SEXP R_write(SEXP R_filename,
             adios_write(m_adios_file, var3, (void *) &Offsets);
 
             adios_write(m_adios_file, varname, data);
+
+            Free(var1);
+            Free(var2);
+            Free(var3);
         }
        
     }

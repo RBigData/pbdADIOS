@@ -48,6 +48,26 @@ SEXP R_create(SEXP R_groupname,
 }
 
 /**
+ * Define attributes in the bp file
+ */
+SEXP R_define_attr(SEXP R_group,
+                   SEXP R_attrname,
+                   SEXP R_nelems,
+                   SEXP R_values)
+{
+    int64_t m_adios_group = (int64_t)(REAL(R_group)[0]);
+    const char *attrname = CHARPT(R_attrname, 0); 
+    int nelems = asInteger(R_nelems);
+    const char **values = CHARPT(R_values, 0);
+
+    adios_define_attribute_byvalue(m_adios_group,
+                                   attrname, "",
+                                   adios_string_array,
+                                   nelems,
+                                   values);
+}
+
+/**
  * Define variables and write data
  */
 SEXP R_write(SEXP R_filename,

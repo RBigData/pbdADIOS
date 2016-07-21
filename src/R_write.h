@@ -5,6 +5,11 @@ SEXP R_create(SEXP R_groupname,
               SEXP R_buffersize,
               SEXP R_comm);
 
+SEXP R_define_attr(SEXP R_group,
+                   SEXP R_attrname,
+                   SEXP R_nelems,
+                   SEXP R_values);
+
 SEXP R_write(SEXP R_filename,
              SEXP R_group,
              SEXP R_groupname,

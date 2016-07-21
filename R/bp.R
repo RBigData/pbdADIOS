@@ -160,6 +160,21 @@ bp.var <- function(adios.varname, data)
     invisible()
 }
 
+#' @title define attributes
+#' 
+#' @param adios.attrname
+#' @param data
+#'
+#' @export
+bp.attr <- function(adios.attrname, data)
+{
+    .Call("R_define_attr",
+          adios.group,
+          as.character(adios.attrname),
+          as.integer(length(data)),
+          data)
+}
+
 #' @title write variables to bp file
 #' 
 #' @param comm
@@ -189,7 +204,6 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
     invisible()
 }
 
-# bp.var assign related variables to global environment
 
 # bp.append  (write the next timestep)
 # consider attributes later, also append

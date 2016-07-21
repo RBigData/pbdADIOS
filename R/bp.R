@@ -113,15 +113,86 @@ bp.read <- function(adios.filename,
           as.integer(adios.rank))
 }
 
+#' @title create adios group and store file name
+#' 
+#' @param adios.filename
+#' @param adios.groupname
+#' @param comm
+#'
+#' @return group pointer. 
+#'
+#' @export
+bp.create <- function(adios.filename,
+                      adios.groupname = "bp.group",
+                      buffer.size = 20,
+                      comm = .pbd_env$SPMD.CT$comm)
+{
+    # Assign related variables to global environment
+    adios.filename <<- adios.filename
+    adios.groupname <<- adios.groupname
 
-# bp.create  assign related variables to global environment
+    nvars <<- 0
+    varname_list <<- list()
+    var_list <<- list()
+    varlength_list <<- c()
+
+    adios.group <<- .Call("R_create", 
+                          as.character(adios.groupname), 
+                          as.integer(buffer.size),
+                          comm.c2f(comm))
+
+    invisible()
+}
+
+#' @title register variable names and values
+#' 
+#' @param adios.varname
+#' @param data
+#'
+#' @export
+bp.var <- function(adios.varname, data)
+{
+    nvars <<- nvars + 1
+    varname_list[nvars] <<- as.character(adios.varname)
+    var_list[nvars] <<- data
+    varlength_list[nvars] <<- length(data)
+
+    invisible()
+}
+
+#' @title write variables to bp file
+#' 
+#' @param comm
+#' @param p
+#' @param adios.rank
+#'
+#' @export
+bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
+                     p = comm.size(.pbd_env$SPMD.CT$comm),
+                     adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
+{
+    .Call("R_create", 
+          as.character(adios.filename),
+          adios.group,
+          as.character(adios.groupname),
+          as.integer(nvars),
+          varname_list,
+          var_list,
+          varlength_list,
+          comm.c2f(comm),
+          as.integer(p),
+          as.integer(adios.rank))
+
+    # Clear global environment
+    rm(list = ls(pos = ".GlobalEnv"), pos = ".GlobalEnv")
+
+    invisible()
+}
 
 # bp.var assign related variables to global environment
 
 # bp.append  (write the next timestep)
 # consider attributes later, also append
-
-# bp.write   
 
 # bp.flush  clear global environment
 

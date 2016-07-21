@@ -6,8 +6,6 @@
  *  Higher level implementation of ADIOS write API
  */ 
 
-// bp.write need to check length, if length = 0, then it's scalar
-
 /** 
  *  Finalizer that only clears R pointer
  */
@@ -25,26 +23,20 @@ static void finalizer0(SEXP Rptr)
  * ADIOS init and create group etc.
  * Return: pointer to the ADIOS group structure
  */
-SEXP R_create(SEXP R_filename,
-              SEXP R_groupname,
+SEXP R_create(SEXP R_groupname,
               SEXP R_buffersize,
-              SEXP R_comm,
-              SEXP R_size,
-              SEXP R_adios_rank)
+              SEXP R_comm)
 {
-    const char *filename = CHARPT(R_filename, 0);
     const char *groupname = CHARPT(R_groupname, 0);
     int buffer = asInteger(R_buffersize);
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
-    int size = asInteger(R_size);
-    int rank = asInteger(R_adios_rank);
 
     int64_t m_adios_group;
     
     adios_init_noxml (comm);
     adios_set_max_buffer_size (buffer); // Default buffer size for write is 20. User can change this value
 
-    adios_declare_group (&m_adios_group, "restart", "", adios_flag_yes);
+    adios_declare_group (&m_adios_group, groupname, "", adios_flag_yes);
     adios_select_method (m_adios_group, "MPI", "", ""); // Default method is MPI. Let users choose different methods later.
 
     // Pass group pointer to R
@@ -54,7 +46,6 @@ SEXP R_create(SEXP R_filename,
 
     return R_group;
 }
-
 
 /**
  * Define variables and write data
@@ -78,24 +69,19 @@ SEXP R_write(SEXP R_filename,
     int size = asInteger(R_size);
     int rank = asInteger(R_adios_rank);
     
-    
-    INTEGER(VECTOR_ELT(R_start, i)), 
-    length(VECTOR_ELT(R_start, i)),
-    INTEGER(VECTOR_ELT(R_count, i)),
-    length(VECTOR_ELT(R_count, i)),
-
     int i;
     int Global_bounds, Offsets; 
     uint64_t adios_groupsize, adios_totalsize;
-    
+    int64_t m_adios_file;
+
     // Define variables
     for(i = 0; i < nvars; i++) {
-        const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i))),
+        const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
         int length = INTEGER(R_varlength_list)[i];
 
         if(length == 1){
             // scalar
-            adios_define_var (m_adios_group, "NX", "", adios_integer, 0, 0, 0);
+            adios_define_var (m_adios_group, varname, "", adios_double, 0, 0, 0);
         }else {
             // define dimensions, global_dimensions, local_offsets and the variable
             adios_define_var (m_adios_group, strcat(varname, "_NX"),
@@ -114,6 +100,7 @@ SEXP R_write(SEXP R_filename,
         }
     }
 
+    // Open ADIOS
     adios_open (&m_adios_file, groupname, filename, "w", comm);
 
     adios_groupsize = 0;
@@ -130,43 +117,27 @@ SEXP R_write(SEXP R_filename,
 
     // Write data into variables
     for(i = 0; i < nvars; i++) {
-        const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i))),
+        const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
         int length = INTEGER(R_varlength_list)[i];
+        double *data = REAL(VECTOR_ELT(R_var_list, i));
 
         if(length == 1){
             // scalar
-            adios_define_var (m_adios_group, "NX", "", adios_integer, 0, 0, 0);
+            adios_write(m_adios_file, varname, (void *) data);
+
         }else {
-            // define dimensions, global_dimensions, local_offsets and the variable
-            adios_define_var (m_adios_group, strcat(varname, "_NX"),
-                              "", adios_integer, 0, 0, 0);
+            // var
+            Global_bounds = length * size;
 
-            adios_define_var (m_adios_group, strcat(varname, "_Global_bounds"),
-                              "", adios_integer, 0, 0, 0);
+            adios_write(m_adios_file, strcat(varname, "_NX"), (void *) &length);
+            adios_write(m_adios_file, strcat(varname, "_Global_bounds"), (void *) &Global_bounds);
 
-            adios_define_var (m_adios_group, strcat(varname, "_Offsets"),
-                              "", adios_integer, 0, 0, 0);
+            Offsets = rank * length;
+            adios_write(m_adios_file, strcat(varname, "_Offsets"), (void *) &Offsets);
 
-            adios_define_var (m_adios_group, varname, "", adios_double, 
-                              strcat(varname, "_NX"), 
-                              strcat(varname, "_Global_bounds"), 
-                              strcat(varname, "_Offsets"));
+            adios_write(m_adios_file, varname, data);
         }
-
-        
-
-        int Global_bounds = NX * size;
-
-        adios_write(m_adios_file, "NX", (void *) &NX);
-        adios_write(m_adios_file, "Global_bounds", (void *) &Global_bounds);
-
-        Offsets = rank * NX + block*NX;
-        adios_write(m_adios_file, "Offsets", (void *) &Offsets);
-
-        for (i = 0; i < NX; i++)
-            t[i] = Offsets + i;
-
-        adios_write(m_adios_file, "temperature", t);
+       
     }
 
     adios_close (m_adios_file);

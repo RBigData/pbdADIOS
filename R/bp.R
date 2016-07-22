@@ -173,6 +173,8 @@ bp.attr <- function(adios.attrname, data)
           as.character(adios.attrname),
           as.integer(length(data)),
           data)
+    
+    invisible()
 }
 
 #' @title write variables to bp file

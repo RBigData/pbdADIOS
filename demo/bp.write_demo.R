@@ -25,6 +25,7 @@ for(i in 2:6) {
     bp.write()
 }
 
+# close adios
 bp.flush()
 
 finalize() 

@@ -501,7 +501,7 @@ SEXP copy_read (SEXP R_adios_var_info,
         case adios_integer:    
             out = PROTECT(allocVector(INTSXP, nelems));
             while (item < nelems) {
-                INTEGER(out)[pos++] = ((int *)data)[item++];
+                INTEGER(out)[pos++] = (int)(data[item++]);
             }
             break;
 

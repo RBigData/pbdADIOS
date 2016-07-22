@@ -132,7 +132,6 @@ bp.create <- function(adios.filename,
     adios.groupname <<- adios.groupname
 
     nvars <<- 0
-    nvars.add <<- 0
     varname_list <<- list()
     var_list <<- list()
     varlength_list <<- c()
@@ -164,26 +163,6 @@ bp.var <- function(adios.varname, data)
     invisible()
 }
 
-#' @title add new data into global environment
-#' 
-#' @param adios.attrname
-#' @param data
-#'
-#' @export
-bp.add <- function(adios.varname, data)
-{
-    # May Check if the var is defined
-    # May Check if the length of the data match the defition
-
-    # added data will overwrite previous data
-    nvars.add <<- nvars.add + 1
-    varname_list[[nvars.add]] <<- as.character(adios.varname)
-    var_list[[nvars.add]] <<- as.numeric(data)
-    varlength_list[nvars.add] <<- length(data)
-
-    invisible()
-}
-
 #' @title write or append variables to bp file
 #' 
 #' @param comm
@@ -195,7 +174,6 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
                      p = comm.size(.pbd_env$SPMD.CT$comm),
                      adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 {
- 
     if(adios.tag == 0) {
         .Call("R_write", 
               as.character(adios.filename),

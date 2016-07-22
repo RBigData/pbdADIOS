@@ -1,3 +1,5 @@
+# mpirun -np 2 Rscript bp.write_demo.R
+
 # load pbdADIOS lib
 library(pbdADIOS, quiet = TRUE)
 
@@ -17,10 +19,9 @@ bp.write()
 
 for(i in 2:6) {
     # append data
-    bp.add("single", i*100)
+    bp.var("single", i*100)
     rank = comm.rank()
-    bp.add("T", i*(rank+1)*c(1:100))
-
+    bp.var("T", i*(rank+1)*c(1:100))
     bp.write()
 }
 

@@ -101,8 +101,6 @@ SEXP R_write(SEXP R_filename,
     uint64_t adios_groupsize, adios_totalsize;
     int64_t m_adios_file;
 
-    //adios_define_attribute (m_adios_group, "date", "", 9, "Feb 2010", "");
-
     // Define variables
     for(i = 0; i < nvars; i++) {
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
@@ -194,12 +192,94 @@ SEXP R_write(SEXP R_filename,
        
     }
 
-    //adios_define_attribute (m_adios_group, "date", "", 9, "Feb 2010", "");
-
     adios_close (m_adios_file);
     MPI_Barrier (comm);
 
-    adios_finalize (rank);
+    return R_NilValue;
+}
+
+/**
+ * Append data
+ */
+SEXP R_append(SEXP R_filename,
+              SEXP R_group,
+              SEXP R_groupname,
+              SEXP R_nvars,          // number of vars
+              SEXP R_varname_list,   // var names
+              SEXP R_var_list,       // var values
+              SEXP R_varlength_list, // length of var values
+              SEXP R_comm,
+              SEXP R_size,
+              SEXP R_adios_rank)
+{
+    const char *filename = CHARPT(R_filename, 0); 
+    int64_t m_adios_group = (int64_t)(REAL(R_group)[0]);
+    const char *groupname = CHARPT(R_groupname, 0);
+    int nvars = asInteger(R_nvars);
+    MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
+    int size = asInteger(R_size);
+    int rank = asInteger(R_adios_rank);
+
+    int i;
+    int Global_bounds, Offsets; 
+    uint64_t adios_groupsize, adios_totalsize;
+    int64_t m_adios_file;
+
+    // Open ADIOS and append data
+    adios_open (&m_adios_file, groupname, filename, "a", comm);
+
+    adios_groupsize = 0;
+    for(i = 0; i < nvars; i++) {
+        int length = INTEGER(R_varlength_list)[i];
+        if(length == 1) {
+            adios_groupsize += 8;
+        }else {
+            adios_groupsize += (4 + 4 + 4 + length * 8);
+        }
+    }
+
+    adios_group_size (m_adios_file, adios_groupsize, &adios_totalsize);
+
+    // Write data into variables
+    for(i = 0; i < nvars; i++) {
+        const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
+        int length = INTEGER(R_varlength_list)[i];
+        double *data = REAL(VECTOR_ELT(R_var_list, i));
+
+        if(length == 1){
+            // scalar
+            adios_write(m_adios_file, varname, (void *) data);
+        }else {
+            // var
+            char* var1 = (char*)malloc(strlen(varname) + 20);
+            strcpy(var1, varname);
+            strcat(var1, "_NX");
+            char* var2 = (char*)malloc(strlen(varname) + 20);
+            strcpy(var2, varname);
+            strcat(var2, "_Global_bounds");
+            char* var3 = (char*)malloc(strlen(varname) + 20);
+            strcpy(var3, varname);
+            strcat(var3, "_Offsets");
+
+            adios_write(m_adios_file, var1, (void *) &length);
+
+            Global_bounds = length * size;
+            adios_write(m_adios_file, var2, (void *) &Global_bounds);
+
+            Offsets = rank * length;
+            adios_write(m_adios_file, var3, (void *) &Offsets);
+
+            adios_write(m_adios_file, varname, data);
+
+            Free(var1);
+            Free(var2);
+            Free(var3);
+        }
+       
+    }
+
+    adios_close (m_adios_file);
+    MPI_Barrier (comm);
 
     return R_NilValue;
 }

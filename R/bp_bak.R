@@ -132,13 +132,9 @@ bp.create <- function(adios.filename,
     adios.groupname <<- adios.groupname
 
     nvars <<- 0
-    nvars.add <<- 0
     varname_list <<- list()
     var_list <<- list()
     varlength_list <<- c()
-
-    # adios.tag = 0, write; adios.tag = 1, append
-    adios.tag <<- 0
 
     adios.group <<- as.numeric(.Call("R_create", 
                                      as.character(adios.groupname), 
@@ -164,7 +160,7 @@ bp.var <- function(adios.varname, data)
     invisible()
 }
 
-#' @title add new data into global environment
+#' @title d
 #' 
 #' @param adios.attrname
 #' @param data
@@ -172,58 +168,15 @@ bp.var <- function(adios.varname, data)
 #' @export
 bp.add <- function(adios.varname, data)
 {
-    # May Check if the var is defined
-    # May Check if the length of the data match the defition
+    # Check if the var is defined
 
-    # added data will overwrite previous data
-    nvars.add <<- nvars.add + 1
-    varname_list[[nvars.add]] <<- as.character(adios.varname)
-    var_list[[nvars.add]] <<- as.numeric(data)
-    varlength_list[nvars.add] <<- length(data)
+    # Check if the length of the data match the defition
 
-    invisible()
-}
+    nvars <<- nvars + 1
+    varname_list[[nvars]] <<- as.character(adios.varname)
+    var_list[[nvars]] <<- as.numeric(data)
+    varlength_list[nvars] <<- length(data)
 
-#' @title write or append variables to bp file
-#' 
-#' @param comm
-#' @param p
-#' @param adios.rank
-#'
-#' @export
-bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
-                     p = comm.size(.pbd_env$SPMD.CT$comm),
-                     adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
-{
- 
-    if(adios.tag == 0) {
-        .Call("R_write", 
-              as.character(adios.filename),
-              adios.group,
-              as.character(adios.groupname),
-              as.integer(nvars),
-              varname_list,
-              var_list,
-              varlength_list,
-              comm.c2f(comm),
-              as.integer(p),
-              as.integer(adios.rank))
-        adios.tag <<- 1
-    }else {
-        .Call("R_append", 
-              as.character(adios.filename),
-              adios.group,
-              as.character(adios.groupname),
-              as.integer(nvars),
-              varname_list,
-              var_list,
-              varlength_list,
-              comm.c2f(comm),
-              as.integer(p),
-              as.integer(adios.rank))
-    }
-
-    nvars.add <<- 0
     invisible()
 }
 
@@ -244,17 +197,43 @@ bp.attr <- function(adios.attrname, data)
     invisible()
 }
 
-#' @title close adios and clear global environment
+#' @title write variables to bp file
+#' 
+#' @param comm
+#' @param p
+#' @param adios.rank
 #'
 #' @export
-bp.flush <- function()
+bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
+                     p = comm.size(.pbd_env$SPMD.CT$comm),
+                     adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 {
-    adios.finalize()
+    # If nsteps, check if vars have the same steps
+    .Call("R_write", 
+          as.character(adios.filename),
+          adios.group,
+          as.character(adios.groupname),
+          as.integer(nvars),
+          varname_list,
+          var_list,
+          varlength_list,
+          comm.c2f(comm),
+          as.integer(p),
+          as.integer(adios.rank))
+
     # Clear global environment
     rm(list = ls(pos = ".GlobalEnv"), pos = ".GlobalEnv")
-    
+
     invisible()
 }
+
+# bp.flush  clear global environment
+
+
+
+
+
+
 
 
 

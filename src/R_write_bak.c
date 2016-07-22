@@ -48,6 +48,33 @@ SEXP R_create(SEXP R_groupname,
 }
 
 /**
+ * Define attributes in the bp file
+ */
+SEXP R_define_attr(SEXP R_group,
+                   SEXP R_attrname,
+                   SEXP R_nelems,
+                   SEXP R_values)
+{
+    int64_t m_adios_group = (int64_t)(REAL(R_group)[0]);
+    const char *attrname = CHARPT(R_attrname, 0); 
+    int nelems = asInteger(R_nelems);
+    char **values;
+    values = malloc(nelems);
+
+    int i;
+    for(i = 0; i < nelems; i++)
+        values[i] = (char*)CHAR(STRING_ELT(R_values,i));
+
+    adios_define_attribute_byvalue(m_adios_group,
+                                   attrname, "",
+                                   adios_string_array,
+                                   nelems,
+                                   values);
+
+    return R_NilValue;
+}
+
+/**
  * Define variables and write data
  */
 SEXP R_write(SEXP R_filename,
@@ -73,6 +100,8 @@ SEXP R_write(SEXP R_filename,
     int Global_bounds, Offsets; 
     uint64_t adios_groupsize, adios_totalsize;
     int64_t m_adios_file;
+
+    //adios_define_attribute (m_adios_group, "date", "", 9, "Feb 2010", "");
 
     // Define variables
     for(i = 0; i < nvars; i++) {
@@ -165,9 +194,13 @@ SEXP R_write(SEXP R_filename,
        
     }
 
+    //adios_define_attribute (m_adios_group, "date", "", 9, "Feb 2010", "");
+
     adios_close (m_adios_file);
     MPI_Barrier (comm);
 
     adios_finalize (rank);
+
+    return R_NilValue;
 }
 

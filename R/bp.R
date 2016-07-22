@@ -201,7 +201,6 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
               as.integer(adios.rank))
     }
 
-    nvars.add <<- 0
     invisible()
 }
 

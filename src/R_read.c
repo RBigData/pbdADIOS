@@ -485,6 +485,14 @@ SEXP copy_read (SEXP R_adios_var_info,
     item = 0; // index for *data 
     // allocate memory and copy data to R memory
     switch(vi->type) {
+        case adios_unsigned_byte:
+            out = PROTECT(allocVector(STRSXP, nelems));
+            while (item < nelems) {
+                SET_STRING_ELT(out, pos++, mkChar((unsigned char *)data + item));
+                item++;
+            }
+            break;
+        case adios_byte:
         case adios_string:
             out = PROTECT(allocVector(STRSXP, nelems));
             while (item < nelems) {
@@ -493,15 +501,13 @@ SEXP copy_read (SEXP R_adios_var_info,
             }
             break;
 
-        case adios_unsigned_byte:
-        case adios_byte:
         case adios_unsigned_short:  
         case adios_short:
         case adios_unsigned_integer:
         case adios_integer:    
             out = PROTECT(allocVector(INTSXP, nelems));
             while (item < nelems) {
-                INTEGER(out)[pos++] = (int)(((int *)data)[item++]);
+                INTEGER(out)[pos++] = ((int *)data)[item++];
             }
             break;
 

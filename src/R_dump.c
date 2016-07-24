@@ -222,27 +222,56 @@ SEXP readVar(SEXP R_adios_fp,
     // Allocate R memory for the variable values
     switch(vi->type) {
         case adios_unsigned_byte:
+            out = PROTECT(allocVector(INTSXP, nelems));
+            break;
         case adios_byte:
+            out = PROTECT(allocVector(INTSXP, nelems));
+            break;
+
         case adios_string:
+            out = PROTECT(allocVector(STRSXP, nelems));
+            break;
+        case adios_string_array:
+            // we expect one elemet of the array here
             out = PROTECT(allocVector(STRSXP, nelems));
             break;
 
         case adios_unsigned_short:  
+            out = PROTECT(allocVector(INTSXP, nelems));
+            break;
         case adios_short:
+            out = PROTECT(allocVector(INTSXP, nelems));
+            break;
+
         case adios_unsigned_integer:
+            out = PROTECT(allocVector(INTSXP, nelems));
+            break;
         case adios_integer:    
             out = PROTECT(allocVector(INTSXP, nelems));
             break;
 
         case adios_unsigned_long:
-        case adios_long:        
+            out = PROTECT(allocVector(REALSXP, nelems));
+            break;
+        case adios_long:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            break;   
+
         case adios_real:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            break;
         case adios_double:
             out = PROTECT(allocVector(REALSXP, nelems));
             break;
 
-        //case adios_complex:           
-        //case adios_double_complex:
+        case adios_complex:  
+            out = PROTECT(allocVector(REALSXP, 2*nelems));
+            break;
+
+        case adios_double_complex:
+            out = PROTECT(allocVector(REALSXP, 2*nelems));
+            break;
+
         //case adios_long_double: // do not know how to print
            
         default:
@@ -338,41 +367,98 @@ SEXP readVar(SEXP R_adios_fp,
         item = 0; // index to *data 
         // loop through each data item and print value
 
-        switch(vi->type) {
+         switch(vi->type) {
             case adios_unsigned_byte:
+                while (item < steps) {
+                    INTEGER(out)[pos++] = ((uint8_t *)data)[item++];
+                }
+                break;
             case adios_byte:
+                while (item < steps) {
+                    INTEGER(out)[pos++] = ((int8_t *)data)[item++];
+                }
+                break;
+
             case adios_string:
                 while (item < steps) {
                     SET_STRING_ELT(out, pos++, mkChar((char *)data + item));
                     item++;
                 }
                 break;
+            case adios_string_array:
+                // we expect one elemet of the array here
+                while (item < steps) {
+                    SET_STRING_ELT(out, pos++, mkChar(*((char **)data + item)));
+                    item++;
+                }
+                break;
 
             case adios_unsigned_short:  
+                while (item < steps) {
+                    INTEGER(out)[pos++] = ((uint16_t *)data)[item++];
+                }
+                break;
             case adios_short:
+                while (item < steps) {
+                    INTEGER(out)[pos++] = ((int16_t *)data)[item++];
+                }
+                break;
+
             case adios_unsigned_integer:
+                while (item < steps) {
+                    INTEGER(out)[pos++] = ((uint32_t *)data)[item++];
+                }
+                break;
             case adios_integer:    
                 while (item < steps) {
-                    INTEGER(out)[pos++] = ((int *)data)[item++];
+                    INTEGER(out)[pos++] = ((int32_t *)data)[item++];
                 }
                 break;
 
             case adios_unsigned_long:
-            case adios_long:        
+                while (item < steps) {
+                    REAL(out)[pos++] = ((uint64_t *)data)[item++];
+                }
+                break;
+            case adios_long:
+                while (item < steps) {
+                    REAL(out)[pos++] = ((int64_t *)data)[item++];
+                }
+                break;   
+
             case adios_real:
+                while (item < steps) {
+                    REAL(out)[pos++] = ((float *)data)[item++];
+                }
+                break;
             case adios_double:
                 while (item < steps) {
                     REAL(out)[pos++] = ((double *)data)[item++];
                 }
                 break;
 
-            //case adios_complex:           
-            //case adios_double_complex:
+            case adios_complex:  
+                while (item < steps) {
+                    REAL(out)[pos++] = ((float *)data)[item++];
+                    REAL(out)[pos++] = ((float *)data)[item++];
+                }
+                //Rprintf("(%g,i%g)", ((float *) data)[2*item], ((float *) data)[2*item+1]);
+                break;
+
+            case adios_double_complex:
+                while (item < steps) {
+                    REAL(out)[pos++] = ((double *)data)[item++];
+                    REAL(out)[pos++] = ((double *)data)[item++];
+                }
+                //Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
+                break;
+
             //case adios_long_double: // do not know how to print
                
             default:
                 break;
         }
+
         /**
          * end copying data to R memory
          */

@@ -439,16 +439,18 @@ SEXP readVar(SEXP R_adios_fp,
 
             case adios_complex:  
                 while (item < steps) {
-                    REAL(out)[pos++] = ((float *)data)[item++];
-                    REAL(out)[pos++] = ((float *)data)[item++];
+                    REAL(out)[pos++] = ((float *)data)[2*item];
+                    REAL(out)[pos++] = ((float *)data)[2*item+1];
+                    item++;
                 }
                 //Rprintf("(%g,i%g)", ((float *) data)[2*item], ((float *) data)[2*item+1]);
                 break;
 
             case adios_double_complex:
                 while (item < steps) {
-                    REAL(out)[pos++] = ((double *)data)[item++];
-                    REAL(out)[pos++] = ((double *)data)[item++];
+                    REAL(out)[pos++] = ((double *)data)[2*item];
+                    REAL(out)[pos++] = ((double *)data)[2*item+1];
+                    item++;
                 }
                 //Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
                 break;

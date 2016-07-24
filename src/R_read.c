@@ -497,6 +497,7 @@ SEXP copy_read (SEXP R_adios_var_info,
                 INTEGER(out)[pos++] = ((int8_t *)data)[item++];
             }
             break;
+
         case adios_string:
             out = PROTECT(allocVector(STRSXP, nelems));
             while (item < nelems) {
@@ -504,26 +505,84 @@ SEXP copy_read (SEXP R_adios_var_info,
                 item++;
             }
             break;
+        case adios_string_array:
+            // we expect one elemet of the array here
+            out = PROTECT(allocVector(STRSXP, nelems));
+            while (item < nelems) {
+                SET_STRING_ELT(out, pos++, mkChar(*((char **)data + item)));
+                item++;
+            }
+            break;
 
         case adios_unsigned_short:  
+            out = PROTECT(allocVector(INTSXP, nelems));
+            while (item < nelems) {
+                INTEGER(out)[pos++] = ((uint16_t *)data)[item++];
+            }
+            break;
         case adios_short:
+            out = PROTECT(allocVector(INTSXP, nelems));
+            while (item < nelems) {
+                INTEGER(out)[pos++] = ((int16_t *)data)[item++];
+            }
+            break;
+
         case adios_unsigned_integer:
+            out = PROTECT(allocVector(INTSXP, nelems));
+            while (item < nelems) {
+                INTEGER(out)[pos++] = ((uint32_t *)data)[item++];
+            }
+            break;
         case adios_integer:    
             out = PROTECT(allocVector(INTSXP, nelems));
             while (item < nelems) {
-                INTEGER(out)[pos++] = ((int *)data)[item++];
+                INTEGER(out)[pos++] = ((int32_t *)data)[item++];
             }
             break;
 
         case adios_unsigned_long:
-        case adios_long:        
+            out = PROTECT(allocVector(REALSXP, nelems));
+            while (item < nelems) {
+                REAL(out)[pos++] = ((uint64_t *)data)[item++];
+            }
+            break;
+        case adios_long:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            while (item < nelems) {
+                REAL(out)[pos++] = ((int64_t *)data)[item++];
+            }
+            break;   
+
         case adios_real:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            while (item < nelems) {
+                REAL(out)[pos++] = ((float *)data)[item++];
+            }
+            break;
         case adios_double:
             out = PROTECT(allocVector(REALSXP, nelems));
             while (item < nelems) {
                 REAL(out)[pos++] = ((double *)data)[item++];
             }
             break;
+
+        case adios_complex:  
+            out = PROTECT(allocVector(REALSXP, nelems));
+            while (item < nelems) {
+                REAL(out)[pos++] = ((float *)data)[item++];
+            }
+            //Rprintf("(%g,i%g)", ((float *) data)[2*item], ((float *) data)[2*item+1]);
+            break;
+
+        case adios_double_complex:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            while (item < nelems) {
+                REAL(out)[pos++] = ((double *)data)[item++];
+            }
+            //Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
+            break;
+
+        //case adios_long_double: // do not know how to print
            
         default:
             break;

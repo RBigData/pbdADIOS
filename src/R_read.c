@@ -567,16 +567,18 @@ SEXP copy_read (SEXP R_adios_var_info,
             break;
 
         case adios_complex:  
-            out = PROTECT(allocVector(REALSXP, nelems));
+            out = PROTECT(allocVector(REALSXP, 2*nelems));
             while (item < nelems) {
+                REAL(out)[pos++] = ((float *)data)[item++];
                 REAL(out)[pos++] = ((float *)data)[item++];
             }
             //Rprintf("(%g,i%g)", ((float *) data)[2*item], ((float *) data)[2*item+1]);
             break;
 
         case adios_double_complex:
-            out = PROTECT(allocVector(REALSXP, nelems));
+            out = PROTECT(allocVector(REALSXP, 2*nelems));
             while (item < nelems) {
+                REAL(out)[pos++] = ((double *)data)[item++];
                 REAL(out)[pos++] = ((double *)data)[item++];
             }
             //Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);

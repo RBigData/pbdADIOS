@@ -1,4 +1,4 @@
-# mpirun -np 2 Rscript bp.write_demo.R
+# mpirun -np 2 Rscript bp.write.demo.R
 
 # load pbdADIOS lib
 library(pbdADIOS, quiet = TRUE)

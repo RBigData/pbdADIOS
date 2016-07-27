@@ -13,6 +13,8 @@ bp.read("attributes.bp", "temperature")
 # read a scalar
 bp.read("attributes.bp", "NX")
 
+bp.read("attributes.bp", "NX", c(0))
+
 # read a variable with start
 bp.read("attributes.bp", "temperature", c(0, 0))
 
@@ -28,8 +30,6 @@ bp.read("attributes.bp", "temperature", c(0))
 bp.read("attributes.bp", "temperature", c(0, 10))
 
 bp.read("attributes.bp", "temperature", count=c(0, 10))
-
-bp.read("attributes.bp", "NX", c(0))
 
 # bp data with multiple steps
 heat = bp.dump("heat.bp")
@@ -52,16 +52,16 @@ bp.read("attributes.bp",
 	list(c(0,1), c(0, 9)),
 	list(c(1,1), c(1,1)))
 
-bp.read("attributes.bp", 
-	list("temperature", "temperature"),
-	list(c(0,1), c(0, 9)),
-	list(c(1,1)))
-
 bp.read("heat.bp", 
 	list("gndx", "T", "dT"),
 	list(c(5), c(0, 0, 0), c(0, 0, 0)),
 	list(c(1), c(1, 1, 1), c(1, 1, 1)))
 
+# rong count
+bp.read("attributes.bp", 
+	list("temperature", "temperature"),
+	list(c(0,1), c(0, 9)),
+	list(c(1,1)))
 
 finalize() # pbdMPI final
 

@@ -54,39 +54,22 @@ This file is for a Linux, Mac OS X and Solaris
     R CMD INSTALL pbdADIOS_0.1-0.tar.gz --configure-args="--with-adios-home=Specify_ADIOS_InstallPath"
     ```
 
-To build on sith and rhea:
 
-```
-module swap PE-pgi PE-gnu
-module load adios/1.7.0
-module load r
-export ADIOS_DIR=/sw/redhat6/adios/1.7.0/rhel6_gnu4.7.1_wrappers
-R CMD INSTALL pbdADIOS --configure-args="--with-adios-home=$ADIOS_DIR"
-```
+# Usage
 
-To run on sith (note: change some hard coded paths to your locations!):
+  ```
+  \# load pbdADIOS lib
+  library(pbdADIOS, quiet = TRUE)
 
-```
-qsub run_sith.sh
-```
+  \# print variables and attributes
+  bpls("attributes.bp")
 
-`run_sith.sh` contains:
+  \# dump all variables
+  bp.dump("attributes.bp")
 
-```
-#!/bin/sh
-#PBS -N adiosis
-#PBS -l nodes=1:ppn=32
-#PBS -l walltime=0:30:00
-#PBS -e pbs.err
-#PBS -o pbs.log
+  \# read a variable
+  bp.read("attributes.bp", "temperature")
 
-source /etc/profile.d/modules.sh
-module swap PE-pgi PE-gnu
-module load r
-module load adios/1.7.0
-
-cd $MEMBERWORK/stf006/heat
-
-time mpirun -np 4 --mca mpi_warn_on_fork 0 \
-    Rscript /ccs/home/ost/adios/pbdADIOS/tests/test_heat.r
-```
+  finalize() # pbdMPI final
+  ```
+More examples in demo directory.

@@ -10,7 +10,26 @@ pbdADIOS requires:
 More information about pbdADIOS can be found in the
 [ADIOS User's Manual](http://users.nccs.gov/~pnorbert/ADIOS-UsersManual-1.7.0.pdf).
 
-# Install
+# Usage
+
+  ```
+  # load pbdADIOS lib
+  library(pbdADIOS, quiet = TRUE)
+
+  # print variables and attributes
+  bpls("attributes.bp")
+
+  # dump all variables
+  bp.dump("attributes.bp")
+
+  # read a variable
+  bp.read("attributes.bp", "temperature")
+
+  finalize() # pbdMPI final
+  ```
+More examples in demo directory.
+
+# Installation
 This file is for a Linux, Mac OS X and Solaris 
 
 1. 'pbdMPI' Installation:
@@ -53,23 +72,3 @@ This file is for a Linux, Mac OS X and Solaris
     ```
     R CMD INSTALL pbdADIOS_0.1-0.tar.gz --configure-args="--with-adios-home=Specify_ADIOS_InstallPath"
     ```
-
-
-# Usage
-
-  ```
-  # load pbdADIOS lib
-  library(pbdADIOS, quiet = TRUE)
-
-  # print variables and attributes
-  bpls("attributes.bp")
-
-  # dump all variables
-  bp.dump("attributes.bp")
-
-  # read a variable
-  bp.read("attributes.bp", "temperature")
-
-  finalize() # pbdMPI final
-  ```
-More examples in demo directory.

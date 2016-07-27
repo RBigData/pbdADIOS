@@ -58,16 +58,16 @@ This file is for a Linux, Mac OS X and Solaris
 # Usage
 
   ```
-  \# load pbdADIOS lib
+  # load pbdADIOS lib
   library(pbdADIOS, quiet = TRUE)
 
-  \# print variables and attributes
+  # print variables and attributes
   bpls("attributes.bp")
 
-  \# dump all variables
+  # dump all variables
   bp.dump("attributes.bp")
 
-  \# read a variable
+  # read a variable
   bp.read("attributes.bp", "temperature")
 
   finalize() # pbdMPI final

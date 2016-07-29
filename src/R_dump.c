@@ -272,8 +272,10 @@ SEXP readVar(SEXP R_adios_fp,
             out = PROTECT(allocVector(REALSXP, 2*nelems));
             break;
 
-        //case adios_long_double: // do not know how to print
-           
+        case adios_long_double:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            break;
+
         default:
             break;
     }
@@ -455,7 +457,11 @@ SEXP readVar(SEXP R_adios_fp,
                 //Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
                 break;
 
-            //case adios_long_double: // do not know how to print
+            case adios_long_double:
+                while (item < steps) {
+                    REAL(out)[pos++] = ((long double *)data)[item++];
+                }
+                break;
                
             default:
                 break;
@@ -546,8 +552,9 @@ int getTypeInfo( enum ADIOS_DATATYPES adiosvartype, int* elemsize)
             *elemsize = 16;
             break;
 
-        case adios_long_double: // do not know how to print
-            //*elemsize = 16;
+        case adios_long_double:
+            *elemsize = 16;
+            break;
         default:
             return 1;
     }

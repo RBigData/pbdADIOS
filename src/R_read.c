@@ -586,7 +586,12 @@ SEXP copy_read (SEXP R_adios_var_info,
             //Rprintf("(%g,i%g)", ((double *) data)[2*item], ((double *) data)[2*item+1]);
             break;
 
-        //case adios_long_double: // do not know how to print
+        case adios_long_double:
+            out = PROTECT(allocVector(REALSXP, nelems));
+            while (item < nelems) {
+                REAL(out)[pos++] = ((long double *)data)[item++];
+            }
+            break;
            
         default:
             break;

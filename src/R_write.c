@@ -263,7 +263,7 @@ SEXP R_write(SEXP R_filename,
             // var
             int temp_var_length = strlen(varname) + 8;
 
-            for(j = 0; j < vndim[0]; j++) {
+            for(j = 0; j < vndim[0]-1; j++) {
                 sprintf(str, "%d", j);
 
                 char* local = (char*)malloc(temp_var_length);
@@ -283,16 +283,45 @@ SEXP R_write(SEXP R_filename,
 
                 adios_write(m_adios_file, local, (void *) &(length[j]));
 
-                Global_bounds = length[j] * size;
+                Global_bounds = length[j];
                 adios_write(m_adios_file, global, (void *) &Global_bounds);
 
-                Offsets = rank * length[j];
+                Offsets = 0;
                 adios_write(m_adios_file, offset, (void *) &Offsets);
 
                 Free(local);
                 Free(global);
                 Free(offset);
             }
+            j = vndim[0] - 1;
+            sprintf(str, "%d", j);
+
+            char* local = (char*)malloc(temp_var_length);
+            strcpy(local, varname);
+            strcat(local, "_nx_");
+            strcat(local, str);
+
+            char* global = (char*)malloc(temp_var_length);
+            strcpy(global, varname);
+            strcat(global, "_gx_");
+            strcat(global, str);
+
+            char* offset = (char*)malloc(temp_var_length);
+            strcpy(offset, varname);
+            strcat(offset, "_off_");
+            strcat(offset, str);
+
+            adios_write(m_adios_file, local, (void *) &(length[j]));
+
+            Global_bounds = length[j] * size;
+            adios_write(m_adios_file, global, (void *) &Global_bounds);
+
+            Offsets = rank * length[j];
+            adios_write(m_adios_file, offset, (void *) &Offsets);
+
+            Free(local);
+            Free(global);
+            Free(offset);
         }
         // write var data
         if(typetag[0] == 0) {
@@ -384,7 +413,7 @@ SEXP R_append(SEXP R_filename,
             // var
             int temp_var_length = strlen(varname) + 8;
 
-            for(j = 0; j < vndim[0]; j++) {
+            for(j = 0; j < vndim[0]-1; j++) {
                 sprintf(str, "%d", j);
 
                 char* local = (char*)malloc(temp_var_length);
@@ -404,16 +433,45 @@ SEXP R_append(SEXP R_filename,
 
                 adios_write(m_adios_file, local, (void *) &(length[j]));
 
-                Global_bounds = length[j] * size;
+                Global_bounds = length[j];
                 adios_write(m_adios_file, global, (void *) &Global_bounds);
 
-                Offsets = rank * length[j];
+                Offsets = 0;
                 adios_write(m_adios_file, offset, (void *) &Offsets);
 
                 Free(local);
                 Free(global);
                 Free(offset);
             }
+            j = vndim[0] - 1;
+            sprintf(str, "%d", j);
+
+            char* local = (char*)malloc(temp_var_length);
+            strcpy(local, varname);
+            strcat(local, "_nx_");
+            strcat(local, str);
+
+            char* global = (char*)malloc(temp_var_length);
+            strcpy(global, varname);
+            strcat(global, "_gx_");
+            strcat(global, str);
+
+            char* offset = (char*)malloc(temp_var_length);
+            strcpy(offset, varname);
+            strcat(offset, "_off_");
+            strcat(offset, str);
+
+            adios_write(m_adios_file, local, (void *) &(length[j]));
+
+            Global_bounds = length[j] * size;
+            adios_write(m_adios_file, global, (void *) &Global_bounds);
+
+            Offsets = rank * length[j];
+            adios_write(m_adios_file, offset, (void *) &Offsets);
+
+            Free(local);
+            Free(global);
+            Free(offset);
         }
         // write var data
         if(typetag[0] == 0) {

@@ -103,6 +103,9 @@ SEXP R_write(SEXP R_filename,
     uint64_t adios_groupsize, adios_totalsize;
     int64_t m_adios_file;
 
+    // variable to store the value converted from integer
+    char str[256];
+
     // Define variables
     for(i = 0; i < nvars; i++) {
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
@@ -131,22 +134,24 @@ SEXP R_write(SEXP R_filename,
 
             // j = 0
             j = 0;
+            sprintf(str, "%d", j);
+
             char* local = (char*)malloc(temp_var_length);
             strcpy(local, varname);
             strcat(local, "_nx_");
-            strcat(local, j);
+            strcat(local, str);
             strcat(local_var, local);
 
             char* global = (char*)malloc(temp_var_length);
             strcpy(global, varname);
             strcat(global, "_gx_");
-            strcat(global, j);
+            strcat(global, str);
             strcat(global_var, global);
 
             char* offset = (char*)malloc(temp_var_length);
             strcpy(offset, varname);
             strcat(offset, "_off_");
-            strcat(offset, j);
+            strcat(offset, str);
             strcat(offset_var, offset);
 
             // define local dim, global dim and offset for each dimension
@@ -162,25 +167,27 @@ SEXP R_write(SEXP R_filename,
             Free(offset);
 
             for(j = 1; j < vndim[0]; j++) {
+                sprintf(str, "%d", j);
+
                 strcat(local_var, ",");
                 char* local = (char*)malloc(temp_var_length);
                 strcpy(local, varname);
                 strcat(local, "_nx_");
-                strcat(local, j);
+                strcat(local, str);
                 strcat(local_var, local);
 
                 strcat(global_var, ",");
                 char* global = (char*)malloc(temp_var_length);
                 strcpy(global, varname);
                 strcat(global, "_gx_");
-                strcat(global, j);
+                strcat(global, str);
                 strcat(global_var, global);
 
                 strcat(offset_var, ",");
                 char* offset = (char*)malloc(temp_var_length);
                 strcpy(offset, varname);
                 strcat(offset, "_off_");
-                strcat(offset, j);
+                strcat(offset, str);
                 strcat(offset_var, offset);
 
                 // define local dim, global dim and offset for each dimension
@@ -258,20 +265,22 @@ SEXP R_write(SEXP R_filename,
             int temp_var_length = strlen(varname) + 8;
 
             for(j = 0; j < vndim[0]; j++) {
+                sprintf(str, "%d", j);
+
                 char* local = (char*)malloc(temp_var_length);
                 strcpy(local, varname);
                 strcat(local, "_nx_");
-                strcat(local, j);
+                strcat(local, str);
 
                 char* global = (char*)malloc(temp_var_length);
                 strcpy(global, varname);
                 strcat(global, "_gx_");
-                strcat(global, j);
+                strcat(global, str);
 
                 char* offset = (char*)malloc(temp_var_length);
                 strcpy(offset, varname);
                 strcat(offset, "_off_");
-                strcat(offset, j);
+                strcat(offset, str);
 
                 adios_write(m_adios_file, local, (void *) &(length[j]));
 
@@ -325,6 +334,9 @@ SEXP R_append(SEXP R_filename,
     uint64_t adios_groupsize, adios_totalsize;
     int64_t m_adios_file;
 
+    // variable to store the value converted from integer
+    char str[256];
+
     // Open ADIOS and append data
     adios_open (&m_adios_file, groupname, filename, "a", comm);
 
@@ -372,20 +384,22 @@ SEXP R_append(SEXP R_filename,
             int temp_var_length = strlen(varname) + 8;
 
             for(j = 0; j < vndim[0]; j++) {
+                sprintf(str, "%d", j);
+
                 char* local = (char*)malloc(temp_var_length);
                 strcpy(local, varname);
                 strcat(local, "_nx_");
-                strcat(local, j);
+                strcat(local, str);
 
                 char* global = (char*)malloc(temp_var_length);
                 strcpy(global, varname);
                 strcat(global, "_gx_");
-                strcat(global, j);
+                strcat(global, str);
 
                 char* offset = (char*)malloc(temp_var_length);
                 strcpy(offset, varname);
                 strcat(offset, "_off_");
-                strcat(offset, j);
+                strcat(offset, str);
 
                 adios_write(m_adios_file, local, (void *) &(length[j]));
 

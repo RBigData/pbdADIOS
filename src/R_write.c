@@ -84,6 +84,8 @@ SEXP R_write(SEXP R_filename,
              SEXP R_varname_list,   // var names
              SEXP R_var_list,       // var values
              SEXP R_varlength_list, // length of var values
+             SEXP R_ndim,           // number of dims
+             SEXP R_type, 
              SEXP R_comm,
              SEXP R_size,
              SEXP R_adios_rank)
@@ -95,8 +97,8 @@ SEXP R_write(SEXP R_filename,
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int size = asInteger(R_size);
     int rank = asInteger(R_adios_rank);
-
-    int i;
+    
+    int i, j;
     int Global_bounds, Offsets; 
     uint64_t adios_groupsize, adios_totalsize;
     int64_t m_adios_file;
@@ -104,38 +106,108 @@ SEXP R_write(SEXP R_filename,
     // Define variables
     for(i = 0; i < nvars; i++) {
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
-        int length = INTEGER(R_varlength_list)[i];
+        int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
+        int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
+        int *typetag = INTEGER(VECTOR_ELT(R_type, i));
 
-        if(length == 1){
+        if((length[0] == 1) && (vndim[0] == 1)){
             // scalar
-            adios_define_var (m_adios_group, varname, "", adios_double, 0, 0, 0);
+            if(typetag[0] == 0) {
+                adios_define_var (m_adios_group, varname, "", adios_integer, 0, 0, 0);
+            }else {
+                adios_define_var (m_adios_group, varname, "", adios_double, 0, 0, 0);
+            }
         }else {
             // define dimensions, global_dimensions, local_offsets and the variable
-            char* var1 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var1, varname);
-            strcat(var1, "_NX");
-            char* var2 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var2, varname);
-            strcat(var2, "_Global_bounds");
-            char* var3 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var3, varname);
-            strcat(var3, "_Offsets");
+            int temp_var_length = strlen(varname) + 8;
+            char* local_var = (char*)malloc(vndim[0]*temp_var_length);
+            char* global_var = (char*)malloc(vndim[0]*temp_var_length);
+            char* offset_var = (char*)malloc(vndim[0]*temp_var_length);
 
-            adios_define_var (m_adios_group, var1,
+            // initialize char variables
+            strcpy(local_var, "");
+            strcpy(global_var, "");
+            strcpy(offset_var, "");
+
+            // j = 0
+            j = 0;
+            char* local = (char*)malloc(temp_var_length);
+            strcpy(local, varname);
+            strcat(local, "_nx_");
+            strcat(local, j);
+            strcat(local_var, local);
+
+            char* global = (char*)malloc(temp_var_length);
+            strcpy(global, varname);
+            strcat(global, "_gx_");
+            strcat(global, j);
+            strcat(global_var, global);
+
+            char* offset = (char*)malloc(temp_var_length);
+            strcpy(offset, varname);
+            strcat(offset, "_off_");
+            strcat(offset, j);
+            strcat(offset_var, offset);
+
+            // define local dim, global dim and offset for each dimension
+            adios_define_var (m_adios_group, local,
+                          "", adios_integer, 0, 0, 0);
+            adios_define_var (m_adios_group, global,
+                          "", adios_integer, 0, 0, 0);
+            adios_define_var (m_adios_group, offset,
+                          "", adios_integer, 0, 0, 0);
+
+            Free(local);
+            Free(global);
+            Free(offset);
+
+            for(j = 1; j < vndim[0]; j++) {
+                strcat(local_var, ",");
+                char* local = (char*)malloc(temp_var_length);
+                strcpy(local, varname);
+                strcat(local, "_nx_");
+                strcat(local, j);
+                strcat(local_var, local);
+
+                strcat(global_var, ",");
+                char* global = (char*)malloc(temp_var_length);
+                strcpy(global, varname);
+                strcat(global, "_gx_");
+                strcat(global, j);
+                strcat(global_var, global);
+
+                strcat(offset_var, ",");
+                char* offset = (char*)malloc(temp_var_length);
+                strcpy(offset, varname);
+                strcat(offset, "_off_");
+                strcat(offset, j);
+                strcat(offset_var, offset);
+
+                // define local dim, global dim and offset for each dimension
+                adios_define_var (m_adios_group, local,
+                              "", adios_integer, 0, 0, 0);
+                adios_define_var (m_adios_group, global,
+                              "", adios_integer, 0, 0, 0);
+                adios_define_var (m_adios_group, offset,
                               "", adios_integer, 0, 0, 0);
 
-            adios_define_var (m_adios_group, var2,
-                              "", adios_integer, 0, 0, 0);
+                Free(local);
+                Free(global);
+                Free(offset);
+            }
 
-            adios_define_var (m_adios_group, var3,
-                              "", adios_integer, 0, 0, 0);
+            // define variable
+            if(typetag[0] == 0) {
+                adios_define_var (m_adios_group, varname, "", adios_integer, 
+                              local_var, global_var, offset_var);
+            }else {
+                adios_define_var (m_adios_group, varname, "", adios_double, 
+                              local_var, global_var, offset_var);
+            }
 
-            adios_define_var (m_adios_group, varname, "", adios_double, 
-                              var1, var2, var3);
-
-            Free(var1);
-            Free(var2);
-            Free(var3);
+            Free(local_var);
+            Free(global_var);
+            Free(offset_var);
         }
     }
 
@@ -144,11 +216,28 @@ SEXP R_write(SEXP R_filename,
 
     adios_groupsize = 0;
     for(i = 0; i < nvars; i++) {
-        int length = INTEGER(R_varlength_list)[i];
-        if(length == 1) {
-            adios_groupsize += 8;
+        int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
+        int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
+        int *typetag = INTEGER(VECTOR_ELT(R_type, i));
+
+        // calculate the length of the variable
+        int temp = 1;
+        for(j = 0; j < vndim[0]; j++)
+            temp *= length[j];
+
+        if((length[0] == 1) && (vndim[0] == 1)){
+            // scalar
+            if(typetag[0] == 0) {
+                adios_groupsize += 4;
+            }else {
+                adios_groupsize += 8;
+            }
         }else {
-            adios_groupsize += (4 + 4 + 4 + length * 8);
+            if(typetag[0] == 0) {
+                adios_groupsize += (12 * vndim[0] + temp * 4);
+            }else {
+                adios_groupsize += (12 * vndim[0] + temp * 8);
+            }
         }
     }
 
@@ -157,41 +246,49 @@ SEXP R_write(SEXP R_filename,
     // Write data into variables
     for(i = 0; i < nvars; i++) {
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
-        int length = INTEGER(R_varlength_list)[i];
+        int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
+        int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
         double *data = REAL(VECTOR_ELT(R_var_list, i));
 
-        if(length == 1){
+        if((length[0] == 1) && (vndim[0] == 1)){
             // scalar
             adios_write(m_adios_file, varname, (void *) data);
         }else {
             // var
-            char* var1 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var1, varname);
-            strcat(var1, "_NX");
-            char* var2 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var2, varname);
-            strcat(var2, "_Global_bounds");
-            char* var3 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var3, varname);
-            strcat(var3, "_Offsets");
+            int temp_var_length = strlen(varname) + 8;
 
-            adios_write(m_adios_file, var1, (void *) &length);
+            for(j = 0; j < vndim[0]; j++) {
+                char* local = (char*)malloc(temp_var_length);
+                strcpy(local, varname);
+                strcat(local, "_nx_");
+                strcat(local, j);
 
-            Global_bounds = length * size;
-            adios_write(m_adios_file, var2, (void *) &Global_bounds);
+                char* global = (char*)malloc(temp_var_length);
+                strcpy(global, varname);
+                strcat(global, "_gx_");
+                strcat(global, j);
 
-            Offsets = rank * length;
-            adios_write(m_adios_file, var3, (void *) &Offsets);
+                char* offset = (char*)malloc(temp_var_length);
+                strcpy(offset, varname);
+                strcat(offset, "_off_");
+                strcat(offset, j);
 
+                adios_write(m_adios_file, local, (void *) &(length[j]));
+
+                Global_bounds = length[j] * size;
+                adios_write(m_adios_file, global, (void *) &Global_bounds);
+
+                Offsets = rank * length[j];
+                adios_write(m_adios_file, offset, (void *) &Offsets);
+
+                Free(local);
+                Free(global);
+                Free(offset);
+            }
+            // write var data
             adios_write(m_adios_file, varname, data);
-
-            Free(var1);
-            Free(var2);
-            Free(var3);
         }
-       
     }
-
     adios_close (m_adios_file);
     MPI_Barrier (comm);
 
@@ -208,6 +305,8 @@ SEXP R_append(SEXP R_filename,
               SEXP R_varname_list,   // var names
               SEXP R_var_list,       // var values
               SEXP R_varlength_list, // length of var values
+              SEXP R_ndim,           // number of dims
+              SEXP R_type, 
               SEXP R_comm,
               SEXP R_size,
               SEXP R_adios_rank)
@@ -219,6 +318,7 @@ SEXP R_append(SEXP R_filename,
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int size = asInteger(R_size);
     int rank = asInteger(R_adios_rank);
+    int typetag = asInteger(R_type);
 
     int i;
     int Global_bounds, Offsets; 
@@ -230,11 +330,28 @@ SEXP R_append(SEXP R_filename,
 
     adios_groupsize = 0;
     for(i = 0; i < nvars; i++) {
-        int length = INTEGER(R_varlength_list)[i];
-        if(length == 1) {
-            adios_groupsize += 8;
+        int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
+        int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
+        int *typetag = INTEGER(VECTOR_ELT(R_type, i));
+
+        // calculate the length of the variable
+        int temp = 1;
+        for(j = 0; j < vndim[0]; j++)
+            temp *= length[j];
+
+        if((length[0] == 1) && (vndim[0] == 1)){
+            // scalar
+            if(typetag[0] == 0) {
+                adios_groupsize += 4;
+            }else {
+                adios_groupsize += 8;
+            }
         }else {
-            adios_groupsize += (4 + 4 + 4 + length * 8);
+            if(typetag[0] == 0) {
+                adios_groupsize += (12 * vndim[0] + temp * 4);
+            }else {
+                adios_groupsize += (12 * vndim[0] + temp * 8);
+            }
         }
     }
 
@@ -243,41 +360,49 @@ SEXP R_append(SEXP R_filename,
     // Write data into variables
     for(i = 0; i < nvars; i++) {
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
-        int length = INTEGER(R_varlength_list)[i];
+        int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
+        int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
         double *data = REAL(VECTOR_ELT(R_var_list, i));
 
-        if(length == 1){
+        if((length[0] == 1) && (vndim[0] == 1)){
             // scalar
             adios_write(m_adios_file, varname, (void *) data);
         }else {
             // var
-            char* var1 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var1, varname);
-            strcat(var1, "_NX");
-            char* var2 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var2, varname);
-            strcat(var2, "_Global_bounds");
-            char* var3 = (char*)malloc(strlen(varname) + 20);
-            strcpy(var3, varname);
-            strcat(var3, "_Offsets");
+            int temp_var_length = strlen(varname) + 8;
 
-            adios_write(m_adios_file, var1, (void *) &length);
+            for(j = 0; j < vndim[0]; j++) {
+                char* local = (char*)malloc(temp_var_length);
+                strcpy(local, varname);
+                strcat(local, "_nx_");
+                strcat(local, j);
 
-            Global_bounds = length * size;
-            adios_write(m_adios_file, var2, (void *) &Global_bounds);
+                char* global = (char*)malloc(temp_var_length);
+                strcpy(global, varname);
+                strcat(global, "_gx_");
+                strcat(global, j);
 
-            Offsets = rank * length;
-            adios_write(m_adios_file, var3, (void *) &Offsets);
+                char* offset = (char*)malloc(temp_var_length);
+                strcpy(offset, varname);
+                strcat(offset, "_off_");
+                strcat(offset, j);
 
+                adios_write(m_adios_file, local, (void *) &(length[j]));
+
+                Global_bounds = length[j] * size;
+                adios_write(m_adios_file, global, (void *) &Global_bounds);
+
+                Offsets = rank * length[j];
+                adios_write(m_adios_file, offset, (void *) &Offsets);
+
+                Free(local);
+                Free(global);
+                Free(offset);
+            }
+            // write var data
             adios_write(m_adios_file, varname, data);
-
-            Free(var1);
-            Free(var2);
-            Free(var3);
         }
-       
     }
-
     adios_close (m_adios_file);
     MPI_Barrier (comm);
 

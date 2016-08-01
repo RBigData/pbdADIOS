@@ -17,6 +17,8 @@ SEXP R_write(SEXP R_filename,
              SEXP R_varname_list,   // var names
              SEXP R_var_list,       // var values
              SEXP R_varlength_list, // length of var values
+             SEXP R_ndim,           // number of dims
+             SEXP R_type, 
              SEXP R_comm,
              SEXP R_size,
              SEXP R_adios_rank);
@@ -28,6 +30,8 @@ SEXP R_append(SEXP R_filename,
               SEXP R_varname_list,   // var names
               SEXP R_var_list,       // var values
               SEXP R_varlength_list, // length of var values
+              SEXP R_ndim,           // number of dims
+              SEXP R_type, 
               SEXP R_comm,
               SEXP R_size,
               SEXP R_adios_rank);

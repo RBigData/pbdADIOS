@@ -134,12 +134,10 @@ bp.create <- function(adios.filename,
     nvars <<- 0
     varname_list <<- list()
     var_list <<- list()
-    varlength_list <<- list()
-    ndim <<- list()
+    varlength_list <<- c()
+
     # adios.tag = 0, write; adios.tag = 1, append
     adios.tag <<- 0
-    # adios.type = 0, int; adios.type = 1, double
-    adios.type <<- list()
 
     adios.group <<- as.numeric(.Call("R_create", 
                                      as.character(adios.groupname), 
@@ -159,22 +157,8 @@ bp.var <- function(adios.varname, data)
 {
     nvars <<- nvars + 1
     varname_list[[nvars]] <<- as.character(adios.varname)
-    # Check if data is double
-    if(is.double(data)) {
-        adios.type[[nvars]] <<- 1
-    }else {
-        adios.type[[nvars]] <<- 0
-    }
-    # Calculate the dim of data
-    if(is.vector(data)) {
-        var_list[[nvars]] <<- data
-        varlength_list[[nvars]] <<- length(data)
-        ndim[[nvars]] <<- 1
-    }else {
-        var_list[[nvars]] <<- data
-        varlength_list[[nvars]] <<- dim(data)
-        ndim[[nvars]] <<- length(dim(data))
-    }
+    var_list[[nvars]] <<- as.numeric(data)
+    varlength_list[nvars] <<- length(data)
 
     invisible()
 }
@@ -199,8 +183,6 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
               varname_list,
               var_list,
               varlength_list,
-              ndim,
-              adios.type
               comm.c2f(comm),
               as.integer(p),
               as.integer(adios.rank))
@@ -214,8 +196,6 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
               varname_list,
               var_list,
               varlength_list,
-              ndim,
-              adios.type
               comm.c2f(comm),
               as.integer(p),
               as.integer(adios.rank))

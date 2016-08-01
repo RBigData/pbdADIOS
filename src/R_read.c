@@ -345,7 +345,7 @@ int schedule_read (ADIOS_FILE * fp,
         if(timed) {
             icount[0] = (*vi)->nsteps - istart[0];
             for (i=0; i<(*vi)->ndim; i++)
-                icount[i+1] = (*vi)->dims[i+1] - istart[i+1];
+                icount[i+1] = (*vi)->dims[i] - istart[i+1];
         }else {
             for (i=0; i<(*vi)->ndim; i++)
                 icount[i] = (*vi)->dims[i] - istart[i];

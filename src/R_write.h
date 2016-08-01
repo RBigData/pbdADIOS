@@ -20,7 +20,7 @@ SEXP R_write(SEXP R_filename,
              SEXP R_ndim,           // number of dims
              SEXP R_type, 
              SEXP R_comm,
-             SEXP R_size,
+             SEXP R_p,
              SEXP R_adios_rank);
 
 SEXP R_append(SEXP R_filename,
@@ -33,7 +33,7 @@ SEXP R_append(SEXP R_filename,
               SEXP R_ndim,           // number of dims
               SEXP R_type, 
               SEXP R_comm,
-              SEXP R_size,
+              SEXP R_p,
               SEXP R_adios_rank);
 
 #endif

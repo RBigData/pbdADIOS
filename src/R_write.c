@@ -87,7 +87,7 @@ SEXP R_write(SEXP R_filename,
              SEXP R_ndim,           // number of dims
              SEXP R_type, 
              SEXP R_comm,
-             SEXP R_size,
+             SEXP R_p,
              SEXP R_adios_rank)
 {
     const char *filename = CHARPT(R_filename, 0); 
@@ -95,7 +95,7 @@ SEXP R_write(SEXP R_filename,
     const char *groupname = CHARPT(R_groupname, 0);
     int nvars = asInteger(R_nvars);
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
-    int size = asInteger(R_size);
+    int size = asInteger(R_p);
     int rank = asInteger(R_adios_rank);
     
     int i, j;
@@ -255,11 +255,10 @@ SEXP R_write(SEXP R_filename,
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
         int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
         int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
-        double *data = REAL(VECTOR_ELT(R_var_list, i));
+        int *typetag = INTEGER(VECTOR_ELT(R_type, i));
 
         if((length[0] == 1) && (vndim[0] == 1)){
             // scalar
-            adios_write(m_adios_file, varname, (void *) data);
         }else {
             // var
             int temp_var_length = strlen(varname) + 8;
@@ -294,8 +293,12 @@ SEXP R_write(SEXP R_filename,
                 Free(global);
                 Free(offset);
             }
-            // write var data
-            adios_write(m_adios_file, varname, data);
+        }
+        // write var data
+        if(typetag[0] == 0) {
+            adios_write(m_adios_file, varname, (void *) INTEGER(VECTOR_ELT(R_var_list, i)));
+        }else {
+            adios_write(m_adios_file, varname, (void *) REAL(VECTOR_ELT(R_var_list, i)));
         }
     }
     adios_close (m_adios_file);
@@ -317,7 +320,7 @@ SEXP R_append(SEXP R_filename,
               SEXP R_ndim,           // number of dims
               SEXP R_type, 
               SEXP R_comm,
-              SEXP R_size,
+              SEXP R_p,
               SEXP R_adios_rank)
 {
     const char *filename = CHARPT(R_filename, 0); 
@@ -325,11 +328,10 @@ SEXP R_append(SEXP R_filename,
     const char *groupname = CHARPT(R_groupname, 0);
     int nvars = asInteger(R_nvars);
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
-    int size = asInteger(R_size);
+    int size = asInteger(R_p);
     int rank = asInteger(R_adios_rank);
-    int typetag = asInteger(R_type);
 
-    int i;
+    int i, j;
     int Global_bounds, Offsets; 
     uint64_t adios_groupsize, adios_totalsize;
     int64_t m_adios_file;
@@ -374,11 +376,10 @@ SEXP R_append(SEXP R_filename,
         const char *varname = CHAR(asChar(VECTOR_ELT(R_varname_list,i)));
         int *length = INTEGER(VECTOR_ELT(R_varlength_list, i));
         int *vndim = INTEGER(VECTOR_ELT(R_ndim, i));
-        double *data = REAL(VECTOR_ELT(R_var_list, i));
-
+        int *typetag = INTEGER(VECTOR_ELT(R_type, i));
+        
         if((length[0] == 1) && (vndim[0] == 1)){
             // scalar
-            adios_write(m_adios_file, varname, (void *) data);
         }else {
             // var
             int temp_var_length = strlen(varname) + 8;
@@ -413,8 +414,12 @@ SEXP R_append(SEXP R_filename,
                 Free(global);
                 Free(offset);
             }
-            // write var data
-            adios_write(m_adios_file, varname, data);
+        }
+        // write var data
+        if(typetag[0] == 0) {
+            adios_write(m_adios_file, varname, (void *) INTEGER(VECTOR_ELT(R_var_list, i)));
+        }else {
+            adios_write(m_adios_file, varname, (void *) REAL(VECTOR_ELT(R_var_list, i)));
         }
     }
     adios_close (m_adios_file);

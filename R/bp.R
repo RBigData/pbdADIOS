@@ -161,18 +161,18 @@ bp.var <- function(adios.varname, data)
     varname_list[[nvars]] <<- as.character(adios.varname)
     # Check if data is double
     if(is.double(data)) {
-        adios.type[[nvars]] <<- 1
+        adios.type[[nvars]] <<- as.integer(1)
     }else {
-        adios.type[[nvars]] <<- 0
+        adios.type[[nvars]] <<- as.integer(0)
     }
     # Calculate the dim of data
     if(is.vector(data)) {
         var_list[[nvars]] <<- data
         varlength_list[[nvars]] <<- length(data)
-        ndim[[nvars]] <<- 1
+        ndim[[nvars]] <<- as.integer(1)
     }else {
         var_list[[nvars]] <<- data
-        varlength_list[[nvars]] <<- dim(data)
+        varlength_list[[nvars]] <<- rev(dim(data))
         ndim[[nvars]] <<- length(dim(data))
     }
 
@@ -200,9 +200,9 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
               var_list,
               varlength_list,
               ndim,
-              adios.type
+              adios.type,
               comm.c2f(comm),
-              as.integer(p),
+              as.integer(comm.size(.pbd_env$SPMD.CT$comm)),
               as.integer(adios.rank))
         adios.tag <<- 1
     }else {
@@ -215,13 +215,13 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
               var_list,
               varlength_list,
               ndim,
-              adios.type
+              adios.type,
               comm.c2f(comm),
               as.integer(p),
               as.integer(adios.rank))
     }
 
-    invisible()
+    #invisible()
 }
 
 #' @title define attributes

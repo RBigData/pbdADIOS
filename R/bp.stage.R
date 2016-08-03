@@ -42,9 +42,7 @@ bp.stage.read <- function(adios.filename,
                   as.integer(adios.rank))
 
         # Pass the read values to FUN, the default FUN is print
-        for(i in 1:nvars) {
-            FUN(X[[i]])
-        }
+        FUN(X)
 
         # Go to the next step
         adios.release.step(fp);

@@ -184,7 +184,7 @@ int schedule_stage_read (ADIOS_FILE * fp,
         }
     }
     slice(N, &istart[pos], &icount[pos], rank, p);
-
+    
     // count the total number of elements
     nelems = 1;
     for (j=0; j<(*vi)->ndim; j++) {

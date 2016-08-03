@@ -471,6 +471,20 @@ SEXP R_custom_data_access(SEXP R_adios_data,
 }
 
 /**
+ * Release a step in a stream without seeking to the next step.
+ */
+SEXP R_adios_release_step(SEXP R_adios_file_ptr)
+{
+    
+    ADIOS_FILE *fp;
+    fp = R_ExternalPtrAddr(R_adios_file_ptr);
+    
+    adios_release_step (fp);
+    
+    return R_NilValue;
+}
+
+/**
  * Advance the current step of a stream. For files opened as file, stepping has no effect.
  */
 SEXP R_adios_advance_step(SEXP R_adios_file_ptr, 

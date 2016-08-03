@@ -224,6 +224,17 @@ custom.data.access <- function(adios.data,
           adios.varinfo)
 }
 
+#' @title Release a step in a stream without seeking to the next step.
+#' 
+#' @param adios.file.ptr
+#'
+#' @export
+adios.release.step <- function(adios.file.ptr)
+{
+    .Call("R_adios_release_step", 
+          adios.file.ptr)
+}
+
 #' @title Advance the current step of a stream.
 #' 
 #' @description 
@@ -236,7 +247,8 @@ custom.data.access <- function(adios.data,
 #' @export
 adios.advance.step <- function(adios.file.ptr, 
                                adios.last, 
-                               adios.timeout.sec){
+                               adios.timeout.sec)
+{
     .Call("R_adios_advance_step", 
           adios.file.ptr,
           as.integer(adios.last), 

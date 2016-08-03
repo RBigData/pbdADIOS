@@ -176,7 +176,7 @@ int schedule_read (ADIOS_FILE * fp,
 
     // Inquiry about a variable. 
     *vi = adios_inq_var (fp, fp->var_namelist[retval]);
-    if (!vi) {
+    if (!(*vi)) {
         REprintf("Error: %s\n", adios_errmsg());
         return -1;
     }

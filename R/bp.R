@@ -35,11 +35,14 @@ bp.dump <- function(adios.filename,
           as.integer(adios.rank))
 }
 
-#' @title read variable
+#' @title read variables
 #' 
 #' @param adios.filename
 #' @param varname
+#' @param start
+#' @param count
 #' @param comm
+#' @param p number of process
 #' @param adios.rank
 #'
 #' @return variable values. If start and count are not specified, all values will be returned.

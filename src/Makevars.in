@@ -11,7 +11,8 @@ OBJECTS = R_adios_read.o \
           R_bpls.o \
           R_dump.o \
           R_read.o \
-          R_write.o
+          R_write.o\
+          R_stage_read.o
 
 ### Start making here.
 all: $(SHLIB)

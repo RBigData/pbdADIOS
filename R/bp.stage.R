@@ -32,7 +32,7 @@ bp.stage.read <- function(adios.filename,
     errno = 0
     while(errno != -21) { # err_end_of_stream = -21
 
-        # Read riables and store them as list in X
+        # Read variables and store them as list in X
         X = .Call("R_stage_read", 
                   fp,
                   as.list(varname),
@@ -42,8 +42,8 @@ bp.stage.read <- function(adios.filename,
                   as.integer(adios.rank))
 
         # Pass the read values to FUN, the default FUN is print
-        for(obj in 1:nvars) {
-            FUN(obj)
+        for(i in 1:nvars) {
+            FUN(X[[i]])
         }
 
         # Go to the next step

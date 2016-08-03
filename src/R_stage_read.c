@@ -75,7 +75,7 @@ SEXP R_stage_read(SEXP R_adios_file_ptr,
     ADIOS_VARINFO *vi_vec[nvars];   // store ADIOS_VARINFO pointers
     int nelems_vec[nvars];     // store the number of elements in each variable
 
-    int i;
+    int i, status;
 
     // schedule read
     for(i=0; i<nvars; i++) {

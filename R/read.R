@@ -7,7 +7,6 @@
 #' @param comm
 #' @param params
 #'
-##' @export
 adios.read.init.method <- function(adios.read.method, 
                                    comm = .pbd_env$SPMD.CT$comm, 
                                    params)
@@ -34,7 +33,6 @@ adios.read.init.method <- function(adios.read.method,
 #'
 #' @return adios file pointer
 #' 
-##' @export
 adios.read.open <- function(adios.filename, 
                             adios.read.method, 
                             comm = .pbd_env$SPMD.CT$comm, 
@@ -60,7 +58,6 @@ adios.read.open <- function(adios.filename,
 #' 
 #' @return adios_var_info pointer
 #' 
-##' @export
 adios.inq.var <- function(adios.file.ptr, 
                           adios.varname)
 {
@@ -76,7 +73,6 @@ adios.inq.var <- function(adios.file.ptr,
 #' 
 #' @return adios_var_info pointer
 #' 
-##' @export
 adios.inq.var.byid <- function(adios.file.ptr, 
                                adios.varid)
 {
@@ -89,7 +85,6 @@ adios.inq.var.byid <- function(adios.file.ptr,
 #' 
 #' @param adios.varinfo
 #'
-##' @export
 adios.free.varinfo <- function(adios.varinfo)
 {
     .Call("R_adios_free_varinfo", 
@@ -103,7 +98,6 @@ adios.free.varinfo <- function(adios.varinfo)
 #' @param adios.file.ptr
 #' @param adios.varinfo
 #'
-##' @export
 adios.inq.var.blockinfo <- function(adios.file.ptr, 
                                     adios.varinfo)
 {
@@ -118,7 +112,6 @@ adios.inq.var.blockinfo <- function(adios.file.ptr,
 #'
 #' @return number of dimensions
 #' 
-#' @export
 custom.inq.var.ndim <- function(adios.varinfo)
 {
     .Call("R_custom_inq_var_ndim", 
@@ -131,7 +124,6 @@ custom.inq.var.ndim <- function(adios.varinfo)
 #'
 #' @return size of each dimensions
 #' 
-##' @export
 custom.inq.var.dims <- function(adios.varinfo)
 {
     .Call("R_custom_inq_var_dims", 
@@ -146,7 +138,6 @@ custom.inq.var.dims <- function(adios.varinfo)
 #'
 #' @return adios_selection pionter
 #' 
-#' @export
 adios.selection.boundingbox <- function(adios.ndim, 
                                         adios.start, 
                                         adios.count){
@@ -172,7 +163,6 @@ adios.selection.boundingbox <- function(adios.ndim,
 #'
 #' @return pointer to the memory to hold dsata of the variable.
 #' 
-##' @export
 adios.schedule.read <- function(adios.varinfo, 
                                 adios.start, 
                                 adios.count,
@@ -198,7 +188,6 @@ adios.schedule.read <- function(adios.varinfo,
 #' @param adios.file.ptr
 #' @param adios.blocking
 #'
-##' @export
 adios.perform.reads <- function(adios.file.ptr, 
                                 adios.blocking){
     .Call("R_adios_perform_reads", 
@@ -214,7 +203,6 @@ adios.perform.reads <- function(adios.file.ptr,
 #'
 #' @return the data read by adios
 #' 
-##' @export
 custom.data.access <- function(adios.data, 
                                adios.selection, 
                                adios.varinfo){
@@ -228,7 +216,6 @@ custom.data.access <- function(adios.data,
 #' 
 #' @param adios.file.ptr
 #'
-##' @export
 adios.release.step <- function(adios.file.ptr)
 {
     .Call("R_adios_release_step", 
@@ -244,7 +231,6 @@ adios.release.step <- function(adios.file.ptr)
 #' @param adios.last
 #' @param adios.timeout.sec
 #'
-##' @export
 adios.advance.step <- function(adios.file.ptr, 
                                adios.last, 
                                adios.timeout.sec)
@@ -262,7 +248,6 @@ adios.advance.step <- function(adios.file.ptr,
 #' 
 #' @param adios.file.ptr
 #'
-##' @export
 adios.read.close <- function(adios.file.ptr)
 {
     .Call("R_adios_read_close", 
@@ -277,7 +262,6 @@ adios.read.close <- function(adios.file.ptr)
 #' 
 #' @param adios.read.method
 #'
-##' @export
 adios.read.finalize.method<- function(adios.read.method)
 {
     .Call("R_adios_read_finalize_method", 
@@ -289,7 +273,6 @@ adios.read.finalize.method<- function(adios.read.method)
 #'
 #' @return error number
 #' 
-##' @export
 adios.errno<- function()
 {
     .Call("R_adios_errno")

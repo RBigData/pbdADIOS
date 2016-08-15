@@ -2,7 +2,7 @@
 #' 
 #' @param comm
 #'
-#' @export
+##' @export
 adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_init_noxml", 
@@ -14,7 +14,7 @@ adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 #' 
 #' @param adios.max.buffersize
 #'
-#' @export
+##' @export
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
     .Call("R_adios_set_max_buffer_size", 
@@ -30,7 +30,7 @@ adios.set.max.buffersize <- function(adios.max.buffersize)
 #' 
 #' @return adios group id pointer
 #'
-#' @export
+##' @export
 adios.declare.group <- function(adios.groupname, 
                                 adios.timeindex,
                                 adios.flag)
@@ -48,7 +48,7 @@ adios.declare.group <- function(adios.groupname,
 #' @param adios.params
 #' @param adios.basepath
 #'
-#' @export
+##' @export
 adios.select.method <- function(adios.group_p, 
                                 adios.method, 
                                 adios.params, 
@@ -75,7 +75,7 @@ adios.select.method <- function(adios.group_p,
 #' @return a variable ID, which can be used in adios_write_byid()
 #'    0 return value indicates an error
 #'
-#' @export
+##' @export
 adios.define.var <- function(adios.group_p, 
                              adios.varname, 
                              adios.path, 
@@ -107,7 +107,7 @@ adios.define.var <- function(adios.group_p,
 #'
 #' @return adios file id pointer
 #' 
-#' @export
+##' @export
 adios.open <- function(adios.groupname, 
                        adios.filename, 
                        adios.mode, 
@@ -129,7 +129,7 @@ adios.open <- function(adios.groupname,
 #'
 #' @return R_adios_total_size
 #' 
-#' @export
+##' @export
 adios.group.size <- function(adios.file_p, 
                              adios.groupsize)
 {
@@ -144,7 +144,7 @@ adios.group.size <- function(adios.file_p,
 #' @param adios.varname
 #' @param adios.var
 #'
-#' @export
+##' @export
 adios.write <- function(adios.file_p, 
                         adios.varname, 
                         adios.var)
@@ -160,7 +160,7 @@ adios.write <- function(adios.file_p,
 #' 
 #' @param adios.file_p
 #'
-#' @export
+##' @export
 adios.close <- function(adios.file_p)
 {
     .Call("R_adios_close", 
@@ -171,7 +171,7 @@ adios.close <- function(adios.file_p)
 #' 
 #' @param comm
 #'
-#' @export
+##' @export
 adios.finalize <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_finalize", 

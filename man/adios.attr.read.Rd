@@ -2,13 +2,16 @@
 % Please edit documentation in R/util.R
 \name{adios.attr.read}
 \alias{adios.attr.read}
-\title{print all adios attributes}
+\title{Print adios attributes}
 \usage{
 adios.attr.read(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm), adios.fp)
 }
 \arguments{
 \item{adios.rank}{comm rank}
 
-\item{adios.fp}{}
+\item{adios.fp}{adios file pointer}
+}
+\description{
+This function is used to print all the attributes in a bp file.
 }
 

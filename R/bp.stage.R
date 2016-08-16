@@ -1,8 +1,14 @@
-#' @title staging read variables
-#' 
-#' @param adios.filename
-#' @param varname
-#' @param comm
+#' @title bp.stage.read
+#'
+#' @description 
+#' This function is used to read the variables using staging method. 
+#' Current staging method used is FLEXPATH. The user can provide an function to handle
+#' the data read from writing stream. If the function is not provided, the data will be
+#' printed by default.
+#'
+#' @param adios.filename adios filename
+#' @param varname variable name
+#' @param comm 
 #' @param adios.rank
 #'
 #' @return variable values. If start and count are not specified, all values will be returned.

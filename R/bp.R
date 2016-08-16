@@ -1,8 +1,13 @@
-#' @title print variables and attributes
+
+#' @title bpls
+#'
+#' @description 
+#' This function is used to print variables and attributes.
 #' 
-#' @param adios.filename
-#' @param comm
-#' @param adios.rank
+#' @param adios.filename adios file name
+#' 
+#' @examples
+#' bpls("attributes.bp")
 #'
 #' @export
 bpls <- function(adios.filename,
@@ -16,14 +21,18 @@ bpls <- function(adios.filename,
     invisible()
 }
 
-#' @title dump variables
+#' @title bp.dump
+#'
+#' @description 
+#' This function is used to dump all variables
 #'
 #' @param adios.filename
-#' @param comm
-#' @param adios.rank
 #'
 #' @return a list of variables
 #'
+#' @examples
+#' bp.dump("attributes.bp")
+#' 
 #' @export
 bp.dump <- function(adios.filename,
                  comm = .pbd_env$SPMD.CT$comm,
@@ -35,18 +44,31 @@ bp.dump <- function(adios.filename,
           as.integer(adios.rank))
 }
 
-#' @title read variables
+#' @title bp.read
 #' 
-#' @param adios.filename
-#' @param varname
-#' @param start
-#' @param count
-#' @param comm
-#' @param p number of process
-#' @param adios.rank
+#' @description 
+#' This function is used to read variables. You can read one or more variables 
+#' with specific range or whole.
+#' 
+#' @param adios.filename adios file name
+#' @param varname 
+#' variable name
 #'
 #' @return variable values. If start and count are not specified, all values will be returned.
 #'
+#' @examples
+#' read a scalar
+#' bp.read("attributes.bp", "NX")
+#'
+#' read a variable with start
+#' bp.read("attributes.bp", "temperature", c(0, 0))
+#'
+#' read a variable with count
+#' bp.read("attributes.bp", "temperature", count=c(1, 2))
+#'
+#' read a variable with start and count
+#' bp.read("attributes.bp", "temperature", c(0, 9), c(1, 1))
+#' 
 #' @export
 bp.read <- function(adios.filename,
                     varname,
@@ -116,14 +138,20 @@ bp.read <- function(adios.filename,
           as.integer(adios.rank))
 }
 
-#' @title create adios group and store file name
+#' @title bp.create
 #' 
-#' @param adios.filename
-#' @param adios.groupname
+#' @description 
+#' This function is create adios group and store file name.
+#' 
+#' @param adios.filename adios file name
+#' @param adios.groupname adios group name
 #' @param comm
 #'
-#' @return group pointer. 
+#' @return group pointer
 #'
+#' @examples
+#' bp.create("bptest.bp")
+#' 
 #' @export
 bp.create <- function(adios.filename,
                       adios.groupname = "bp.group",
@@ -143,11 +171,17 @@ bp.create <- function(adios.filename,
     invisible()
 }
 
-#' @title register variable names and values
+#' @title bp.var
 #' 
-#' @param adios.varname
-#' @param data
+#' @description 
+#' This function is used to register variable names and values.
+#' 
+#' @param adios.varname variable name
+#' @param data 
 #'
+#' @examples
+#' bp.var("a", a)
+#' 
 #' @export
 bp.var <- function(adios.varname, data)
 {
@@ -173,12 +207,14 @@ bp.var <- function(adios.varname, data)
     invisible()
 }
 
-#' @title write or append variables to bp file
+#' @title bp.write
 #' 
-#' @param comm
-#' @param p
-#' @param adios.rank
+#' @description 
+#' This function is used to write or append variables to bp file.
 #'
+#' @examples
+#' bp.write()
+#' 
 #' @export
 bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
                      p = comm.size(.pbd_env$SPMD.CT$comm),
@@ -218,11 +254,19 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
     #invisible()
 }
 
-#' @title define attributes
+#' @title bp.attr
 #' 
-#' @param adios.attrname
+#' @description 
+#' This function is used to define attributes for a bp file.
+#' 
+#' @param adios.attrname adios attribute name
 #' @param data
 #'
+#' @examples
+#' today <- Sys.Date()
+#' bp.attr("date", format(today, format="%B %d %Y"))
+#' bp.attr("README", "This is just a test.")
+#' 
 #' @export
 bp.attr <- function(adios.attrname, data)
 {
@@ -235,8 +279,14 @@ bp.attr <- function(adios.attrname, data)
     invisible()
 }
 
-#' @title close adios and clear global environment
+#' @title bp.flush
+#' 
+#' @description 
+#' This function is used to close adios and clear custom environment
 #'
+#' @examples
+#' bp.flush()
+#' 
 #' @export
 bp.flush <- function()
 {

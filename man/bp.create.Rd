@@ -2,15 +2,26 @@
 % Please edit documentation in R/bp.R
 \name{bp.create}
 \alias{bp.create}
-\title{create adios group and store file name}
+\title{bp.create}
 \usage{
 bp.create(adios.filename, adios.groupname = "bp.group", buffer.size = 20,
   comm = .pbd_env$SPMD.CT$comm)
 }
 \arguments{
+\item{adios.filename}{adios file name}
+
+\item{adios.groupname}{adios group name}
+
 \item{comm}{}
 }
 \value{
-group pointer.
+group pointer
+}
+\description{
+This function is create adios group and store file name.
+}
+\examples{
+bp.create("bptest.bp")
+
 }
 

@@ -2,18 +2,36 @@
 % Please edit documentation in R/bp.R
 \name{bp.read}
 \alias{bp.read}
-\title{read variables}
+\title{bp.read}
 \usage{
 bp.read(adios.filename, varname, start = NULL, count = NULL,
   comm = .pbd_env$SPMD.CT$comm, p = comm.size(.pbd_env$SPMD.CT$comm),
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
 \arguments{
-\item{p}{number of process}
+\item{adios.filename}{adios file name}
 
-\item{adios.rank}{}
+\item{varname}{variable name}
 }
 \value{
 variable values. If start and count are not specified, all values will be returned.
+}
+\description{
+This function is used to read variables. You can read one or more variables 
+with specific range or whole.
+}
+\examples{
+read a scalar
+bp.read("attributes.bp", "NX")
+
+read a variable with start
+bp.read("attributes.bp", "temperature", c(0, 0))
+
+read a variable with count
+bp.read("attributes.bp", "temperature", count=c(1, 2))
+
+read a variable with start and count
+bp.read("attributes.bp", "temperature", c(0, 9), c(1, 1))
+
 }
 

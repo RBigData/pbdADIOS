@@ -2,15 +2,22 @@
 % Please edit documentation in R/bp.R
 \name{bp.dump}
 \alias{bp.dump}
-\title{dump variables}
+\title{bp.dump}
 \usage{
 bp.dump(adios.filename, comm = .pbd_env$SPMD.CT$comm,
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
 \arguments{
-\item{adios.rank}{}
+\item{adios.filename}{}
 }
 \value{
 a list of variables
+}
+\description{
+This function is used to dump all variables
+}
+\examples{
+bp.dump("attributes.bp")
+
 }
 

@@ -2,11 +2,20 @@
 % Please edit documentation in R/bp.R
 \name{bp.var}
 \alias{bp.var}
-\title{register variable names and values}
+\title{bp.var}
 \usage{
 bp.var(adios.varname, data)
 }
 \arguments{
+\item{adios.varname}{variable name}
+
 \item{data}{}
+}
+\description{
+This function is used to register variable names and values.
+}
+\examples{
+bp.var("a", a)
+
 }
 

@@ -2,12 +2,19 @@
 % Please edit documentation in R/bp.R
 \name{bpls}
 \alias{bpls}
-\title{print variables and attributes}
+\title{bpls}
 \usage{
 bpls(adios.filename, comm = .pbd_env$SPMD.CT$comm,
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
 \arguments{
-\item{adios.rank}{}
+\item{adios.filename}{adios file name}
+}
+\description{
+This function is used to print variables and attributes.
+}
+\examples{
+bpls("attributes.bp")
+
 }
 

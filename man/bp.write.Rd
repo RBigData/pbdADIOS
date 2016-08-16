@@ -2,12 +2,16 @@
 % Please edit documentation in R/bp.R
 \name{bp.write}
 \alias{bp.write}
-\title{write or append variables to bp file}
+\title{bp.write}
 \usage{
 bp.write(comm = .pbd_env$SPMD.CT$comm, p = comm.size(.pbd_env$SPMD.CT$comm),
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
-\arguments{
-\item{adios.rank}{}
+\description{
+This function is used to write or append variables to bp file.
+}
+\examples{
+bp.write()
+
 }
 

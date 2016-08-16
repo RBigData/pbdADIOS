@@ -1,9 +1,11 @@
-#' @title print all adios attributes
+#' @title Print adios attributes
 #' 
-#' @param adios.rank comm rank
-#' @param adios.fp
+#' @description
+#' This function is used to print all the attributes in a bp file.
 #'
-#' @export
+#' @param adios.rank comm rank
+#' @param adios.fp adios file pointer
+#'
 adios.attr.read <- function(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm), 
                             adios.fp)
 {
@@ -13,12 +15,14 @@ adios.attr.read <- function(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm),
     invisible()
 }
 
-#' @title print all adios variables with related attributes
+#' @title Print adios variables and attributes
 #' 
-#' @param adios.rank comm rank
-#' @param adios.fp
+#' @description
+#' This function is used to print all adios variables with related attributes in a bp file.
 #'
-#' @export
+#' @param adios.rank comm rank
+#' @param adios.fp adios file pointer
+#'
 adios.var.attr.read <- function(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm), 
                                 adios.fp)
 {

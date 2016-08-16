@@ -2,8 +2,15 @@
 % Please edit documentation in R/bp.R
 \name{bp.flush}
 \alias{bp.flush}
-\title{close adios and clear global environment}
+\title{bp.flush}
 \usage{
 bp.flush()
+}
+\description{
+This function is used to close adios and clear custom environment
+}
+\examples{
+bp.flush()
+
 }
 

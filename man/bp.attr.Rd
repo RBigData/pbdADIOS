@@ -2,11 +2,22 @@
 % Please edit documentation in R/bp.R
 \name{bp.attr}
 \alias{bp.attr}
-\title{define attributes}
+\title{bp.attr}
 \usage{
 bp.attr(adios.attrname, data)
 }
 \arguments{
+\item{adios.attrname}{adios attribute name}
+
 \item{data}{}
+}
+\description{
+This function is used to define attributes for a bp file.
+}
+\examples{
+today <- Sys.Date()
+bp.attr("date", format(today, format="\%B \%d \%Y"))
+bp.attr("README", "This is just a test.")
+
 }
 

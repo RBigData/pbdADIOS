@@ -1,7 +1,9 @@
-#' @title ADIOS No-XML write init.
+#' @title R wrapper of ADIOS write API
 #' 
-#' @param comm
-#'
+#' @description 
+#' For more details of these APIs, please refer to https://github.com/ornladios/ADIOS/blob/master/src/public/adios.h
+
+#' @rdname adios.write.api
 adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_init_noxml", 
@@ -9,10 +11,7 @@ adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
     invisible()
 }
 
-#' @title Set maximum buffer size.
-#' 
-#' @param adios.max.buffersize
-#'
+#' @rdname adios.write.api
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
     .Call("R_adios_set_max_buffer_size", 
@@ -20,14 +19,7 @@ adios.set.max.buffersize <- function(adios.max.buffersize)
     invisible()
 }
 
-#' @title Declare a ADIOS group.
-#' 
-#' @param adios.groupname
-#' @param adios.timeindex
-#' @param adios.flag
-#' 
-#' @return adios group id pointer
-#'
+#' @rdname adios.write.api
 adios.declare.group <- function(adios.groupname, 
                                 adios.timeindex,
                                 adios.flag)
@@ -38,13 +30,7 @@ adios.declare.group <- function(adios.groupname,
           as.character(adios.flag))
 }
 
-#' @title Select a I/O method for a ADIOS group.
-#' 
-#' @param adios.group_p
-#' @param adios.method
-#' @param adios.params
-#' @param adios.basepath
-#'
+#' @rdname adios.write.api
 adios.select.method <- function(adios.group_p, 
                                 adios.method, 
                                 adios.params, 
@@ -58,19 +44,7 @@ adios.select.method <- function(adios.group_p,
           as.character(adios.basepath))        
 }
 
-#' @title Define a ADIOS variable
-#' 
-#' @param adios.group_p
-#' @param adios.varname
-#' @param adios.path
-#' @param adios.type
-#' @param adios.localdim
-#' @param adios.globaldim
-#' @param adios.localoffset
-#'
-#' @return a variable ID, which can be used in adios_write_byid()
-#'    0 return value indicates an error
-#'
+#' @rdname adios.write.api
 adios.define.var <- function(adios.group_p, 
                              adios.varname, 
                              adios.path, 
@@ -90,18 +64,7 @@ adios.define.var <- function(adios.group_p,
           as.character(adios.localoffset))
 }
 
-#' @title Open or to append to an output file.
-#' 
-#' @description 
-#' modes = "r" = "read", "w" = "write", "a" = "append", "u" = "update"
-#' 
-#' @param adios.groupname
-#' @param adios.filename
-#' @param adios.mode
-#' @param comm
-#'
-#' @return adios file id pointer
-#' 
+#' @rdname adios.write.api
 adios.open <- function(adios.groupname, 
                        adios.filename, 
                        adios.mode, 
@@ -115,14 +78,7 @@ adios.open <- function(adios.groupname,
           comm.c2f(comm))
 }
 
-#' This function passes the size of the group to the internal ADIOS transport structure 
-#' to facilitate the internal buffer management and to construct the group index table
-#' 
-#' @param adios.file_p
-#' @param adios.groupsize
-#'
-#' @return R_adios_total_size
-#' 
+#' @rdname adios.write.api
 adios.group.size <- function(adios.file_p, 
                              adios.groupsize)
 {
@@ -131,12 +87,7 @@ adios.group.size <- function(adios.file_p,
           as.numeric(adios.groupsize))
 }
 
-#' @title Write the data either to internal buffer or disk.
-#' 
-#' @param adios.file_p
-#' @param adios.varname
-#' @param adios.var
-#'
+#' @rdname adios.write.api
 adios.write <- function(adios.file_p, 
                         adios.varname, 
                         adios.var)
@@ -148,20 +99,14 @@ adios.write <- function(adios.file_p,
     invisible()
 }
 
-#' @title Commit write/read operation and close the data.
-#' 
-#' @param adios.file_p
-#'
+#' @rdname adios.write.api
 adios.close <- function(adios.file_p)
 {
     .Call("R_adios_close", 
           adios.file_p)
 }
 
-#' @title Terminate ADIOS.
-#' 
-#' @param comm
-#'
+#' @rdname adios.write.api
 adios.finalize <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_finalize", 

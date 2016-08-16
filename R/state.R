@@ -5,9 +5,6 @@ init_state <- function(envir = .GlobalEnv)
     if (!exists(".adiosenv", envir = envir))
         envir$.adiosenv <- new.env(parent = envir)
   
-    .adiosenv$adios.filename <- adios.filename
-    .adiosenv$adios.groupname <- adios.groupname
-
     .adiosenv$nvars <- 0
     .adiosenv$varname_list <- list()
     .adiosenv$var_list <- list()

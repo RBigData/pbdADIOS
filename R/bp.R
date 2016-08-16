@@ -133,6 +133,8 @@ bp.create <- function(adios.filename,
     # Init ADIOS environment
     init_state()
 
+    .adiosenv$adios.filename <- adios.filename
+    .adiosenv$adios.groupname <- adios.groupname
     .adiosenv$adios.group <- as.numeric(.Call("R_create", 
                                         as.character(adios.groupname), 
                                         as.integer(buffer.size),
@@ -182,7 +184,7 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
                      p = comm.size(.pbd_env$SPMD.CT$comm),
                      adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 {
-    if(adios.tag == 0) {
+    if(.adiosenv$adios.tag == 0) {
         .Call("R_write", 
               as.character(.adiosenv$adios.filename),
               .adiosenv$adios.group,
@@ -225,7 +227,7 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
 bp.attr <- function(adios.attrname, data)
 {
     .Call("R_define_attr",
-          adios.group,
+          .adiosenv$adios.group,
           as.character(adios.attrname),
           as.integer(length(data)),
           data)

@@ -39,7 +39,15 @@
 #'  R_adios_print_attr,
 #'  R_adios_attr_read,
 #'  R_adios_var_attr_read,
-#'  R_bpls
+#'
+#   ### ADIOS higher level function
+#'  R_bpls,
+#'  R_dump,
+#'  R_write,
+#'  R_append,
+#'  R_read,
+#'  R_stage_read,
+#'
 #'
 #' @import pbdMPI
 #' @docType package

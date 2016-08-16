@@ -130,24 +130,13 @@ bp.create <- function(adios.filename,
                       buffer.size = 20,
                       comm = .pbd_env$SPMD.CT$comm)
 {
-    # Assign related variables to global environment
-    adios.filename <<- adios.filename
-    adios.groupname <<- adios.groupname
+    # Init ADIOS environment
+    init_state()
 
-    nvars <<- 0
-    varname_list <<- list()
-    var_list <<- list()
-    varlength_list <<- list()
-    ndim <<- list()
-    # adios.tag = 0, write; adios.tag = 1, append
-    adios.tag <<- 0
-    # adios.type = 0, int; adios.type = 1, double
-    adios.type <<- list()
-
-    adios.group <<- as.numeric(.Call("R_create", 
-                                     as.character(adios.groupname), 
-                                     as.integer(buffer.size),
-                                     comm.c2f(comm)))
+    .adiosenv$adios.group <- as.numeric(.Call("R_create", 
+                                        as.character(adios.groupname), 
+                                        as.integer(buffer.size),
+                                        comm.c2f(comm)))
 
     invisible()
 }
@@ -160,23 +149,23 @@ bp.create <- function(adios.filename,
 #' @export
 bp.var <- function(adios.varname, data)
 {
-    nvars <<- nvars + 1
-    varname_list[[nvars]] <<- as.character(adios.varname)
+    .adiosenv$nvars <- .adiosenv$nvars + 1
+    .adiosenv$varname_list[[.adiosenv$nvars]] <- as.character(adios.varname)
     # Check if data is double
     if(is.double(data)) {
-        adios.type[[nvars]] <<- as.integer(1)
+        .adiosenv$adios.type[[.adiosenv$nvars]] <- as.integer(1)
     }else {
-        adios.type[[nvars]] <<- as.integer(0)
+        .adiosenv$adios.type[[.adiosenv$nvars]] <- as.integer(0)
     }
     # Calculate the dim of data
     if(is.vector(data)) {
-        var_list[[nvars]] <<- data
-        varlength_list[[nvars]] <<- length(data)
-        ndim[[nvars]] <<- as.integer(1)
+        .adiosenv$var_list[[.adiosenv$nvars]] <- data
+        .adiosenv$varlength_list[[.adiosenv$nvars]] <- length(data)
+        .adiosenv$ndim[[.adiosenv$nvars]] <- as.integer(1)
     }else {
-        var_list[[nvars]] <<- data
-        varlength_list[[nvars]] <<- rev(dim(data))
-        ndim[[nvars]] <<- length(dim(data))
+        .adiosenv$var_list[[.adiosenv$nvars]] <- data
+        .adiosenv$varlength_list[[.adiosenv$nvars]] <- rev(dim(data))
+        .adiosenv$ndim[[.adiosenv$nvars]] <- length(dim(data))
     }
 
     invisible()
@@ -195,30 +184,30 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
 {
     if(adios.tag == 0) {
         .Call("R_write", 
-              as.character(adios.filename),
-              adios.group,
-              as.character(adios.groupname),
-              as.integer(nvars),
-              varname_list,
-              var_list,
-              varlength_list,
-              ndim,
-              adios.type,
+              as.character(.adiosenv$adios.filename),
+              .adiosenv$adios.group,
+              as.character(.adiosenv$adios.groupname),
+              as.integer(.adiosenv$nvars),
+              .adiosenv$varname_list,
+              .adiosenv$var_list,
+              .adiosenv$varlength_list,
+              .adiosenv$ndim,
+              .adiosenv$adios.type,
               comm.c2f(comm),
               as.integer(comm.size(.pbd_env$SPMD.CT$comm)),
               as.integer(adios.rank))
-        adios.tag <<- 1
+        .adiosenv$adios.tag <- 1
     }else {
         .Call("R_append", 
-              as.character(adios.filename),
-              adios.group,
-              as.character(adios.groupname),
-              as.integer(nvars),
-              varname_list,
-              var_list,
-              varlength_list,
-              ndim,
-              adios.type,
+              as.character(.adiosenv$adios.filename),
+              .adiosenv$adios.group,
+              as.character(.adiosenv$adios.groupname),
+              as.integer(.adiosenv$nvars),
+              .adiosenv$varname_list,
+              .adiosenv$var_list,
+              .adiosenv$varlength_list,
+              .adiosenv$ndim,
+              .adiosenv$adios.type,
               comm.c2f(comm),
               as.integer(p),
               as.integer(adios.rank))
@@ -250,8 +239,8 @@ bp.attr <- function(adios.attrname, data)
 bp.flush <- function()
 {
     adios.finalize()
-    # Clear global environment
-    rm(list = ls(pos = ".GlobalEnv"), pos = ".GlobalEnv")
+    # Clear custom environment
+    rm(list = ls(pos = .adiosenv), pos = .adiosenv)
     
     invisible()
 }

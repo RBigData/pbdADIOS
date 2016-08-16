@@ -7,8 +7,6 @@ License: Mozilla Public License 2.0
 Depends:
     R (>= 3.0.0),
     pbdMPI (>= 0.3.0)
-Imports:
-    pbdMPI
 Suggests:
     knitr,
     rmarkdown

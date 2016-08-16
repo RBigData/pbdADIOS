@@ -5,10 +5,10 @@ for IO. Staging and in situ capability.
 
 pbdADIOS requires:
   * R version 3.1.0 or higher with pbdMPI
-  * [ADIOS 1.9.0 library](https://www.olcf.ornl.gov/center-projects/adios/)
+  * [ADIOS 1.10.0 library](https://www.olcf.ornl.gov/center-projects/adios/)
 
 More information about pbdADIOS can be found in the
-[ADIOS User's Manual](http://users.nccs.gov/~pnorbert/ADIOS-UsersManual-1.7.0.pdf).
+[ADIOS User's Manual](http://users.nccs.gov/~pnorbert/ADIOS-UsersManual-1.10.0.pdf).
 
 # Usage
 

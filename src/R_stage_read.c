@@ -63,7 +63,7 @@ SEXP R_stage_read(SEXP R_adios_file_ptr,
 {
     ADIOS_FILE  *fp = R_ExternalPtrAddr(R_adios_file_ptr);
     int nvars = asInteger(R_nvars);   //number of variables to read
-    MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
+    //MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     uint64_t rank = (uint64_t) asInteger(R_adios_rank);
     uint64_t p = (uint64_t) asInteger(R_p);
     

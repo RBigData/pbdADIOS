@@ -50,13 +50,16 @@ SEXP R_read(SEXP R_adios_path,
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
         REprintf("Error: %s\n", adios_errmsg());
-        exit(6);
+        //exit(6);
+        return R_NilValue;
     }
 
     // open the BP file
     fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
     if (fp == NULL) {
-        exit(7);
+        REprintf("Error: %s\n", adios_errmsg());
+        //exit(7);
+        return R_NilValue;
     }
 
     // schedule read
@@ -594,6 +597,7 @@ SEXP copy_read (SEXP R_adios_var_info,
             break;
            
         default:
+            out = R_NilValue;
             break;
     }
     UNPROTECT(1);

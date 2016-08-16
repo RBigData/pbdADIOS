@@ -18,13 +18,16 @@ SEXP R_bpls(SEXP R_adios_path,
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
         REprintf("Error: %s\n", adios_errmsg());
-        exit(6);
+        //exit(6);
+        return R_NilValue;
     }
 
     // open the BP file
     fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
     if (fp == NULL) {
-        exit(7);
+        REprintf("Error: %s\n", adios_errmsg());
+        //exit(7);
+        return R_NilValue;
     }
 
     if(!rank)
@@ -142,7 +145,7 @@ int doList_group (ADIOS_FILE *fp)
     bool timestep = false;
     char commentchar;
     commentchar = ' ';
-    ADIOS_VARINFO *vi; 
+    ADIOS_VARINFO *vi = 0; 
     ADIOS_VARINFO **vis; 
     enum ADIOS_DATATYPES vartype;
     int     i, j, n;             // loop vars
@@ -157,6 +160,7 @@ int doList_group (ADIOS_FILE *fp)
     bool    timed;  // variable has multiple timesteps
 
     nNames = fp->nvars + fp->nattrs;
+    timed = 0;
 
     names = (char **) malloc (nNames * sizeof (char*)); // store only pointers
     isVar = (bool *) malloc (nNames * sizeof (bool));

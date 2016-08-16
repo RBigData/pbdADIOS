@@ -46,7 +46,7 @@
 #'  R_write,
 #'  R_append,
 #'  R_read,
-#'  R_stage_read,
+#'  R_stage_read
 #'
 #'
 #' @import pbdMPI

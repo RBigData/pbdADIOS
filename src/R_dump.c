@@ -28,18 +28,21 @@ SEXP R_dump(SEXP R_adios_path,
     MPI_Comm comm;
     comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);
     int rank = asInteger(R_adios_rank);
-    SEXP R_vec;
+    SEXP R_vec = R_NilValue;
 
     status = adios_read_init_method (ADIOS_READ_METHOD_BP, comm, "verbose=2");
     if (status) {
         REprintf("Error: %s\n", adios_errmsg());
-        exit(6);
+        //exit(6);
+        return R_NilValue;
     }
 
     // open the BP file
     fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
     if (fp == NULL) {
-        exit(7);
+        REprintf("Error: %s\n", adios_errmsg());
+        //exit(7);
+        return R_NilValue;
     }
 
     SEXP R_adios_fp;
@@ -64,10 +67,9 @@ SEXP dump_vars (SEXP R_adios_fp)
 
     ADIOS_VARINFO *vi; 
     ADIOS_VARINFO **vis; 
-    enum ADIOS_DATATYPES vartype;
-    int     i, j, n;             // loop vars
+    //enum ADIOS_DATATYPES vartype;
+    int     n;             // loop vars
 
-    int     retval;
     int     nNames; // number of vars + attrs
     bool    timed;  // variable has multiple timesteps
 
@@ -96,7 +98,7 @@ SEXP dump_vars (SEXP R_adios_fp)
         SEXP R_adios_var_info;
 
         vi = vis[n];
-        vartype = vi->type;
+        //vartype = vi->type;
         timed = (vi->nsteps > 1);
         newRptr(vi, R_adios_var_info, finalizer0);
 
@@ -277,6 +279,7 @@ SEXP readVar(SEXP R_adios_fp,
             break;
 
         default:
+            out = R_NilValue;
             break;
     }
 

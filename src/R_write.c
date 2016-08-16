@@ -6,18 +6,6 @@
  *  Higher level implementation of ADIOS write API
  */ 
 
-/** 
- *  Finalizer that only clears R pointer
- */
-static void finalizer0(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        return;
-    } else {
-        R_ClearExternalPtr(Rptr);
-    }
-}
 
 /**
  * ADIOS init and create group etc.
@@ -353,7 +341,7 @@ SEXP R_append(SEXP R_filename,
               SEXP R_adios_rank)
 {
     const char *filename = CHARPT(R_filename, 0); 
-    int64_t m_adios_group = (int64_t)(REAL(R_group)[0]);
+    //int64_t m_adios_group = (int64_t)(REAL(R_group)[0]);
     const char *groupname = CHARPT(R_groupname, 0);
     int nvars = asInteger(R_nvars);
     MPI_Comm comm = MPI_Comm_f2c(INTEGER(R_comm)[0]);

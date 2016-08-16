@@ -23,22 +23,6 @@ static void finalizer(SEXP Rptr)
     }
 }
 
-/** 
- *  Finalizer that only clears R pointer
- */
-static void finalizer0(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        R_debug_print("finalizer0: Nothing to finalize\n");
-        return;
-    } else {
-        R_debug_print("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
-        R_ClearExternalPtr(Rptr);
-        R_debug_print("finalizer0: %p Cleared Rptr.\n", ptr);
-    }
-}
-
 /**
  *  ADIOS_BUFFER_ALLOC_WHEN lookup table
  */
@@ -338,6 +322,9 @@ SEXP R_adios_write(SEXP R_m_adios_file,
                    SEXP R_adios_var_name, 
                    SEXP R_adios_var)
 {
+    SEXP ret;
+    PROTECT(ret = allocVector(INTSXP, 1));
+
     int64_t *m_adios_file;
     m_adios_file = R_ExternalPtrAddr(R_m_adios_file);
 
@@ -349,28 +336,27 @@ SEXP R_adios_write(SEXP R_m_adios_file,
     var = R_ExternalPtrAddr(R_adios_var); 
     INT(ret) = adios_write(*file_p, var_name, var); */
     
-    int check;
-
     if(IS_INTEGER(R_adios_var)){
         int *int_var;
         int_var = INTEGER(R_adios_var);
-        check = adios_write(*m_adios_file, 
+        INT(ret) = adios_write(*m_adios_file, 
                             var_name, 
                             (void *)int_var);
     }else if(IS_NUMERIC(R_adios_var)){
         double *double_var;
         double_var = REAL(R_adios_var);
-        check = adios_write(*m_adios_file, 
+        INT(ret) = adios_write(*m_adios_file, 
                             var_name, 
                             (void *)double_var);
     }
     else{
-        check = -1; //                                                      
+        INT(ret) = -1; //                                                      
     }
     
     R_debug_print("IN R_adios_write function call \n");
 
-    return R_NilValue;
+    UNPROTECT(1);
+    return ret;
 }
 
 /**

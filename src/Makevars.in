@@ -1,6 +1,7 @@
 #################################################################
 
 PKG_CPPFLAGS = @ADIOS_CPPFLAGS@ @MPI_CPPFLAGS@
+PKG_CFLAGS = -O2 -Wall -pedantic -std=c11
 #PKG_CFLAGS = -w
 PKG_LIBS = @ADIOS_LDFLAGS@ @MPI_LDFLAGS@ 
 

@@ -1,5 +1,5 @@
 # parallel read example
-# mpirun -np 2 Rscript bp.write.demo.R
+# mpirun -np 2 Rscript bp.read.demo.R
 
 # load pbdADIOS lib
 library(pbdADIOS, quiet = TRUE)

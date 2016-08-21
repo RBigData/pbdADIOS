@@ -8,8 +8,10 @@
 #'
 #' @param adios.filename adios filename
 #' @param varname variable name
-#' @param comm 
-#' @param adios.rank
+#' @param FUN user defined function. If not specified, print will be the default function.
+#' @param comm mpi comm
+#' @param p number of processes
+#' @param adios.rank comm rank
 #'
 #' @return variable values. If start and count are not specified, all values will be returned.
 #'

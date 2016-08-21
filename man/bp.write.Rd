@@ -7,11 +7,14 @@
 bp.write(comm = .pbd_env$SPMD.CT$comm, p = comm.size(.pbd_env$SPMD.CT$comm),
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
+\arguments{
+\item{comm}{mpi comm}
+
+\item{p}{number of processes}
+
+\item{adios.rank}{comm rank}
+}
 \description{
 This function is used to write or append variables to bp file.
-}
-\examples{
-bp.write()
-
 }
 

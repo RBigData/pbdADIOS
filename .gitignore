@@ -10,3 +10,5 @@ pbdADIOS.Rproj
 .Rbuildignore
 autom4te.cache
 note.txt
+.gitignore
+.git

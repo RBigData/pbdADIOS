@@ -12,6 +12,16 @@ bp.read(adios.filename, varname, start = NULL, count = NULL,
 \item{adios.filename}{adios file name}
 
 \item{varname}{variable name}
+
+\item{start}{start position of selection}
+
+\item{count}{length of selection}
+
+\item{comm}{mpi comm}
+
+\item{p}{number of processes}
+
+\item{adios.rank}{comm rank}
 }
 \value{
 variable values. If start and count are not specified, all values will be returned.
@@ -21,16 +31,16 @@ This function is used to read variables. You can read one or more variables
 with specific range or whole.
 }
 \examples{
-read a scalar
+##read a scalar
 bp.read("attributes.bp", "NX")
 
-read a variable with start
+##read a variable with start
 bp.read("attributes.bp", "temperature", c(0, 0))
 
-read a variable with count
+##read a variable with count
 bp.read("attributes.bp", "temperature", count=c(1, 2))
 
-read a variable with start and count
+##read a variable with start and count
 bp.read("attributes.bp", "temperature", c(0, 9), c(1, 1))
 
 }

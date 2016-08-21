@@ -1,9 +1,6 @@
-#' @title R wrapper of ADIOS write API
-#' 
-#' @description 
-#' For more details of these APIs, please refer to https://github.com/ornladios/ADIOS/blob/master/src/public/adios.h
+# R wrapper of ADIOS write API
+# For more details of these APIs, please refer to https://github.com/ornladios/ADIOS/blob/master/src/public/adios.h
 
-#' @rdname adios.write.api
 adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_init_noxml", 
@@ -11,7 +8,6 @@ adios.init.noxml <- function(comm = .pbd_env$SPMD.CT$comm)
     invisible()
 }
 
-#' @rdname adios.write.api
 adios.set.max.buffersize <- function(adios.max.buffersize)
 {
     .Call("R_adios_set_max_buffer_size", 
@@ -19,7 +15,6 @@ adios.set.max.buffersize <- function(adios.max.buffersize)
     invisible()
 }
 
-#' @rdname adios.write.api
 adios.declare.group <- function(adios.groupname, 
                                 adios.timeindex,
                                 adios.flag)
@@ -30,7 +25,6 @@ adios.declare.group <- function(adios.groupname,
           as.character(adios.flag))
 }
 
-#' @rdname adios.write.api
 adios.select.method <- function(adios.group_p, 
                                 adios.method, 
                                 adios.params, 
@@ -44,7 +38,6 @@ adios.select.method <- function(adios.group_p,
           as.character(adios.basepath))        
 }
 
-#' @rdname adios.write.api
 adios.define.var <- function(adios.group_p, 
                              adios.varname, 
                              adios.path, 
@@ -64,7 +57,6 @@ adios.define.var <- function(adios.group_p,
           as.character(adios.localoffset))
 }
 
-#' @rdname adios.write.api
 adios.open <- function(adios.groupname, 
                        adios.filename, 
                        adios.mode, 
@@ -78,7 +70,6 @@ adios.open <- function(adios.groupname,
           comm.c2f(comm))
 }
 
-#' @rdname adios.write.api
 adios.group.size <- function(adios.file_p, 
                              adios.groupsize)
 {
@@ -87,7 +78,6 @@ adios.group.size <- function(adios.file_p,
           as.numeric(adios.groupsize))
 }
 
-#' @rdname adios.write.api
 adios.write <- function(adios.file_p, 
                         adios.varname, 
                         adios.var)
@@ -99,14 +89,12 @@ adios.write <- function(adios.file_p,
     invisible()
 }
 
-#' @rdname adios.write.api
 adios.close <- function(adios.file_p)
 {
     .Call("R_adios_close", 
           adios.file_p)
 }
 
-#' @rdname adios.write.api
 adios.finalize <- function(comm = .pbd_env$SPMD.CT$comm)
 {
     .Call("R_adios_finalize", 

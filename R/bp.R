@@ -5,6 +5,8 @@
 #' This function is used to print variables and attributes.
 #' 
 #' @param adios.filename adios file name
+#' @param comm mpi comm
+#' @param adios.rank comm rank
 #' 
 #' @examples
 #' bpls("attributes.bp")
@@ -26,7 +28,9 @@ bpls <- function(adios.filename,
 #' @description 
 #' This function is used to dump all variables
 #'
-#' @param adios.filename
+#' @param adios.filename adios file name
+#' @param comm mpi comm
+#' @param adios.rank comm rank
 #'
 #' @return a list of variables
 #'
@@ -51,22 +55,26 @@ bp.dump <- function(adios.filename,
 #' with specific range or whole.
 #' 
 #' @param adios.filename adios file name
-#' @param varname 
-#' variable name
+#' @param varname variable name
+#' @param start start position of selection
+#' @param count length of selection
+#' @param comm mpi comm
+#' @param p number of processes
+#' @param adios.rank comm rank
 #'
 #' @return variable values. If start and count are not specified, all values will be returned.
 #'
 #' @examples
-#' read a scalar
+#' ##read a scalar
 #' bp.read("attributes.bp", "NX")
 #'
-#' read a variable with start
+#' ##read a variable with start
 #' bp.read("attributes.bp", "temperature", c(0, 0))
 #'
-#' read a variable with count
+#' ##read a variable with count
 #' bp.read("attributes.bp", "temperature", count=c(1, 2))
 #'
-#' read a variable with start and count
+#' ##read a variable with start and count
 #' bp.read("attributes.bp", "temperature", c(0, 9), c(1, 1))
 #' 
 #' @export
@@ -145,7 +153,8 @@ bp.read <- function(adios.filename,
 #' 
 #' @param adios.filename adios file name
 #' @param adios.groupname adios group name
-#' @param comm
+#' @param buffer.size buffer size for write stream
+#' @param comm mpi comm
 #'
 #' @return group pointer
 #'
@@ -161,9 +170,9 @@ bp.create <- function(adios.filename,
     # Init ADIOS environment
     init_state()
 
-    .adiosenv$adios.filename <- adios.filename
-    .adiosenv$adios.groupname <- adios.groupname
-    .adiosenv$adios.group <- as.numeric(.Call("R_create", 
+    .GlobalEnv$.adiosenv$adios.filename <- adios.filename
+    .GlobalEnv$.adiosenv$adios.groupname <- adios.groupname
+    .GlobalEnv$.adiosenv$adios.group <- as.numeric(.Call("R_create", 
                                         as.character(adios.groupname), 
                                         as.integer(buffer.size),
                                         comm.c2f(comm)))
@@ -177,31 +186,28 @@ bp.create <- function(adios.filename,
 #' This function is used to register variable names and values.
 #' 
 #' @param adios.varname variable name
-#' @param data 
-#'
-#' @examples
-#' bp.var("a", a)
+#' @param data value of the variable
 #' 
 #' @export
 bp.var <- function(adios.varname, data)
 {
-    .adiosenv$nvars <- .adiosenv$nvars + 1
-    .adiosenv$varname_list[[.adiosenv$nvars]] <- as.character(adios.varname)
+    .GlobalEnv$.adiosenv$nvars <- .GlobalEnv$.adiosenv$nvars + 1
+    .GlobalEnv$.adiosenv$varname_list[[.GlobalEnv$.adiosenv$nvars]] <- as.character(adios.varname)
     # Check if data is double
     if(is.double(data)) {
-        .adiosenv$adios.type[[.adiosenv$nvars]] <- as.integer(1)
+        .GlobalEnv$.adiosenv$adios.type[[.GlobalEnv$.adiosenv$nvars]] <- as.integer(1)
     }else {
-        .adiosenv$adios.type[[.adiosenv$nvars]] <- as.integer(0)
+        .GlobalEnv$.adiosenv$adios.type[[.GlobalEnv$.adiosenv$nvars]] <- as.integer(0)
     }
     # Calculate the dim of data
     if(is.vector(data)) {
-        .adiosenv$var_list[[.adiosenv$nvars]] <- data
-        .adiosenv$varlength_list[[.adiosenv$nvars]] <- length(data)
-        .adiosenv$ndim[[.adiosenv$nvars]] <- as.integer(1)
+        .GlobalEnv$.adiosenv$var_list[[.GlobalEnv$.adiosenv$nvars]] <- data
+        .GlobalEnv$.adiosenv$varlength_list[[.GlobalEnv$.adiosenv$nvars]] <- length(data)
+        .GlobalEnv$.adiosenv$ndim[[.GlobalEnv$.adiosenv$nvars]] <- as.integer(1)
     }else {
-        .adiosenv$var_list[[.adiosenv$nvars]] <- data
-        .adiosenv$varlength_list[[.adiosenv$nvars]] <- rev(dim(data))
-        .adiosenv$ndim[[.adiosenv$nvars]] <- length(dim(data))
+        .GlobalEnv$.adiosenv$var_list[[.GlobalEnv$.adiosenv$nvars]] <- data
+        .GlobalEnv$.adiosenv$varlength_list[[.GlobalEnv$.adiosenv$nvars]] <- rev(dim(data))
+        .GlobalEnv$.adiosenv$ndim[[.GlobalEnv$.adiosenv$nvars]] <- length(dim(data))
     }
 
     invisible()
@@ -212,40 +218,41 @@ bp.var <- function(adios.varname, data)
 #' @description 
 #' This function is used to write or append variables to bp file.
 #'
-#' @examples
-#' bp.write()
+#' @param comm mpi comm
+#' @param p number of processes
+#' @param adios.rank comm rank
 #' 
 #' @export
 bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
                      p = comm.size(.pbd_env$SPMD.CT$comm),
                      adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 {
-    if(.adiosenv$adios.tag == 0) {
+    if(.GlobalEnv$.adiosenv$adios.tag == 0) {
         .Call("R_write", 
-              as.character(.adiosenv$adios.filename),
-              .adiosenv$adios.group,
-              as.character(.adiosenv$adios.groupname),
-              as.integer(.adiosenv$nvars),
-              .adiosenv$varname_list,
-              .adiosenv$var_list,
-              .adiosenv$varlength_list,
-              .adiosenv$ndim,
-              .adiosenv$adios.type,
+              as.character(.GlobalEnv$.adiosenv$adios.filename),
+              .GlobalEnv$.adiosenv$adios.group,
+              as.character(.GlobalEnv$.adiosenv$adios.groupname),
+              as.integer(.GlobalEnv$.adiosenv$nvars),
+              .GlobalEnv$.adiosenv$varname_list,
+              .GlobalEnv$.adiosenv$var_list,
+              .GlobalEnv$.adiosenv$varlength_list,
+              .GlobalEnv$.adiosenv$ndim,
+              .GlobalEnv$.adiosenv$adios.type,
               comm.c2f(comm),
               as.integer(comm.size(.pbd_env$SPMD.CT$comm)),
               as.integer(adios.rank))
-        .adiosenv$adios.tag <- 1
+        .GlobalEnv$.adiosenv$adios.tag <- 1
     }else {
         .Call("R_append", 
-              as.character(.adiosenv$adios.filename),
-              .adiosenv$adios.group,
-              as.character(.adiosenv$adios.groupname),
-              as.integer(.adiosenv$nvars),
-              .adiosenv$varname_list,
-              .adiosenv$var_list,
-              .adiosenv$varlength_list,
-              .adiosenv$ndim,
-              .adiosenv$adios.type,
+              as.character(.GlobalEnv$.adiosenv$adios.filename),
+              .GlobalEnv$.adiosenv$adios.group,
+              as.character(.GlobalEnv$.adiosenv$adios.groupname),
+              as.integer(.GlobalEnv$.adiosenv$nvars),
+              .GlobalEnv$.adiosenv$varname_list,
+              .GlobalEnv$.adiosenv$var_list,
+              .GlobalEnv$.adiosenv$varlength_list,
+              .GlobalEnv$.adiosenv$ndim,
+              .GlobalEnv$.adiosenv$adios.type,
               comm.c2f(comm),
               as.integer(p),
               as.integer(adios.rank))
@@ -260,7 +267,7 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
 #' This function is used to define attributes for a bp file.
 #' 
 #' @param adios.attrname adios attribute name
-#' @param data
+#' @param data value of the attribute
 #'
 #' @examples
 #' today <- Sys.Date()
@@ -270,11 +277,13 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
 #' @export
 bp.attr <- function(adios.attrname, data)
 {
-    .Call("R_define_attr",
-          .adiosenv$adios.group,
-          as.character(adios.attrname),
-          as.integer(length(data)),
-          data)
+    if (!is.null(.GlobalEnv$.adiosenv$adios.group)) { 
+        .Call("R_define_attr",
+              .GlobalEnv$.adiosenv$adios.group,
+              as.character(adios.attrname),
+              as.integer(length(data)),
+              data)
+    }
     
     invisible()
 }
@@ -292,12 +301,9 @@ bp.flush <- function()
 {
     adios.finalize()
     # Clear custom environment
-    rm(list = ls(pos = .adiosenv), pos = .adiosenv)
+    if (exists(".adiosenv", envir = .GlobalEnv)) {
+        rm(list = ls(pos = .GlobalEnv$.adiosenv), envir = .GlobalEnv$.adiosenv)
+    }
     
     invisible()
 }
-
-
-
-
-

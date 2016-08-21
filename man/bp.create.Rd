@@ -12,7 +12,9 @@ bp.create(adios.filename, adios.groupname = "bp.group", buffer.size = 20,
 
 \item{adios.groupname}{adios group name}
 
-\item{comm}{}
+\item{buffer.size}{buffer size for write stream}
+
+\item{comm}{mpi comm}
 }
 \value{
 group pointer

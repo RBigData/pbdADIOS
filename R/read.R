@@ -1,9 +1,6 @@
-#' @title R wrapper of ADIOS read API
-#' 
-#' @description 
-#' For more details of these APIs, please refer to https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
+# R wrapper of ADIOS read API
+# For more details of these APIs, please refer to https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
 
-#' @rdname adios.read.api
 adios.read.init.method <- function(adios.read.method, 
                                    comm = .pbd_env$SPMD.CT$comm, 
                                    params)
@@ -15,7 +12,6 @@ adios.read.init.method <- function(adios.read.method,
     invisible()
 }
 
-#' @rdname adios.read.api
 adios.read.open <- function(adios.filename, 
                             adios.read.method, 
                             comm = .pbd_env$SPMD.CT$comm, 
@@ -30,7 +26,6 @@ adios.read.open <- function(adios.filename,
           as.numeric(adios.timeout.sec))
 }
 
-#' @rdname adios.read.api
 adios.inq.var <- function(adios.file.ptr, 
                           adios.varname)
 {
@@ -39,7 +34,6 @@ adios.inq.var <- function(adios.file.ptr,
           as.character(adios.varname))
 }
 
-#' @rdname adios.read.api
 adios.inq.var.byid <- function(adios.file.ptr, 
                                adios.varid)
 {
@@ -48,7 +42,6 @@ adios.inq.var.byid <- function(adios.file.ptr,
           as.integer(adios.varid))
 }
 
-#' @rdname adios.read.api
 adios.free.varinfo <- function(adios.varinfo)
 {
     .Call("R_adios_free_varinfo", 
@@ -56,7 +49,6 @@ adios.free.varinfo <- function(adios.varinfo)
     invisible()
 }
 
-#' @rdname adios.read.api
 adios.inq.var.blockinfo <- function(adios.file.ptr, 
                                     adios.varinfo)
 {
@@ -65,21 +57,18 @@ adios.inq.var.blockinfo <- function(adios.file.ptr,
           adios.varinfo)
 }
 
-#' @rdname adios.read.api
 custom.inq.var.ndim <- function(adios.varinfo)
 {
     .Call("R_custom_inq_var_ndim", 
           adios.varinfo)
 }
 
-#' @rdname adios.read.api
 custom.inq.var.dims <- function(adios.varinfo)
 {
     .Call("R_custom_inq_var_dims", 
           adios.varinfo)
 }
 
-#' @rdname adios.read.api
 adios.selection.boundingbox <- function(adios.ndim, 
                                         adios.start, 
                                         adios.count){
@@ -89,7 +78,6 @@ adios.selection.boundingbox <- function(adios.ndim,
           as.numeric(adios.count))
 }
 
-#' @rdname adios.read.api
 adios.schedule.read <- function(adios.varinfo, 
                                 adios.start, 
                                 adios.count,
@@ -110,7 +98,6 @@ adios.schedule.read <- function(adios.varinfo,
           as.integer(adios.nsteps))
 }
 
-#' @rdname adios.read.api
 adios.perform.reads <- function(adios.file.ptr, 
                                 adios.blocking){
     .Call("R_adios_perform_reads", 
@@ -118,7 +105,6 @@ adios.perform.reads <- function(adios.file.ptr,
           as.integer(adios.blocking))
 }
 
-#' @rdname adios.read.api 
 custom.data.access <- function(adios.data, 
                                adios.selection, 
                                adios.varinfo){
@@ -128,14 +114,12 @@ custom.data.access <- function(adios.data,
           adios.varinfo)
 }
 
-#' @rdname adios.read.api
 adios.release.step <- function(adios.file.ptr)
 {
     .Call("R_adios_release_step", 
           adios.file.ptr)
 }
 
-#' @rdname adios.read.api
 adios.advance.step <- function(adios.file.ptr, 
                                adios.last, 
                                adios.timeout.sec)
@@ -146,7 +130,6 @@ adios.advance.step <- function(adios.file.ptr,
           as.numeric(adios.timeout.sec))
 }
 
-#' @rdname adios.read.api
 adios.read.close <- function(adios.file.ptr)
 {
     .Call("R_adios_read_close", 
@@ -154,7 +137,6 @@ adios.read.close <- function(adios.file.ptr)
     invisible()
 }
 
-#' @rdname adios.read.api
 adios.read.finalize.method<- function(adios.read.method)
 {
     .Call("R_adios_read_finalize_method", 
@@ -162,7 +144,6 @@ adios.read.finalize.method<- function(adios.read.method)
     invisible()
 }
 
-#' @rdname adios.read.api
 adios.errno<- function()
 {
     .Call("R_adios_errno")

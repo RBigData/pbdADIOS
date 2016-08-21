@@ -13,9 +13,13 @@ bp.stage.read(adios.filename, varname, FUN = print,
 
 \item{varname}{variable name}
 
-\item{comm}{}
+\item{FUN}{user defined function. If not specified, print will be the default function.}
 
-\item{adios.rank}{}
+\item{comm}{mpi comm}
+
+\item{p}{number of processes}
+
+\item{adios.rank}{comm rank}
 }
 \value{
 variable values. If start and count are not specified, all values will be returned.

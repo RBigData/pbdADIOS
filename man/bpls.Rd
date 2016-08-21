@@ -9,6 +9,10 @@ bpls(adios.filename, comm = .pbd_env$SPMD.CT$comm,
 }
 \arguments{
 \item{adios.filename}{adios file name}
+
+\item{comm}{mpi comm}
+
+\item{adios.rank}{comm rank}
 }
 \description{
 This function is used to print variables and attributes.

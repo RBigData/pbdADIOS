@@ -89,7 +89,7 @@ SEXP R_adios_print_attr(SEXP R_adios_rank,
     char *p = (char*)data;
     for (k=0; k<nelems; k++) 
     {
-        if (k>0) printf(", ");
+        if (k>0) Rprintf(", ");
         switch (attr_type)  
         {
             case adios_integer:
@@ -158,7 +158,7 @@ SEXP R_adios_var_attr_read(SEXP R_adios_rank,
 
     // Only rank 0 print the information
     if (!rank) {
-        printf ("========================================================\n");
+        Rprintf ("========================================================\n");
         for (i = 0; i < fp->nvars; i++)
         {   
             ADIOS_VARINFO * v = adios_inq_var_byid (fp, i);
@@ -174,7 +174,7 @@ SEXP R_adios_var_attr_read(SEXP R_adios_rank,
             //free varinfo here
             adios_free_varinfo(v); 
         }
-        printf ("========================================================\n");
+        Rprintf ("========================================================\n");
     }
 
     UNPROTECT(1);

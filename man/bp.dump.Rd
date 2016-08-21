@@ -8,7 +8,11 @@ bp.dump(adios.filename, comm = .pbd_env$SPMD.CT$comm,
   adios.rank = comm.rank(.pbd_env$SPMD.CT$comm))
 }
 \arguments{
-\item{adios.filename}{}
+\item{adios.filename}{adios file name}
+
+\item{comm}{mpi comm}
+
+\item{adios.rank}{comm rank}
 }
 \value{
 a list of variables

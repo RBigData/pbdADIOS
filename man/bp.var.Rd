@@ -9,13 +9,9 @@ bp.var(adios.varname, data)
 \arguments{
 \item{adios.varname}{variable name}
 
-\item{data}{}
+\item{data}{value of the variable}
 }
 \description{
 This function is used to register variable names and values.
-}
-\examples{
-bp.var("a", a)
-
 }
 

@@ -9,7 +9,7 @@ bp.attr(adios.attrname, data)
 \arguments{
 \item{adios.attrname}{adios attribute name}
 
-\item{data}{}
+\item{data}{value of the attribute}
 }
 \description{
 This function is used to define attributes for a bp file.

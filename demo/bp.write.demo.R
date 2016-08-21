@@ -17,10 +17,10 @@ rank = comm.rank()
 bp.var("T", (rank+1)*c(1:6))
 
 a <- matrix((rank+1)*c(1:6), ncol = 3, nrow = 2)
-bp.var("a", a)
+bp.var("A", a)
 
 b <- array((rank+1)*c(1:6), c(2, 1, 3))
-bp.var("b", b)
+bp.var("B", b)
 
 bp.write()
 
@@ -29,10 +29,10 @@ for(i in 2:3) {
     bp.var("T", i*(rank+1)*c(1:6))
 
     a <- matrix(i*(rank+1)*c(1:6), ncol = 3, nrow = 2)
-    bp.var("a", a)
+    bp.var("A", a)
 
     b <- array(i*(rank+1)*c(1:6), c(2, 1, 3))
-    bp.var("b", b)
+    bp.var("B", b)
 
     bp.write()
 }

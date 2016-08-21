@@ -57,7 +57,7 @@ bp.read("heat.bp",
 	list(c(5), c(0, 0, 0), c(0, 0, 0)),
 	list(c(1), c(1, 1, 1), c(1, 1, 1)))
 
-# rong count
+# wrong count
 bp.read("attributes.bp", 
 	list("temperature", "temperature"),
 	list(c(0,1), c(0, 9)),

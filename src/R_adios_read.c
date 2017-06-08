@@ -1,43 +1,12 @@
 #include "R_adios.h"
+#include "finalizer.h"
+
 
 /**
  *  R wrapper of ADIOS read API
  *  https://github.com/ornladios/ADIOS/blob/master/src/public/adios_read_v2.h
  */
 
-/**
- *  Finalizer that frees memory and clears R pointer
- */
-static void finalizer(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        R_debug_print("finalizer: Nothing to finalize\n");
-        return;
-    } else {
-        R_debug_print("finalizer: About to free: %p ...\n", ptr);
-        Free(ptr);
-        R_debug_print("finalizer: Freed %p.\n", ptr);
-        R_ClearExternalPtr(Rptr);
-        R_debug_print("finalizer: %p Cleared Rptr.\n", ptr);
-    }
-}
-
-/** 
- *  Finalizer that only clears R pointer
- */
-static void finalizer0(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        R_debug_print("finalizer0: Nothing to finalize\n");
-        return;
-    } else {
-        R_debug_print("finalizer0: Freed by ADIOS %p. Only clear.\n", ptr);
-        R_ClearExternalPtr(Rptr);
-        R_debug_print("finalizer0: %p Cleared Rptr.\n", ptr);
-    }
-}
 
 /**
  *  ADIOS_READ_METHOD lookup table
@@ -66,7 +35,7 @@ int read_method_hash(const char *search_str)
 
 /**
  *  ADIOS_LOCKMODE lookup table
- */                       
+ */
 int lock_mode_hash(const char *search_str)
 {
     typedef struct lock_mode_table {

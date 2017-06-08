@@ -2,19 +2,8 @@
 #include "R_dump.h"
 #include "R_read.h"
 #include "R_stage_read.h"
+#include "finalizer.h"
 
-/** 
- *  Finalizer that only clears R pointer
- */
-static void finalizer0(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        return;
-    } else {
-        R_ClearExternalPtr(Rptr);
-    }
-}
 
 /** 
  *  Get slice for each node
@@ -224,4 +213,3 @@ int schedule_stage_read (ADIOS_FILE * fp,
 
     return nelems;
 }
-

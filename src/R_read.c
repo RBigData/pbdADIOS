@@ -1,23 +1,12 @@
 #include "R_bpls.h"
 #include "R_dump.h"
 #include "R_read.h"
+#include "finalizer.h"
+
 
 /**
  *  This version read multiple variables at onece
  */ 
-
-/** 
- *  Finalizer that only clears R pointer
- */
-static void finalizer0(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        return;
-    } else {
-        R_ClearExternalPtr(Rptr);
-    }
-}
 
 /**
  * Read a variable. 
@@ -604,5 +593,3 @@ SEXP copy_read (SEXP R_adios_var_info,
 
     return out;
 }
-
-

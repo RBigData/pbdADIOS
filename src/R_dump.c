@@ -1,18 +1,7 @@
 #include "R_bpls.h"
 #include "R_dump.h"
+#include "finalizer.h"
 
-/** 
- *  Finalizer that only clears R pointer
- */
-static void finalizer0(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        return;
-    } else {
-        R_ClearExternalPtr(Rptr);
-    }
-}
 
 /**
  * R wrapper of dump. 

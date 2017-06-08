@@ -1,21 +1,6 @@
 #include "R_adios.h"
+#include "finalizer.h"
 
-/**
- *  Finalizer that frees memory and clears R pointer
- */
-static void finalizer(SEXP Rptr)
-{
-    void *ptr = (void *) R_ExternalPtrAddr(Rptr);
-    if (NULL == ptr) {
-        R_debug_print("finalizer: Nothing to finalize\n");
-        return;
-    } else {
-        R_debug_print("finalizer: About to free: %p ...\n", ptr);
-        R_debug_print("finalizer: Freed %p.\n", ptr);
-        R_ClearExternalPtr(Rptr);
-        R_debug_print("finalizer: %p Cleared Rptr.\n", ptr);
-    }
-}
 
 /**
  *  Get an attribute in a file.
@@ -180,4 +165,3 @@ SEXP R_adios_var_attr_read(SEXP R_adios_rank,
     UNPROTECT(1);
     return R_NilValue;
 }
-

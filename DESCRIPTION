@@ -10,13 +10,14 @@ Depends:
 NeedsCompilation: yes
 ByteCompile: yes
 SystemRequirements: OpenMPI (>= 1.5.4), ADIOS.
-Authors@R: c(person("Pragneshkumar", "Patel", role="aut"),
-    person("George", "Ostrouchov", role = c("aut", "cre"), email=
-      "ostrouchovg@ornl.gov"),
+Authors@R: c(
+    person("Yuping", "Lu", role="aut"),
+    person("Pragneshkumar", "Patel", role="aut"),
     person("Wei-Chen", "Chen", role = "aut"),
     person("Drew", "Schmidt", role = "aut"),
     person("Norbert", "Podhorszki", role="ctb"),
-    person("Yuping", "Lu", role="aut"))
+    person("George", "Ostrouchov", role = c("aut", "cre"), email=
+    "ostrouchovg@ornl.gov"))
 URL: http://r-pbd.org/
 BugReports: http://group.r-pbd.org/
 MailingList: Please send questions and comments regarding pbdR to

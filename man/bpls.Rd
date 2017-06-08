@@ -18,7 +18,8 @@ bpls(adios.filename, comm = .pbd_env$SPMD.CT$comm,
 This function is used to print variables and attributes.
 }
 \examples{
+\dontrun{
 bpls("attributes.bp")
-
 }
 
+}

@@ -14,4 +14,3 @@ adios.attr.read(adios.rank = comm.rank(.pbd_env$SPMD.CT$comm), adios.fp)
 \description{
 This function is used to print all the attributes in a bp file.
 }
-

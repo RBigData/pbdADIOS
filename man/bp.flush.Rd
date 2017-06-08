@@ -10,7 +10,8 @@ bp.flush()
 This function is used to close adios and clear custom environment
 }
 \examples{
+\dontrun{
 bp.flush()
-
 }
 
+}

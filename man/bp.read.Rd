@@ -31,6 +31,7 @@ This function is used to read variables. You can read one or more variables
 with specific range or whole.
 }
 \examples{
+\dontrun{
 ##read a scalar
 bp.read("attributes.bp", "NX")
 
@@ -42,6 +43,6 @@ bp.read("attributes.bp", "temperature", count=c(1, 2))
 
 ##read a variable with start and count
 bp.read("attributes.bp", "temperature", c(0, 9), c(1, 1))
-
 }
 
+}

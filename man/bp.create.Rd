@@ -23,7 +23,8 @@ group pointer
 This function is create adios group and store file name.
 }
 \examples{
+\dontrun{
 bp.create("bptest.bp")
-
 }
 
+}

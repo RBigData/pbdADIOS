@@ -9,7 +9,9 @@
 #' @param adios.rank comm rank
 #' 
 #' @examples
+#' \dontrun{
 #' bpls("attributes.bp")
+#' }
 #'
 #' @export
 bpls <- function(adios.filename,
@@ -35,7 +37,9 @@ bpls <- function(adios.filename,
 #' @return a list of variables
 #'
 #' @examples
+#' \dontrun{
 #' bp.dump("attributes.bp")
+#' }
 #' 
 #' @export
 bp.dump <- function(adios.filename,
@@ -65,6 +69,7 @@ bp.dump <- function(adios.filename,
 #' @return variable values. If start and count are not specified, all values will be returned.
 #'
 #' @examples
+#' \dontrun{
 #' ##read a scalar
 #' bp.read("attributes.bp", "NX")
 #'
@@ -76,6 +81,7 @@ bp.dump <- function(adios.filename,
 #'
 #' ##read a variable with start and count
 #' bp.read("attributes.bp", "temperature", c(0, 9), c(1, 1))
+#' }
 #' 
 #' @export
 bp.read <- function(adios.filename,
@@ -159,7 +165,9 @@ bp.read <- function(adios.filename,
 #' @return group pointer
 #'
 #' @examples
+#' \dontrun{
 #' bp.create("bptest.bp")
+#' }
 #' 
 #' @export
 bp.create <- function(adios.filename,
@@ -270,9 +278,11 @@ bp.write <- function(comm = .pbd_env$SPMD.CT$comm,
 #' @param data value of the attribute
 #'
 #' @examples
+#' \dontrun{
 #' today <- Sys.Date()
 #' bp.attr("date", format(today, format="%B %d %Y"))
 #' bp.attr("README", "This is just a test.")
+#' }
 #' 
 #' @export
 bp.attr <- function(adios.attrname, data)
@@ -294,7 +304,9 @@ bp.attr <- function(adios.attrname, data)
 #' This function is used to close adios and clear custom environment
 #'
 #' @examples
+#' \dontrun{
 #' bp.flush()
+#' }
 #' 
 #' @export
 bp.flush <- function()

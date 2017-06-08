@@ -30,4 +30,3 @@ Current staging method used is FLEXPATH. The user can provide an function to han
 the data read from writing stream. If the function is not provided, the data will be
 printed by default.
 }
-

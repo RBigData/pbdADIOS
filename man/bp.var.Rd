@@ -14,4 +14,3 @@ bp.var(adios.varname, data)
 \description{
 This function is used to register variable names and values.
 }
-

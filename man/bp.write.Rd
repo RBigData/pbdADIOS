@@ -17,4 +17,3 @@ bp.write(comm = .pbd_env$SPMD.CT$comm, p = comm.size(.pbd_env$SPMD.CT$comm),
 \description{
 This function is used to write or append variables to bp file.
 }
-

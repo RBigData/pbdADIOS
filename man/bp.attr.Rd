@@ -15,9 +15,10 @@ bp.attr(adios.attrname, data)
 This function is used to define attributes for a bp file.
 }
 \examples{
+\dontrun{
 today <- Sys.Date()
 bp.attr("date", format(today, format="\%B \%d \%Y"))
 bp.attr("README", "This is just a test.")
-
 }
 
+}

@@ -21,7 +21,8 @@ a list of variables
 This function is used to dump all variables
 }
 \examples{
+\dontrun{
 bp.dump("attributes.bp")
-
 }
 
+}

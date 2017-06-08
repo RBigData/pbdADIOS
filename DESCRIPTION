@@ -19,7 +19,8 @@ Authors@R: c(person("Pragneshkumar", "Patel", role="aut"),
       "ostrouchovg@ornl.gov"),
     person("Wei-Chen", "Chen", role = "aut"),
     person("Drew", "Schmidt", role = "aut"),
-    person("Norbert", "Podhorszki", role="ctb"))
+    person("Norbert", "Podhorszki", role="ctb"),
+    person("Yuping", "Lu", role="aut"))
 URL: http://r-pbd.org/
 BugReports: http://group.r-pbd.org/
 MailingList: Please send questions and comments regarding pbdR to

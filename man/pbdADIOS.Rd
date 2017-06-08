@@ -6,10 +6,9 @@
 \alias{pbdADIOS-package}
 \title{pbdADIOS: an R wrapper for ADIOS}
 \description{
-Package to read from ADIOS, including staging.
+Utilities to read from ADIOS, including staging.
 }
 \author{
-Pragneshkumar Patel, George Ostrouchov, Wei-Chen Chen, Drew Schmidt, Yuping Lu
+The pbdR Core Team
 }
 \keyword{pbdADIOS}
-

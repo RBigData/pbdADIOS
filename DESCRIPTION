@@ -2,7 +2,7 @@ Package: pbdADIOS
 Type: Package
 Title: Programming with Big Data -- Interface to ADIOS
 Version: 0.1-0
-Description: Package to read from ADIOS, including staging.
+Description: Utilities to read from ADIOS, including staging.
 License: Mozilla Public License 2.0
 Depends:
     R (>= 3.0.0),
@@ -23,4 +23,4 @@ BugReports: http://group.r-pbd.org/
 MailingList: Please send questions and comments regarding pbdR to
     RBigData@gmail.com
 Maintainer: George Ostrouchov <ostrouchovg@ornl.gov>
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

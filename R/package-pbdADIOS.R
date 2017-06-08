@@ -1,4 +1,4 @@
-#'  Package to read from ADIOS, including staging.
+#' Utilities to read from ADIOS, including staging.
 #'
 #' @name pbdADIOS
 #'
@@ -52,6 +52,6 @@
 #' @import pbdMPI
 #' @docType package
 #' @title pbdADIOS: an R wrapper for ADIOS
-#' @author Pragneshkumar Patel, George Ostrouchov, Wei-Chen Chen, Drew Schmidt, Yuping Lu
+#' @author The pbdR Core Team
 #' @keywords pbdADIOS
 NULL

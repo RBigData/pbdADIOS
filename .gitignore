@@ -15,3 +15,5 @@ src/Makevars
 .Rbuildignore
 
 autom4te.cache
+
+inst/doc

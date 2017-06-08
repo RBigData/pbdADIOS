@@ -1,0 +1,47 @@
+%\VignetteIndexEntry{Guide to the pbdADIOS Package}
+\documentclass[]{article}
+
+
+\input{./include/settings}
+
+
+\mytitle{Guide to the pbdADIOS Package}
+\mysubtitle{}
+\myversion{0.1-0}
+\myauthor{
+\centering
+The pbdR Core Team \\ 
+\texttt{RBigData@gmail.com} 
+}
+
+\newcommand{\pkg}[1]{\textbf{#1}}
+
+
+\begin{document}
+\makefirstfew
+
+
+
+\section{Introduction}\label{introduction}
+
+The \pkg{pbdADIOS} package is part of the pbdR project for high performance 
+statistical computing~\cite{pbdR2012}.
+
+\subsection{Installation}
+
+Installation requires the \pkg{pbdMPI} package~\cite{Chen2012pbdMPIpackage}.  
+You can find more details in the corresponding package 
+vignette~\cite{Chen2012pbdMPIvignette}.
+
+\begin{lstlisting}[language=bash]
+R CMD INSTALL pbdADIOS_0.1-0.tar.gz 
+--configure-args="--with-adios-home=/path/to/adios"
+\end{lstlisting}
+
+
+
+\addcontentsline{toc}{section}{References}
+\bibliography{./include/pbdADIOS}
+\bibliographystyle{plain}
+
+\end{document}

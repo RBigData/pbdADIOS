@@ -5,6 +5,7 @@ PKG_LIBS = @ADIOS_LDFLAGS@ @MPI_LDFLAGS@
 
 
 OBJECTS = \
+	pbdADIOS_native.o \
 	R_adios_read.o \
 	R_adios_util.o \
   R_adios_write.o \

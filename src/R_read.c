@@ -324,8 +324,9 @@ int schedule_read (ADIOS_FILE * fp,
                 // check if the count value is out of range.
                 for(i = 0; i < (*vi)->ndim; i++) {
                     if((istart[i] + count[i]) > (*vi)->dims[i]) {
-                        REprintf("Error: index %d count %d out of bound. \n",
-				 i, count[i]);
+                        REprintf("Error: index %d count out of bound. \n", i);
+                        REprintf("       start = %d, count = %d, bound = %d.\n",
+				 istart[i], count[i], (*vi)->dims[i]);
                         return -1;
                     }
                 }

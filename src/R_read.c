@@ -350,74 +350,74 @@ int schedule_read (ADIOS_FILE * fp,
         return -1;
     }
 
-    // get local istart and icount values
-    uint64_t N = icount[tidx];   // total number to read in the largest dim
-    uint64_t pos = tidx;   // the largest dim index
-    uint64_t load, base, rem, chunk, begin;
+    /* // get local istart and icount values */
+    /* uint64_t N = icount[tidx];   // total number to read in the largest dim */
+    /* uint64_t pos = tidx;   // the largest dim index */
+    /* uint64_t load, base, rem, chunk, begin; */
 
-    for (j=1; j<(*vi)->ndim; j++) {
-        if(N < icount[j+tidx]) {
-            N = icount[j+tidx];
-            pos = j+tidx;
-        }
-    }
+    /* for (j=1; j<(*vi)->ndim; j++) { */
+    /*     if(N < icount[j+tidx]) { */
+    /*         N = icount[j+tidx]; */
+    /*         pos = j+tidx; */
+    /*     } */
+    /* } */
 
-    // the load each process should handle
-    base = N / p;
-    // assume each process can handle 1 numbers
-    if(base > 3) {
-        load = base;
-        rem = N % p;
+    /* // the load each process should handle */
+    /* base = N / p; */
+    /* // assume each process can handle 1 numbers */
+    /* if(base > 3) { */
+    /*     load = base; */
+    /*     rem = N % p; */
 
-        if(rank < rem) {
-            chunk = load + 1; 
-            begin = rank * chunk;
+    /*     if(rank < rem) { */
+    /*         chunk = load + 1;  */
+    /*         begin = rank * chunk; */
 
-            istart[pos] += begin;
-            icount[pos] = chunk;
-        }else {
-            chunk = load;
-            begin = rem * (chunk+1) + (rank-rem) * chunk;
+    /*         istart[pos] += begin; */
+    /*         icount[pos] = chunk; */
+    /*     }else { */
+    /*         chunk = load; */
+    /*         begin = rem * (chunk+1) + (rank-rem) * chunk; */
 
-            istart[pos] += begin;
-            icount[pos] = chunk;
-        }
-    }else {
-        load = 3;
-        p = N / load;
-        if(p == 0) {
-            // the load is small, one process is enough.
-            if(rank != 0) {
-                // do nothing, set icount to 0
-                icount[tidx] = 0;
-                for (j=0; j<(*vi)->ndim; j++) {
-                    icount[j+tidx] = 0;
-                }
-            }
-        }else {
-            rem = N % p;
+    /*         istart[pos] += begin; */
+    /*         icount[pos] = chunk; */
+    /*     } */
+    /* }else { */
+    /*     load = 3; */
+    /*     p = N / load; */
+    /*     if(p == 0) { */
+    /*         // the load is small, one process is enough. */
+    /*         if(rank != 0) { */
+    /*             // do nothing, set icount to 0 */
+    /*             icount[tidx] = 0; */
+    /*             for (j=0; j<(*vi)->ndim; j++) { */
+    /*                 icount[j+tidx] = 0; */
+    /*             } */
+    /*         } */
+    /*     }else { */
+    /*         rem = N % p; */
 
-            if(rank < rem) {
-                chunk = load + 1; 
-                begin = rank * chunk;
+    /*         if(rank < rem) { */
+    /*             chunk = load + 1;  */
+    /*             begin = rank * chunk; */
 
-                istart[pos] += begin;
-                icount[pos] = chunk;
-            }else if(rank < p) {
-                chunk = load;
-                begin = rem * (chunk+1) + (rank-rem) * chunk;
+    /*             istart[pos] += begin; */
+    /*             icount[pos] = chunk; */
+    /*         }else if(rank < p) { */
+    /*             chunk = load; */
+    /*             begin = rem * (chunk+1) + (rank-rem) * chunk; */
 
-                istart[pos] += begin;
-                icount[pos] = chunk;
-            }else {
-                // do nothing, set icount to 0
-                icount[tidx] = 0;
-                for (j=0; j<(*vi)->ndim; j++) {
-                    icount[j+tidx] = 0;
-                }
-            }
-        }
-    }
+    /*             istart[pos] += begin; */
+    /*             icount[pos] = chunk; */
+    /*         }else { */
+    /*             // do nothing, set icount to 0 */
+    /*             icount[tidx] = 0; */
+    /*             for (j=0; j<(*vi)->ndim; j++) { */
+    /*                 icount[j+tidx] = 0; */
+    /*             } */
+    /*         } */
+    /*     } */
+    /* } */
     
     // count the total number of elements
     nelems = 1;

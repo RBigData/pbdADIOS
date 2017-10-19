@@ -22,7 +22,8 @@ SEXP R_bpls(SEXP R_adios_path,
         return R_NilValue;
     }
 
-    // open the BP file
+    // open the BP file (collective operation! rank 0 reads index and
+    //        broadcasts to all ranks)
     fp = adios_read_open_file (path, ADIOS_READ_METHOD_BP, comm); 
     if (fp == NULL) {
         REprintf("Error: %s\n", adios_errmsg());

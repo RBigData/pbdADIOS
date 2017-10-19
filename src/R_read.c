@@ -226,8 +226,7 @@ int schedule_read (ADIOS_FILE * fp,
                 // check if the start value is out of range.
                 for(i = 0; i < (*vi)->ndim; i++) {
                     if((start[i+1] < 0) || (start[i+1] >= (*vi)->dims[i])) {
-                        REprintf("Error: (%d) start %d out of bound. \n",
-				 i+1, start[i+1]);
+                        REprintf("Error: start %d out of bound. \n", start[i+1]);
                         return -1;
                     }
                 }
@@ -246,8 +245,7 @@ int schedule_read (ADIOS_FILE * fp,
                 // check if the start value is out of range.
                 for(i = 0; i < (*vi)->ndim; i++) {
                     if((start[i] < 0) || (start[i] >= (*vi)->dims[i])) {
-                        REprintf("Error: (%d) start %d out of bound. \n",
-				 i, start[i]);
+                        REprintf("Error: start %d out of bound. \n", start[i]);
                         return -1;
                     }
                 }
@@ -278,7 +276,7 @@ int schedule_read (ADIOS_FILE * fp,
 
             }else {
                 if(c_length != 1) {
-                    REprintf("Error: wrong number start dims. \n");
+                    REprintf("Error: wrong start dims. \n");
                     return -1;
                 }
 
@@ -305,8 +303,8 @@ int schedule_read (ADIOS_FILE * fp,
                 // check if the count value is out of range.
                 for(i = 0; i < (*vi)->ndim; i++) {
                     if((istart[i+1] + count[i+1]) > (*vi)->dims[i]) {
-		      REprintf("Error: (%d) count %d out of bound. \n",
-			       i+1, count[i+1]);
+		      REprintf("Error: index %d count %d out of bound. \n",
+			       (*vi)->ndim, count[i+1]);
                         return -1;
                     }
                 }
@@ -319,14 +317,14 @@ int schedule_read (ADIOS_FILE * fp,
             } else {
                  // check if the length of count matches ndim
                 if((*vi)->ndim != c_length) {
-                    REprintf("Error: wrong number count dims. \n");
+                    REprintf("Error: wrong count dims. \n");
                     return -1;
                 }
                 // check if the count value is out of range.
                 for(i = 0; i < (*vi)->ndim; i++) {
                     if((istart[i] + count[i]) > (*vi)->dims[i]) {
-                        REprintf("Error: (%d) count %d out of bound. \n",
-				 i, count[i]);
+                        REprintf("Error: index %d count %d out of bound. \n",
+				 (*vi)->ndim, count[i]);
                         return -1;
                     }
                 }

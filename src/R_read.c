@@ -291,18 +291,20 @@ int schedule_read (ADIOS_FILE * fp,
             if(timed) {
                 // check if the length of count matches ndim
                 if((*vi)->ndim != (c_length - 1)) {
-                    REprintf("Error: wrong count dims. \n");
+                    REprintf("Error: wrong number of count dims. \n");
                     return -1;
                 }
                 // check if the step value is out of range.
                 if((istart[0] + count[0]) > (*vi)->nsteps) {
-                    REprintf("Error: count %d out of bound. \n", count[0]);
+                    REprintf("Error: time steps count %d out of bound. \n",
+			     count[0]);
                     return -1;
                 }
                 // check if the count value is out of range.
                 for(i = 0; i < (*vi)->ndim; i++) {
                     if((istart[i+1] + count[i+1]) > (*vi)->dims[i]) {
-                        REprintf("Error: count %d out of bound. \n", count[i+1]);
+		      REprintf("Error: index %d count %d out of bound. \n",
+			       (*vi)->ndim, count[i+1]);
                         return -1;
                     }
                 }
